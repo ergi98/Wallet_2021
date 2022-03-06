@@ -1,9 +1,26 @@
 import React from "react";
-import "./App.css";
+
+// MUI
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+
+// Components
+import AppRoutes from "./routes/AppRoutes";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#2196F3",
+    },
+  },
+});
 
 function App() {
   return (
-    <div className=" text-gray-900 text-3xl">HElo</div>
+    <React.StrictMode>
+      <ThemeProvider theme={theme}>
+        <AppRoutes />
+      </ThemeProvider>
+    </React.StrictMode>
   );
 }
 
