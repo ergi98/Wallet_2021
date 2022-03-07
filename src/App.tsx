@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 // MUI
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -15,10 +15,11 @@ const theme = createTheme({
 });
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   return (
     <React.StrictMode>
       <ThemeProvider theme={theme}>
-        <AppRoutes />
+        <AppRoutes isAuthenticated={isAuthenticated} />
       </ThemeProvider>
     </React.StrictMode>
   );

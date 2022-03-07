@@ -10,24 +10,24 @@ const Home = lazy(() => import("../views/home/Home"));
 const Login = lazy(() => import("../views/login/Login"));
 const SignUp = lazy(() => import("../views/sign-up/SignUp"));
 const HeatMap = lazy(() => import("../views/heat-map/HeatMap"));
-const PublicRoute = lazy(() => import("../routes/PublicRoute"));
+const PublicRoute = lazy(() => import("./PublicRoute"));
 const Analysis = lazy(() => import("../views/analysis/Analysis"));
 const Settings = lazy(() => import("../views/settings/Settings"));
 const NotFound = lazy(() => import("../views/not-found/NotFound"));
-const ProtectedRoute = lazy(() => import("../routes/ProtectedRoute"));
+const ProtectedRoute = lazy(() => import("./ProtectedRoute"));
 const Portfolios = lazy(() => import("../views/portfolios/Portfolios"));
 const Transactions = lazy(() => import("../views/transactions/Transactions"));
-const SelectLocation = lazy(() =>
-  import("../views/select-location/SelectLocation")
+const SelectLocation = lazy(
+  () => import("../views/select-location/SelectLocation")
 );
-const InitialScreen = lazy(() =>
-  import("../views/initial-screen/InitialScreen")
+const InitialScreen = lazy(
+  () => import("../views/initial-screen/InitialScreen")
 );
-const RegisterProfit = lazy(() =>
-  import("../views/register-profit/RegisterProfit")
+const RegisterProfit = lazy(
+  () => import("../views/register-profit/RegisterProfit")
 );
-const RegisterExpense = lazy(() =>
-  import("../views/register-expense/RegisterExpense")
+const RegisterExpense = lazy(
+  () => import("../views/register-expense/RegisterExpense")
 );
 
 const appRoutes = [
@@ -78,12 +78,12 @@ const appRoutes = [
   },
   {
     path: "/expense/select-location",
+    element: <SelectLocation />,
     private: true,
   },
   {
     path: "/transactions",
     element: <Transactions />,
-    element: <SelectLocation />,
     private: true,
   },
   {
@@ -103,7 +103,11 @@ const appRoutes = [
   },
 ];
 
-function AppRoutes() {
+interface PropsInterface {
+  isAuthenticated: Boolean;
+}
+
+function AppRoutes(props: PropsInterface) {
   return (
     <>
       {/* Condition to check wether the initial setup has finished */}
@@ -117,7 +121,7 @@ function AppRoutes() {
                     key={route.path}
                     path={route.path}
                     element={
-                      <ProtectedRoute path={route.path}>
+                      <ProtectedRoute authenticated={props.isAuthenticated}>
                         {route.element}
                       </ProtectedRoute>
                     }
@@ -127,7 +131,7 @@ function AppRoutes() {
                     key={route.path}
                     path={route.path}
                     element={
-                      <PublicRoute path={route.path}>
+                      <PublicRoute authenticated={props.isAuthenticated}>
                         {route.element}
                       </PublicRoute>
                     }
