@@ -15,7 +15,7 @@ function PublicRoute(props: PropsInterface) {
   return (
     <>
       {props.authenticated ? (
-        <Navigate to="/" replace={true} />
+        <Navigate to="/home" replace={true} />
       ) : (
         props.children
       )}

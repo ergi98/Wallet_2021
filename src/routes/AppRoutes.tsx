@@ -29,6 +29,10 @@ const RegisterProfit = lazy(
 const RegisterExpense = lazy(
   () => import("../views/register-expense/RegisterExpense")
 );
+const Profile = lazy(() => import("../views/profile/Profile"));
+const AppNavigation = lazy(
+  () => import("../components/app-navigation/AppNavigation")
+);
 
 const appRoutes = [
   {
@@ -64,6 +68,11 @@ const appRoutes = [
   {
     path: "/settings",
     element: <Settings />,
+    private: true,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
     private: true,
   },
   {
@@ -139,6 +148,7 @@ function AppRoutes(props: PropsInterface) {
                 )
               )}
             </Routes>
+            <AppNavigation />
           </Suspense>
         </BrowserRouter>
       ) : (
