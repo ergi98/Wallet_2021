@@ -148,7 +148,7 @@ function AppRoutes(props: PropsInterface) {
                 )
               )}
             </Routes>
-            <AppNavigation />
+            {props.isAuthenticated && <AppNavigation />}
           </Suspense>
         </BrowserRouter>
       ) : (

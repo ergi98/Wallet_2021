@@ -36,7 +36,13 @@ function AppNavigation() {
       },
       {
         key: "home",
-        icon: <Home className={`${activePath === 2 && " fill-gray-50"}`} />,
+        icon: (
+          <Home
+            className={`${
+              activePath === 2 ? " fill-gray-50 h-8 w-8" : "h-6 w-6"
+            }`}
+          />
+        ),
         path: "/home",
       },
       {
@@ -50,7 +56,7 @@ function AppNavigation() {
           <Avatar
             alt="Ergi Dervishaj"
             src="/static/images/avatar/1.jpg"
-            sizes="20"
+            sx={{ width: 22, height: 22, fontSize: "12px" }}
           />
         ),
         path: "/profile",
@@ -67,8 +73,8 @@ function AppNavigation() {
   return (
     <Paper
       sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }}
-      className="pb-3 pt-2"
-      elevation={3}
+      elevation={10}
+      className="pt-2"
       square
     >
       <BottomNavigation
@@ -82,8 +88,9 @@ function AppNavigation() {
             sx={{
               ...{
                 borderRadius: "50%",
-                minWidth: "56px",
-                flex: "0 0 56px",
+                minWidth: "46px",
+                height: "46px",
+                flex: "0 0 46px",
               },
               ...(activePath === index
                 ? {
