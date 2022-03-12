@@ -39,7 +39,7 @@ function InitialScreen() {
       <div className="my-auto w-10/12 max-w-7xl p-3">
         <Grid container direction="column" alignItems="center">
           <Grid item>
-            <WalletLogo className="w-16 sm:w-24 mx-auto mt-0 h-auto " />
+            <WalletLogo className="w-20 sm:w-24 mx-auto mt-0 h-auto " />
           </Grid>
           <Grid item>
             <Typography
