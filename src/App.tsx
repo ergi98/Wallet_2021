@@ -17,7 +17,7 @@ import { CssBaseline } from "@mui/material";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#2196F3",
+      main: "#2563eb",
     },
   },
 });
@@ -50,13 +50,13 @@ function App() {
       >
         <React.StrictMode>
           <ThemeProvider theme={theme}>
-            <TopRightBlob className="z-0 top-0 right-0 absolute rotate-50 transform select-none translate-x-1/2 -translate-y-1/2" />
-            <MiddleLeftBlob className="z-0 left-0 top-1/4 absolute transform select-none -translate-y-1/5 -translate-x-1/3" />
-            <BottomRightBlob className="z-0 right-0 bottom-0 absolute transform select-none translate-y-1/4 translate-x-1/3" />
             <AppRoutes isAuthenticated={isAuthenticated} />
           </ThemeProvider>
         </React.StrictMode>
       </Container>
+      <TopRightBlob className="top-0 right-0 absolute rotate-50 select-none translate-x-1/2 -translate-y-1/2" />
+      <MiddleLeftBlob className="left-0 top-1/4 absolute select-none -translate-y-1/5 -translate-x-1/3" />
+      <BottomRightBlob className="right-0 bottom-0 absolute select-none translate-y-1/4 translate-x-1/3" />
     </CssBaseline>
   );
 }
