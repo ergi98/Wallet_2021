@@ -54,7 +54,7 @@ function InitialScreen() {
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 1, y: "58.75%" }}
+              exit={{ opacity: 1, y: -8 }}
               transition={{
                 type: "spring",
                 stiffness: 100,

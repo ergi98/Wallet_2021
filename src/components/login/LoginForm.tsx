@@ -14,10 +14,23 @@ import {
 } from "@mui/icons-material";
 
 // MUI
-import { TextField, Grid, InputAdornment } from "@mui/material";
+import {
+  TextField,
+  Grid,
+  InputAdornment,
+  Divider,
+  Button,
+} from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
+// Navigation
+import { useNavigate } from "react-router-dom";
+
 function LoginForm() {
+  const navigate = useNavigate();
+
+  const navigateToSignUp = () => navigate("/sign-up");
+
   const formik = useFormik({
     initialValues: { username: "", password: "" },
     validationSchema: loginSchema,
@@ -105,6 +118,21 @@ function LoginForm() {
           >
             Login
           </LoadingButton>
+        </Grid>
+        <Grid item>
+          <Divider className="text-gray-500 w-48 text-[12px] pt-2">OR</Divider>
+        </Grid>
+        <Grid item>
+          <Button
+            onClick={navigateToSignUp}
+            variant="text"
+            sx={{
+              color: "rgb(107 114 128)",
+              fontSize: "12px",
+            }}
+          >
+            Create an account
+          </Button>
         </Grid>
       </Grid>
     </form>
