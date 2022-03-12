@@ -10,8 +10,6 @@ import { ReactComponent as WalletLogo } from "../../assets/logo/wallet-logo.svg"
 import LoginForm from "../../components/login/LoginForm";
 
 function Login() {
-  async function loginUser(credentials: Object) {}
-
   return (
     <Grid
       className="z-50 relative max-w-[90%] sm:max-w-[80%] flex mx-auto top-2/4 -translate-y-[55%] sm:-translate-y-[50%]"
