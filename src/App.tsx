@@ -13,6 +13,7 @@ import { ReactComponent as BottomRightBlob } from "./assets/blobs/bottom_right_b
 // Components
 import AppRoutes from "./routes/AppRoutes";
 import { CssBaseline } from "@mui/material";
+import { BrowserRouter } from "react-router-dom";
 
 declare module "@mui/material/styles" {
   interface BreakpointOverrides {
@@ -71,7 +72,9 @@ function App() {
       >
         <React.StrictMode>
           <ThemeProvider theme={theme}>
-            <AppRoutes isAuthenticated={isAuthenticated} />
+            <BrowserRouter>
+              <AppRoutes isAuthenticated={isAuthenticated} />
+            </BrowserRouter>
           </ThemeProvider>
         </React.StrictMode>
       </Container>

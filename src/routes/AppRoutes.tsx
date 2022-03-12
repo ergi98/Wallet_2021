@@ -1,7 +1,10 @@
 import { lazy, Suspense } from "react";
 
 // Router
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+
+// Animations
+import { AnimatePresence } from "framer-motion";
 
 // Components
 import PageLoading from "../components/general/PageLoading";
@@ -117,13 +120,14 @@ interface PropsInterface {
 }
 
 function AppRoutes(props: PropsInterface) {
+  const location = useLocation();
   return (
     <>
       {/* Condition to check wether the initial setup has finished */}
       {true ? (
-        <BrowserRouter>
-          <Suspense fallback={<PageLoading />}>
-            <Routes>
+        <Suspense fallback={<PageLoading />}>
+          <AnimatePresence exitBeforeEnter>
+            <Routes key={location.pathname} location={location}>
               {appRoutes.map((route) =>
                 route.private ? (
                   <Route
@@ -148,9 +152,9 @@ function AppRoutes(props: PropsInterface) {
                 )
               )}
             </Routes>
-            {props.isAuthenticated && <AppNavigation />}
-          </Suspense>
-        </BrowserRouter>
+          </AnimatePresence>
+          {props.isAuthenticated && <AppNavigation />}
+        </Suspense>
       ) : (
         <PageLoading />
       )}
