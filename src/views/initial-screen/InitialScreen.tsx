@@ -156,7 +156,7 @@ function InitialScreen() {
           >
             <Grid className="pt-12" item>
               <Button
-                onClick={() => navigateTo("/sign-up")}
+                onClick={() => navigateTo("/sign-up/introduction")}
                 variant="contained"
               >
                 Create an Account

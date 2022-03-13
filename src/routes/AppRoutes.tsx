@@ -49,7 +49,7 @@ const appRoutes = [
     private: false,
   },
   {
-    path: "/sign-up",
+    path: "/sign-up/:step",
     element: <SignUp />,
     private: false,
   },

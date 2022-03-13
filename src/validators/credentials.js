@@ -19,4 +19,32 @@ const loginSchema = Yup.object({
     .matches(passwordRegex, "Invalid password format"),
 });
 
-export { loginSchema };
+// TODO: Determine signup joi
+
+const nameMaxLength = 100;
+const introductionSchema = Yup.object({
+  name: Yup.string()
+    .required("First name is required")
+    .max(nameMaxLength, `Must be ${nameMaxLength} characters or less`),
+  surname: Yup.string()
+    .required("Last name is required")
+    .max(nameMaxLength, `Must be ${nameMaxLength} characters or less`),
+});
+
+const signUpSchema = Yup.object({
+  gender: Yup.string(),
+  birthday: Yup.string(),
+  employer: Yup.string(),
+  profession: Yup.string(),
+  defaultCurrency: Yup.string(),
+  username: Yup.string(),
+  password: Yup.string(),
+  portfolios: Yup.array(),
+  sources: Yup.array(),
+  categories: Yup.array(),
+  frequentPlaces: Yup.array(),
+}).concat(introductionSchema);
+
+console.log(signUpSchema);
+
+export { loginSchema, signUpSchema, introductionSchema };

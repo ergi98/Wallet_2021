@@ -29,7 +29,7 @@ import { useNavigate } from "react-router-dom";
 function LoginForm() {
   const navigate = useNavigate();
 
-  const navigateToSignUp = () => navigate("/sign-up");
+  const navigateToSignUp = () => navigate("/sign-up/introduction");
 
   const formik = useFormik({
     initialValues: { username: "", password: "" },
