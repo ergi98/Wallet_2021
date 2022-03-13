@@ -163,14 +163,14 @@ function SignUpForm() {
   return (
     <Grid container>
       {/* Explain */}
-      <Grid className="w-full lg:w-fit" item>
-        <div className="flex flex-col justify-between text-gray-50 bg-gradient-to-b from-blue-900 to-blue-600 h-full p-6">
+      <Grid className="w-full md:w-auto" item>
+        <div className="p-6 h-full flex flex-col justify-between text-gray-50 bg-gradient-to-b from-blue-900 to-blue-600">
           <div>
             <div>
               <span>{activeStep + 1}</span>
               <span>&nbsp;/&nbsp;{possibleSteps.length}</span>
             </div>
-            <Typography className=" text-gray-300" variant="subtitle1">
+            <Typography className="text-gray-300" variant="subtitle1">
               {helpSection[activeStep].subtitle}
             </Typography>
             <Typography variant="h5">
@@ -193,7 +193,7 @@ function SignUpForm() {
         </div>
       </Grid>
       {/* Form */}
-      <Grid className="p-6 w-full lg:w-fit" item>
+      <Grid className="w-full md:w-auto p-6" item>
         <Formik
           initialValues={{
             // Step 1

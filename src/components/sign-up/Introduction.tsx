@@ -73,14 +73,14 @@ function Introduction(props: PropsInterface) {
       </Grid>
       <Grid className="pb-8" alignSelf="start" item>
         <Typography
-          className=" w-80 whitespace-nowrap overflow-hidden text-ellipsis capitalize"
+          className=" w-11/12 md:w-80 whitespace-nowrap overflow-hidden text-ellipsis capitalize"
           variant="h4"
           gutterBottom
         >
           {fullName}
         </Typography>
       </Grid>
-      <Grid className="w-full pb-1 sm:w-80" item>
+      <Grid className="w-full pb-1" item>
         <TextField
           value={formik.values.name}
           onBlur={formik.handleBlur}
@@ -98,7 +98,7 @@ function Introduction(props: PropsInterface) {
           required
         />
       </Grid>
-      <Grid className="w-full pb-12 sm:w-80" item>
+      <Grid className="w-full pb-12" item>
         <TextField
           value={formik.values.surname}
           onBlur={formik.handleBlur}
