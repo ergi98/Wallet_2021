@@ -9,4 +9,10 @@ function isObjectEmpty(obj: Object): boolean {
   return isEmpty;
 }
 
-export { isObjectEmpty };
+function isEmptyString(str: string): boolean {
+  let isEmpty = false;
+  if (str?.trim() === "") isEmpty = true;
+  return isEmpty;
+}
+
+export { isObjectEmpty, isEmptyString };

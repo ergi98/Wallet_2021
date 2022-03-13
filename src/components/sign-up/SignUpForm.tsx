@@ -94,7 +94,9 @@ const possibleSteps = [
 function SignUpForm() {
   const params = useParams();
 
-  const [activeStep, setActiveStep] = useState<number>(0);
+  const [activeStep] = useState<number>(() =>
+    determineActiveStep(params.step ?? "introduction")
+  );
 
   const navigate = useNavigate();
   const navigateToLogin = () => navigate("/login");
@@ -105,36 +107,33 @@ function SignUpForm() {
     navigate(`/sign-up/${possibleSteps[nextStep].key}`);
   }
 
-  useEffect(() => {
-    function determineActiveStep() {
-      let step = 0;
-      switch (params.step) {
-        case "introduction":
-          step = 0;
-          break;
-        case "personal-info":
-          step = 1;
-          break;
-        case "credentials":
-          step = 2;
-          break;
-        case "portfolios":
-          step = 3;
-          break;
-        case "sources":
-          step = 4;
-          break;
-        case "categories":
-          step = 5;
-          break;
-        case "frequent-places":
-          step = 6;
-          break;
-      }
-      setActiveStep(step);
+  function determineActiveStep(paramStep: string): number {
+    let step = 0;
+    switch (paramStep) {
+      case "introduction":
+        step = 0;
+        break;
+      case "personal-info":
+        step = 1;
+        break;
+      case "credentials":
+        step = 2;
+        break;
+      case "portfolios":
+        step = 3;
+        break;
+      case "sources":
+        step = 4;
+        break;
+      case "categories":
+        step = 5;
+        break;
+      case "frequent-places":
+        step = 6;
+        break;
     }
-    determineActiveStep();
-  }, [params]);
+    return step;
+  }
 
   const activeFormComponent = [
     <Introduction changeStep={changeStep} />,

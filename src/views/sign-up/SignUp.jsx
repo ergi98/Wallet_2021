@@ -22,7 +22,7 @@ function SignUp() {
         <WalletLogo className="w-20 sm:w-24 mx-auto mt-0 h-auto" />
       </Grid>
       <Grid className=" w-11/12 md:w-fit" item>
-        <Paper>
+        <Paper className="bg-gradient-to-b from-gray-100 to-gray-50">
           <SignUpForm />
         </Paper>
       </Grid>

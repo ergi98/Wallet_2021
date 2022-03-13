@@ -2,11 +2,17 @@
 import { useFormikContext } from "formik";
 
 // Utilities
-import { isObjectEmpty } from "../../utilities/general-utilities";
+import {
+  isObjectEmpty,
+  isEmptyString,
+} from "../../utilities/general-utilities";
 
 // Mui
-import { Button, Grid, TextField } from "@mui/material";
-import { ChevronRightOutlined, PersonRounded } from "@mui/icons-material";
+import { Button, Grid, TextField, Typography } from "@mui/material";
+import { ChevronRightOutlined } from "@mui/icons-material";
+import { useEffect, useMemo } from "react";
+import useLocalContext from "../../custom_hooks/useLocalContext";
+import { introductionSchema } from "../../validators/credentials";
 
 interface PropsInterface {
   changeStep: (a: number) => void;
@@ -19,9 +25,27 @@ interface FieldObject {
 function Introduction(props: PropsInterface) {
   const formik: any = useFormikContext();
 
+  const [localContext, persistContext] = useLocalContext("introduction", {
+    name: "",
+    surname: "",
+  });
+
+  useEffect(() => {
+    function populateFromContext(context: Object) {
+      introductionSchema.validate(context).then((res) => {
+        formik.setValues(res);
+      });
+    }
+    populateFromContext(localContext);
+  }, []);
+
   async function validateAndProceed() {
     let errorObject = await formik.validateForm();
     if (isObjectEmpty(errorObject)) {
+      persistContext("introduction", {
+        name: formik.values.name?.trim(),
+        surname: formik.values.surname?.trim(),
+      });
       props.changeStep(1);
     } else {
       let fieldsToTouch: FieldObject = {};
@@ -33,10 +57,28 @@ function Introduction(props: PropsInterface) {
     }
   }
 
+  const fullName = useMemo(() => {
+    let value = "";
+    let name = formik.values.name?.trim();
+    let surname = formik.values.surname?.trim();
+    if (isEmptyString(name) && isEmptyString(surname)) value = "...";
+    else value = `${name} ${surname}!`;
+    return value;
+  }, [formik.values.name, formik.values.surname]);
+
   return (
     <Grid direction="column" alignItems="center" container>
-      <Grid className="pb-8" item>
-        <PersonRounded sx={{ color: "#1e3b8b", fontSize: "72px" }} />
+      <Grid alignSelf="start" item>
+        <Typography variant="subtitle1">Hi there, 👋🏼</Typography>
+      </Grid>
+      <Grid className="pb-8" alignSelf="start" item>
+        <Typography
+          className=" w-80 whitespace-nowrap overflow-hidden text-ellipsis capitalize"
+          variant="h4"
+          gutterBottom
+        >
+          {fullName}
+        </Typography>
       </Grid>
       <Grid className="w-full pb-1 sm:w-80" item>
         <TextField
