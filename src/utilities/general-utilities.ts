@@ -1,3 +1,10 @@
+const genderList = [
+  { text: "Male", value: "M" },
+  { text: "Female", value: "F" },
+  { text: "Transgender", value: "TG" },
+  { text: "Non-binary/non-conforming", value: "NB/C" },
+];
+
 function isObjectEmpty(obj: Object): boolean {
   let isEmpty = false;
   if (
@@ -15,4 +22,4 @@ function isStringEmpty(str: string): boolean {
   return isEmpty;
 }
 
-export { isObjectEmpty, isStringEmpty };
+export { genderList, isObjectEmpty, isStringEmpty };

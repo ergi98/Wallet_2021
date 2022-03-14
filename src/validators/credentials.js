@@ -6,7 +6,23 @@ const usernameRegex = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]*$/;
 
 const passwordMinLength = 8;
 const passwordMaxLength = 30;
-const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,30}$/;
+const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).*$/;
+
+const usernameRules = [
+  "Can contain alphanumerical characters",
+  "Can contain underscores and periods",
+  "Can not end or start with a period",
+  "Can not have consecutive periods",
+  `Must be less than ${usernameMaxLength} characters`,
+];
+
+const passwordRules = [
+  `Must be at least ${passwordMinLength} characters`,
+  `Must be less than ${passwordMaxLength} characters`,
+  `Must contain at least 1 uppercase letter`,
+  `Must contain at least 1 lowercase letter`,
+  `Must contain at least 1 number`,
+];
 
 const loginSchema = Yup.object({
   username: Yup.string()
@@ -50,20 +66,21 @@ const personalInfoSchema = Yup.object({
     nameMaxLength,
     `Must be ${nameMaxLength} characters or less`
   ),
-  defaultCurrency: Yup.string()
-    .required("Currency is required")
-    .oneOf(["ALL", "EUR", "USD", "GBP", "AUD"]),
+  // defaultCurrency: Yup.string()
+  //   .required("Currency is required")
+  //   .oneOf(["ALL", "EUR", "USD", "GBP", "AUD"]),
 });
 
-const signUpSchema = Yup.object({
-  username: Yup.string(),
-  password: Yup.string(),
-  portfolios: Yup.array(),
-  sources: Yup.array(),
-  categories: Yup.array(),
-  frequentPlaces: Yup.array(),
-})
+const signUpSchema = Yup.object({})
   .concat(introductionSchema)
-  .concat(personalInfoSchema);
+  .concat(personalInfoSchema)
+  .concat(loginSchema);
 
-export { loginSchema, signUpSchema, introductionSchema, personalInfoSchema };
+export {
+  loginSchema,
+  signUpSchema,
+  introductionSchema,
+  personalInfoSchema,
+  usernameRules,
+  passwordRules,
+};

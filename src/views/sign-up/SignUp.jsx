@@ -30,7 +30,7 @@ function SignUp() {
         className="w-20 sm:w-24 mx-auto mt-0 h-auto cursor-pointer hover:scale-110 transition-transform"
       />
       {/* All the rest */}
-      <Paper className="sm:w-auto w-11/12 max-w-4xl bg-gradient-to-b from-gray-100 to-gray-50">
+      <Paper className="md:w-auto w-11/12 max-w-4xl bg-gradient-to-b from-gray-100 to-gray-50">
         <SignUpForm />
       </Paper>
     </Stack>

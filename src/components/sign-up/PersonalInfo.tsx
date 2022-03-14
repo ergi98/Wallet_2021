@@ -9,16 +9,16 @@ import { personalInfoSchema } from "../../validators/credentials";
 // Formik
 import { useFormikContext } from "formik";
 
-// Utilities
-import { isObjectEmpty } from "../../utilities/general-utilities";
-
 // MUI
-import { Button, Grid, TextField, Typography } from "@mui/material";
-import CustomDatePicker from "../general/CustomDatePicker";
-import CustomSelect from "../general/CustomSelect";
 import { ChevronRightOutlined } from "@mui/icons-material";
+import { Button, Grid, Stack, TextField, Typography } from "@mui/material";
+
+// Utilities
+import { genderList } from "../../utilities/general-utilities";
 
 // Components
+import CustomSelect from "../general/CustomSelect";
+import CustomDatePicker from "../general/CustomDatePicker";
 interface PropsInterface {
   changeStep: (a: number) => void;
 }
@@ -34,23 +34,7 @@ function PersonalInfo(props: PropsInterface) {
     birthday: null,
     employer: "",
     profession: "",
-    defaultCurrency: "",
   });
-
-  // TODO: Fetch from API
-  const currencyList = [
-    { text: "Albanian Lek", value: "ALL" },
-    { text: "Euro", value: "EUR" },
-    { text: "United States Dollar", value: "USD" },
-    { text: "Pound Sterling", value: "GBP" },
-    { text: "Australian Dollar", value: "AUD" },
-  ];
-  const genderList = [
-    { text: "Male", value: "M" },
-    { text: "Female", value: "F" },
-    { text: "Transgender", value: "TG" },
-    { text: "Non-binary/non-conforming", value: "NB/C" },
-  ];
 
   useEffect(() => {
     function populateFromContext(context: Object) {
@@ -109,64 +93,63 @@ function PersonalInfo(props: PropsInterface) {
       formik.setErrors(errorObject);
     }
   }
-
   return (
-    <Grid className="pt-8" rowSpacing={1} columnSpacing={2} container>
-      {/* Default Currency */}
-      <Grid xs={12} item>
-        <CustomSelect
-          options={currencyList}
-          fieldName="defaultCurrency"
-          label="Preferred Currency"
-          required={true}
-        />
-      </Grid>
+    <Stack>
       {/* Birthday */}
-      <Grid xs={8} item>
+      <Typography variant="subtitle1">Alright {formik.values.name},</Typography>
+      <Typography
+        className=" w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis"
+        variant="h4"
+        gutterBottom
+      >
+        Who are you?
+      </Typography>
+      {/* Birthday */}
+      <div className="mb-3">
         <CustomDatePicker fieldName="birthday" label="Birthday" />
-      </Grid>
+      </div>
       {/* Gender */}
-      <Grid xs={4} item>
+      <div className="mb-3">
         <CustomSelect options={genderList} fieldName="gender" label="Gender" />
-      </Grid>
+      </div>
       {/* Profession */}
-      <Grid xs={12} item>
-        <TextField
-          value={formik.values.profession}
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          error={!!formik.errors.profession && formik.touched.profession}
-          helperText={
-            !!formik.errors.profession && formik.touched.profession
-              ? formik.errors.profession
-              : " "
-          }
-          label="Profession"
-          name="profession"
-          size="small"
-          fullWidth
-        />
-      </Grid>
+      <TextField
+        sx={{ marginBottom: "12px" }}
+        value={formik.values.profession}
+        onBlur={formik.handleBlur}
+        onChange={formik.handleChange}
+        error={!!formik.errors.profession && formik.touched.profession}
+        helperText={
+          !!formik.errors.profession && formik.touched.profession
+            ? formik.errors.profession
+            : " "
+        }
+        autoComplete="off"
+        label="Profession"
+        name="profession"
+        size="small"
+        fullWidth
+      />
       {/* Employer */}
-      <Grid xs={12} item>
-        <TextField
-          value={formik.values.employer}
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          error={!!formik.errors.employer && formik.touched.employer}
-          helperText={
-            !!formik.errors.employer && formik.touched.employer
-              ? formik.errors.employer
-              : " "
-          }
-          label="Employer"
-          name="employer"
-          size="small"
-          fullWidth
-        />
-      </Grid>
-      <Grid sx={{ marginLeft: "auto" }} item>
-        <Button sx={{ marginRight: "8px" }} onClick={goBack} variant="text">
+      <TextField
+        sx={{ marginBottom: "12px" }}
+        value={formik.values.employer}
+        onBlur={formik.handleBlur}
+        onChange={formik.handleChange}
+        error={!!formik.errors.employer && formik.touched.employer}
+        helperText={
+          !!formik.errors.employer && formik.touched.employer
+            ? formik.errors.employer
+            : " "
+        }
+        autoComplete="off"
+        label="Employer"
+        name="employer"
+        size="small"
+        fullWidth
+      />
+      <Stack className=" justify-end" direction="row" spacing={4}>
+        <Button onClick={goBack} variant="text">
           Go Back
         </Button>
         <Button
@@ -176,8 +159,8 @@ function PersonalInfo(props: PropsInterface) {
         >
           Proceed
         </Button>
-      </Grid>
-    </Grid>
+      </Stack>
+    </Stack>
   );
 }
 
