@@ -1,4 +1,8 @@
-import { Grid, Paper } from "@mui/material";
+// MUI
+import { Stack, Paper } from "@mui/material";
+
+// Navigation
+import { useNavigate } from "react-router-dom";
 
 // Animation
 // import { motion } from "framer-motion";
@@ -10,25 +14,26 @@ import { ReactComponent as WalletLogo } from "../../assets/logo/wallet-logo.svg"
 import SignUpForm from "../../components/sign-up/SignUpForm";
 
 function SignUp() {
+  const navigate = useNavigate();
+  const navigateHome = () => navigate("/");
+
   return (
-    <Grid
-      className="z-50 relative flex mx-auto top-2/4 -translate-y-[55%] sm:-translate-y-[50%]"
-      direction="column"
+    <Stack
+      className="relative z-10 w-full h-full"
+      justifyContent="center"
       alignItems="center"
-      rowSpacing={{ xs: 6, sm: 10, md: 10, lg: 10, xl: 10, "2xl": 10 }}
-      container
+      spacing={8}
     >
       {/* Logo */}
-      <Grid item>
-        <WalletLogo className="w-20 sm:w-24 mx-auto mt-0 h-auto" />
-      </Grid>
+      <WalletLogo
+        onClick={navigateHome}
+        className="w-20 sm:w-24 mx-auto mt-0 h-auto cursor-pointer hover:scale-110 transition-transform"
+      />
       {/* All the rest */}
-      <Grid className=" w-5/6 md:w-auto" item>
-        <Paper className="bg-gradient-to-b from-gray-100 to-gray-50">
-          <SignUpForm />
-        </Paper>
-      </Grid>
-    </Grid>
+      <Paper className="sm:w-auto w-11/12 max-w-4xl bg-gradient-to-b from-gray-100 to-gray-50">
+        <SignUpForm />
+      </Paper>
+    </Stack>
   );
 }
 

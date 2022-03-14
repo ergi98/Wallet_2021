@@ -3,6 +3,9 @@ import { Grid, Typography, Card, CardHeader, CardContent } from "@mui/material";
 // Animation
 import { motion } from "framer-motion";
 
+// Navigation
+import { useNavigate } from "react-router-dom";
+
 // Logo
 import { ReactComponent as WalletLogo } from "../../assets/logo/wallet-logo.svg";
 
@@ -10,6 +13,9 @@ import { ReactComponent as WalletLogo } from "../../assets/logo/wallet-logo.svg"
 import LoginForm from "../../components/login/LoginForm";
 
 function Login() {
+  const navigate = useNavigate();
+  const navigateHome = () => navigate("/");
+
   return (
     // TODO: Check the max-w- and convert it to w
     <Grid
@@ -28,7 +34,10 @@ function Login() {
             duration: 1000,
           }}
         >
-          <WalletLogo className="w-20 sm:w-24 mx-auto mt-0 h-auto" />
+          <WalletLogo
+            onClick={navigateHome}
+            className="w-20 sm:w-24 mx-auto mt-0 h-auto cursor-pointer hover:scale-110 transition-transform"
+          />
         </motion.div>
       </Grid>
       <Grid item>

@@ -1,4 +1,5 @@
 import * as Yup from "yup";
+import { convertToUTC, parseDateString } from "../utilities/date-utilities.ts";
 
 const usernameMaxLength = 30;
 const usernameRegex = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]*$/;
@@ -31,20 +32,38 @@ const introductionSchema = Yup.object({
     .max(nameMaxLength, `Must be ${nameMaxLength} characters or less`),
 });
 
+const personalInfoSchema = Yup.object({
+  gender: Yup.string().oneOf(["", "M", "F", "TG", "NB/C"]),
+  birthday: Yup.date()
+    .transform(parseDateString)
+    .min(
+      convertToUTC(new Date(1900, 0)),
+      "You can not possibly be this old! 🧐"
+    )
+    .max(convertToUTC(new Date()), "You are not born yet! 😱")
+    .nullable(),
+  employer: Yup.string().max(
+    nameMaxLength,
+    `Must be ${nameMaxLength} characters or less`
+  ),
+  profession: Yup.string().max(
+    nameMaxLength,
+    `Must be ${nameMaxLength} characters or less`
+  ),
+  defaultCurrency: Yup.string()
+    .required("Currency is required")
+    .oneOf(["ALL", "EUR", "USD", "GBP", "AUD"]),
+});
+
 const signUpSchema = Yup.object({
-  gender: Yup.string(),
-  birthday: Yup.string(),
-  employer: Yup.string(),
-  profession: Yup.string(),
-  defaultCurrency: Yup.string(),
   username: Yup.string(),
   password: Yup.string(),
   portfolios: Yup.array(),
   sources: Yup.array(),
   categories: Yup.array(),
   frequentPlaces: Yup.array(),
-}).concat(introductionSchema);
+})
+  .concat(introductionSchema)
+  .concat(personalInfoSchema);
 
-console.log(signUpSchema);
-
-export { loginSchema, signUpSchema, introductionSchema };
+export { loginSchema, signUpSchema, introductionSchema, personalInfoSchema };

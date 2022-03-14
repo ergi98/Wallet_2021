@@ -13,7 +13,7 @@ import { signUpSchema } from "../../validators/credentials";
 import { ChevronLeftOutlined } from "@mui/icons-material";
 
 // MUI
-import { Grid, Button, Typography } from "@mui/material";
+import { Grid, Button, Stack, Typography } from "@mui/material";
 
 // Navigation
 import { useNavigate, useParams } from "react-router-dom";
@@ -26,39 +26,6 @@ import Credentials from "./Credentials";
 import PersonalInfo from "./PersonalInfo";
 import Introduction from "./Introduction";
 import FrequentPlaces from "./FrequentPlaces";
-
-const helpSection = [
-  // Step 1
-  {
-    title: "What should we call you?",
-    subtitle: "Welcome to your account setup.",
-    paragraph: "",
-  },
-  // Step 2
-  {
-    title: "",
-    subtitle: "",
-    paragraph: "",
-  },
-  // Step 3
-  {
-    title: "",
-    subtitle: "",
-    paragraph: "",
-  },
-  // Step 4
-  {
-    title: "",
-    subtitle: "",
-    paragraph: "",
-  },
-  // Step 5
-  {
-    title: "",
-    subtitle: "",
-    paragraph: "",
-  },
-];
 
 const possibleSteps = [
   {
@@ -93,6 +60,47 @@ const possibleSteps = [
 
 function SignUpForm() {
   const params = useParams();
+
+  const firstName = JSON.parse(
+    localStorage.getItem("introduction") || '""'
+  )?.name;
+
+  const helpSection = [
+    // Step 1
+    {
+      title: "What should we call you?",
+      subtitle: "Welcome to your account setup.",
+      paragraph: "",
+    },
+    // Step 2
+    {
+      title: `Lets get to know you ${firstName?.trim()}.`,
+      subtitle: "",
+      paragraph: `
+        Tell us a little bit more about yourself and what you do. 
+        All the fields below with the exception of the
+        <strong> Currency </strong>field are optional.
+      `,
+    },
+    // Step 3
+    {
+      title: "",
+      subtitle: "",
+      paragraph: "",
+    },
+    // Step 4
+    {
+      title: "",
+      subtitle: "",
+      paragraph: "",
+    },
+    // Step 5
+    {
+      title: "",
+      subtitle: "",
+      paragraph: "",
+    },
+  ];
 
   const [activeStep] = useState<number>(() =>
     determineActiveStep(params.step ?? "introduction")
@@ -137,7 +145,7 @@ function SignUpForm() {
 
   const activeFormComponent = [
     <Introduction changeStep={changeStep} />,
-    // <PersonalInfo changeStep={changeStep} />,
+    <PersonalInfo changeStep={changeStep} />,
     // <Credentials changeStep={changeStep} />,
     // <Portfolios changeStep={changeStep} />,
     // <Sources changeStep={changeStep} />,
@@ -163,8 +171,13 @@ function SignUpForm() {
   return (
     <Grid container>
       {/* Explain */}
-      <Grid className="w-full md:w-auto" item>
-        <div className="p-6 h-full flex flex-col justify-between text-gray-50 bg-gradient-to-b from-blue-900 to-blue-600">
+      <Grid
+        xs={12}
+        md={6}
+        className="p-6 bg-gradient-to-b from-blue-900 to-blue-600"
+        item
+      >
+        <Stack justifyContent="space-between" className="h-full text-gray-50">
           <div>
             <div>
               <span>{activeStep + 1}</span>
@@ -177,7 +190,13 @@ function SignUpForm() {
               {helpSection[activeStep].title}
             </Typography>
           </div>
-          <Typography paragraph>{helpSection[activeStep].paragraph}</Typography>
+          <Typography paragraph>
+            <span
+              dangerouslySetInnerHTML={{
+                __html: helpSection[activeStep].paragraph,
+              }}
+            />
+          </Typography>
           <Button
             onClick={navigateToLogin}
             startIcon={<ChevronLeftOutlined />}
@@ -190,10 +209,10 @@ function SignUpForm() {
           >
             Already have an account?
           </Button>
-        </div>
+        </Stack>
       </Grid>
       {/* Form */}
-      <Grid className="w-full md:w-auto p-6" item>
+      <Grid xs={12} md={6} className="p-6" item>
         <Formik
           initialValues={{
             // Step 1
@@ -201,7 +220,7 @@ function SignUpForm() {
             surname: "",
             // Step 2
             gender: "",
-            birthday: "",
+            birthday: null,
             employer: "",
             profession: "",
             defaultCurrency: "",
