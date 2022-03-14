@@ -128,7 +128,7 @@ function InitialScreen() {
                       sx={{
                         width: "fit-content",
                         borderRadius: "50%",
-                        backgroundColor: "#FFFFFF80",
+                        backgroundColor: "#FEFEFE",
                       }}
                       className="p-5 mb-3"
                       elevation={4}
