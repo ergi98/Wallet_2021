@@ -24,13 +24,13 @@ function AppNavigation() {
     () => [
       {
         key: "settings",
-        icon: <Settings className={`${activePath === 0 && " fill-gray-50"}`} />,
+        icon: <Settings style={activePath === 0 ? { color: "#f3f4f6" } : {}} />,
         path: "/settings",
       },
       {
         key: "portfolios",
         icon: (
-          <Portfolios className={`${activePath === 1 && " fill-gray-50"}`} />
+          <Portfolios style={activePath === 1 ? { color: "#f3f4f6" } : {}} />
         ),
         path: "/portfolios",
       },
@@ -38,16 +38,15 @@ function AppNavigation() {
         key: "home",
         icon: (
           <Home
-            className={`${
-              activePath === 2 ? " fill-gray-50 h-8 w-8" : "h-6 w-6"
-            }`}
+            style={activePath === 2 ? { color: "#f3f4f6" } : {}}
+            className={`${activePath === 2 ? "h-8 w-8" : "h-6 w-6"}`}
           />
         ),
         path: "/home",
       },
       {
         key: "analysis",
-        icon: <Charts className={`${activePath === 3 && " fill-gray-50"}`} />,
+        icon: <Charts style={activePath === 3 ? { color: "#f3f4f6" } : {}} />,
         path: "/analysis",
       },
       {
@@ -96,6 +95,7 @@ function AppNavigation() {
                 ? {
                     backgroundImage:
                       "linear-gradient(to bottom, #1e3a8a, #60a5fa)",
+                    color: "white",
                   }
                 : {}),
             }}

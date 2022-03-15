@@ -50,7 +50,7 @@ const theme = createTheme({
 });
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   // Global View Height (Mobile 100vh Fix)
   useEffect(() => {
