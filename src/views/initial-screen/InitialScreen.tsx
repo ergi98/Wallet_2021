@@ -14,6 +14,7 @@ import { ReactComponent as WalletLogo } from "../../assets/logo/wallet-logo.svg"
 import { ReactComponent as EasyIllustration } from "../../assets/illustrations/easy.svg";
 import { ReactComponent as SecureIllustration } from "../../assets/illustrations/secure.svg";
 import { ReactComponent as AnalysisIllustration } from "../../assets/illustrations/analysis.svg";
+import { useState } from "react";
 
 const iconClasses = "w-32 h-32";
 
@@ -44,7 +45,19 @@ const mainPoints = [
 function InitialScreen() {
   const navigate = useNavigate();
 
-  const navigateTo = (url: string) => navigate(url);
+  const navigateTo = (url: string) => {
+    switch (url) {
+      case "/login":
+        setExitStyles({ opacity: 1, y: 32 });
+        break;
+      case "/sign-up/introduction":
+        setExitStyles({ opacity: 1 });
+        break;
+    }
+    navigate(url);
+  };
+
+  const [exitStyles, setExitStyles] = useState<any>({ opacity: 1, y: 32 });
 
   return (
     <>
@@ -52,7 +65,7 @@ function InitialScreen() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 1, y: 32 }}
+          exit={exitStyles}
           transition={{
             type: "spring",
             stiffness: 100,

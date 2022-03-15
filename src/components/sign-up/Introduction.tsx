@@ -21,6 +21,9 @@ import withContextSaver from "../../hoc/withContextSaver";
 // Navigate
 import { useNavigate } from "react-router-dom";
 
+// Animation
+import { motion } from "framer-motion";
+
 interface FieldObject {
   [key: string]: boolean;
 }
@@ -73,68 +76,78 @@ function Introduction(props: PropsInterface) {
         subtitle="Welcome to your account setup."
       />
       <Grid xs={12} md={6} className="p-6" item>
-        <Stack rowGap={2}>
-          <div>
-            <Typography variant="subtitle1">Hi there, 👋🏼</Typography>
-            <Typography
-              className=" w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis capitalize"
-              variant="h4"
-              gutterBottom
+        <motion.div
+          initial={{ opacity: 0, x: 5 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 5 }}
+          transition={{
+            type: "spring",
+            bounce: 0,
+          }}
+        >
+          <Stack rowGap={2}>
+            <div>
+              <Typography variant="subtitle1">Hi there, 👋🏼</Typography>
+              <Typography
+                className=" w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis capitalize"
+                variant="h4"
+                gutterBottom
+              >
+                {fullName}
+              </Typography>
+            </div>
+            <div>
+              <TextField
+                sx={{ marginBottom: "12px" }}
+                value={formik.values.name}
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                error={!!formik.errors.name && formik.touched.name}
+                helperText={
+                  !!formik.errors.name && formik.touched.name
+                    ? formik.errors.name
+                    : " "
+                }
+                autoComplete="off"
+                spellCheck={false}
+                autoCorrect="off"
+                label="First Name"
+                size="small"
+                name="name"
+                fullWidth
+                required
+              />
+              <TextField
+                sx={{ marginBottom: "12px" }}
+                value={formik.values.surname}
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                error={!!formik.errors.surname && formik.touched.surname}
+                helperText={
+                  !!formik.errors.surname && formik.touched.surname
+                    ? formik.errors.surname
+                    : " "
+                }
+                spellCheck={false}
+                autoCorrect="off"
+                autoComplete="off"
+                label="Last Name"
+                name="surname"
+                size="small"
+                fullWidth
+                required
+              />
+            </div>
+            <Button
+              onClick={validateAndProceed}
+              endIcon={<ChevronRightOutlined />}
+              variant="contained"
+              className="w-fit self-end"
             >
-              {fullName}
-            </Typography>
-          </div>
-          <div>
-            <TextField
-              sx={{ marginBottom: "12px" }}
-              value={formik.values.name}
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              error={!!formik.errors.name && formik.touched.name}
-              helperText={
-                !!formik.errors.name && formik.touched.name
-                  ? formik.errors.name
-                  : " "
-              }
-              autoComplete="off"
-              spellCheck={false}
-              autoCorrect="off"
-              label="First Name"
-              size="small"
-              name="name"
-              fullWidth
-              required
-            />
-            <TextField
-              sx={{ marginBottom: "12px" }}
-              value={formik.values.surname}
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              error={!!formik.errors.surname && formik.touched.surname}
-              helperText={
-                !!formik.errors.surname && formik.touched.surname
-                  ? formik.errors.surname
-                  : " "
-              }
-              spellCheck={false}
-              autoCorrect="off"
-              autoComplete="off"
-              label="Last Name"
-              name="surname"
-              size="small"
-              fullWidth
-              required
-            />
-          </div>
-          <Button
-            onClick={validateAndProceed}
-            endIcon={<ChevronRightOutlined />}
-            variant="contained"
-            className="w-fit self-end"
-          >
-            Proceed
-          </Button>
-        </Stack>
+              Proceed
+            </Button>
+          </Stack>
+        </motion.div>
       </Grid>
     </Grid>
   );

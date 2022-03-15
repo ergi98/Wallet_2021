@@ -19,6 +19,9 @@ import {
 // Navigation
 import { useNavigate } from "react-router-dom";
 
+// Animation
+import { motion } from "framer-motion";
+
 // Validation
 import { passwordRules, usernameRules } from "../../validators/credentials";
 
@@ -100,141 +103,151 @@ function Credentials() {
         paragraph="Try to pick a username you easily remember and a<strong> strong password </strong> so your data is safe."
       />
       <Grid xs={12} md={6} className="p-6" item>
-        <Stack>
-          {/* Birthday */}
-          <Typography variant="subtitle1">
-            Last step {formik.values.name}!
-          </Typography>
-          <Typography
-            className=" w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis"
-            variant="h4"
-            gutterBottom
-          >
-            Your credentials.
-          </Typography>
-          {/* Username */}
-          <TextField
-            sx={{ marginBottom: "12px" }}
-            value={formik.values.username}
-            onBlur={validateUsernameAndHandleBlue}
-            onChange={formik.handleChange}
-            error={!!formik.errors.username && formik.touched.username}
-            helperText={
-              !!formik.errors.username && formik.touched.username
-                ? formik.errors.username
-                : " "
-            }
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <ValidationHint
-                    content={
-                      <ul className=" list-disc ml-3">
-                        {usernameRules.map((rule) => (
-                          <li key={rule}>{rule}.</li>
-                        ))}
-                      </ul>
-                    }
-                  />
-                </InputAdornment>
-              ),
-            }}
-            spellCheck={false}
-            autoCapitalize="none"
-            autoComplete="off"
-            label="Username"
-            name="username"
-            size="small"
-            fullWidth
-            required
-          />
-          {/* Password */}
-          <TextField
-            sx={{ marginBottom: "12px" }}
-            value={formik.values.password}
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            error={!!formik.errors.password && formik.touched.password}
-            helperText={
-              !!formik.errors.password && formik.touched.password
-                ? formik.errors.password
-                : " "
-            }
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <ToggleVisibility
-                    value={showPassword}
-                    onClick={toggleShowPassword}
-                  />
-                </InputAdornment>
-              ),
-              endAdornment: (
-                <InputAdornment position="end">
-                  <ValidationHint
-                    content={
-                      <ul className=" list-disc ml-3">
-                        {passwordRules.map((rule) => (
-                          <li key={rule}>{rule}.</li>
-                        ))}
-                      </ul>
-                    }
-                  />
-                </InputAdornment>
-              ),
-            }}
-            type={showPassword ? "text" : "password"}
-            spellCheck={false}
-            autoCapitalize="none"
-            autoComplete="off"
-            label="Password"
-            name="password"
-            size="small"
-            required
-            fullWidth
-          />
-          {/* Confirm Password */}
-          <TextField
-            sx={{ marginBottom: "12px" }}
-            value={repeatedPwd}
-            onBlur={handlePwdBlur}
-            onChange={handlePwdChange}
-            error={matchError.show}
-            helperText={!!matchError.show ? matchError.message : " "}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <ToggleVisibility
-                    value={showRepeatPwd}
-                    onClick={toggleShowRepeatPwd}
-                  />
-                </InputAdornment>
-              ),
-            }}
-            type={showRepeatPwd ? "text" : "password"}
-            spellCheck={false}
-            label="Confirm Password"
-            name="confirm-password"
-            autoCapitalize="none"
-            autoComplete="off"
-            size="small"
-            required
-            fullWidth
-          />
-          <Stack className=" justify-end" direction="row" spacing={4}>
-            <Button onClick={navigateBack} variant="text">
-              Go Back
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              endIcon={<CelebrationOutlined />}
-              variant="contained"
-              type="submit"
+        <motion.div
+          initial={{ opacity: 0, x: 5 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 5 }}
+          transition={{
+            type: "spring",
+            bounce: 0,
+          }}
+        >
+          <Stack>
+            {/* Birthday */}
+            <Typography variant="subtitle1">
+              Last step {formik.values.name}!
+            </Typography>
+            <Typography
+              className=" w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis"
+              variant="h4"
+              gutterBottom
             >
-              Finish!
-            </Button>
+              Your credentials.
+            </Typography>
+            {/* Username */}
+            <TextField
+              sx={{ marginBottom: "12px" }}
+              value={formik.values.username}
+              onBlur={validateUsernameAndHandleBlue}
+              onChange={formik.handleChange}
+              error={!!formik.errors.username && formik.touched.username}
+              helperText={
+                !!formik.errors.username && formik.touched.username
+                  ? formik.errors.username
+                  : " "
+              }
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <ValidationHint
+                      content={
+                        <ul className=" list-disc ml-3">
+                          {usernameRules.map((rule) => (
+                            <li key={rule}>{rule}.</li>
+                          ))}
+                        </ul>
+                      }
+                    />
+                  </InputAdornment>
+                ),
+              }}
+              spellCheck={false}
+              autoCapitalize="none"
+              autoComplete="off"
+              label="Username"
+              name="username"
+              size="small"
+              fullWidth
+              required
+            />
+            {/* Password */}
+            <TextField
+              sx={{ marginBottom: "12px" }}
+              value={formik.values.password}
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              error={!!formik.errors.password && formik.touched.password}
+              helperText={
+                !!formik.errors.password && formik.touched.password
+                  ? formik.errors.password
+                  : " "
+              }
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <ToggleVisibility
+                      value={showPassword}
+                      onClick={toggleShowPassword}
+                    />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <ValidationHint
+                      content={
+                        <ul className=" list-disc ml-3">
+                          {passwordRules.map((rule) => (
+                            <li key={rule}>{rule}.</li>
+                          ))}
+                        </ul>
+                      }
+                    />
+                  </InputAdornment>
+                ),
+              }}
+              type={showPassword ? "text" : "password"}
+              spellCheck={false}
+              autoCapitalize="none"
+              autoComplete="off"
+              label="Password"
+              name="password"
+              size="small"
+              required
+              fullWidth
+            />
+            {/* Confirm Password */}
+            <TextField
+              sx={{ marginBottom: "12px" }}
+              value={repeatedPwd}
+              onBlur={handlePwdBlur}
+              onChange={handlePwdChange}
+              error={matchError.show}
+              helperText={!!matchError.show ? matchError.message : " "}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <ToggleVisibility
+                      value={showRepeatPwd}
+                      onClick={toggleShowRepeatPwd}
+                    />
+                  </InputAdornment>
+                ),
+              }}
+              type={showRepeatPwd ? "text" : "password"}
+              spellCheck={false}
+              label="Confirm Password"
+              name="confirm-password"
+              autoCapitalize="none"
+              autoComplete="off"
+              size="small"
+              required
+              fullWidth
+            />
+            <Stack className=" justify-end" direction="row" spacing={4}>
+              <Button onClick={navigateBack} variant="text">
+                Go Back
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                endIcon={<CelebrationOutlined />}
+                variant="contained"
+                type="submit"
+              >
+                Finish!
+              </Button>
+            </Stack>
           </Stack>
-        </Stack>
+        </motion.div>
       </Grid>
     </Grid>
   );

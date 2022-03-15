@@ -1,9 +1,6 @@
 // Formik
 import { Formik } from "formik";
 
-// Animation
-// import { motion } from "framer-motion";
-
 // Validations
 import { signUpSchema } from "../../validators/credentials";
 
@@ -13,12 +10,8 @@ import { Outlet } from "react-router-dom";
 // Custom Hooks
 import useLocalContext from "../../custom_hooks/useLocalContext";
 
-// Components
-import ContextSaver from "../general/ContextSaver";
-import { useEffect } from "react";
-
 function SignUpForm() {
-  const [localContext, persistContext] = useLocalContext("register-context", {
+  const [localContext] = useLocalContext("register-context", {
     // Step 1
     name: "",
     surname: "",

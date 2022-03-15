@@ -7,6 +7,9 @@ import { ChevronLeftOutlined } from "@mui/icons-material";
 // MUI
 import { Button, Grid, Stack, Typography } from "@mui/material";
 
+// Animation
+import { motion } from "framer-motion";
+
 interface PropsInterface {
   step: number;
   title: string;
@@ -26,7 +29,15 @@ function ExplainSection(props: PropsInterface) {
       item
     >
       <Stack justifyContent="space-between" className="h-full text-gray-50">
-        <div>
+        <motion.div
+          initial={{ opacity: 0, x: -5 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -5 }}
+          transition={{
+            type: "spring",
+            bounce: 0,
+          }}
+        >
           <div>
             <span>{props.step}</span>
             <span>&nbsp;/&nbsp;{3}</span>
@@ -35,26 +46,46 @@ function ExplainSection(props: PropsInterface) {
             {props.subtitle}
           </Typography>
           <Typography variant="h5">{props.title}</Typography>
-        </div>
-        <Typography paragraph>
-          <span
-            dangerouslySetInnerHTML={{
-              __html: props.paragraph ?? "",
-            }}
-          />
-        </Typography>
-        <Button
-          onClick={navigateToLogin}
-          startIcon={<ChevronLeftOutlined />}
-          variant="text"
-          sx={{
-            color: "white",
-            fontSize: "12px",
-            width: "fit-content",
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: -5 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -5 }}
+          transition={{
+            type: "spring",
+            bounce: 0,
           }}
         >
-          Already have an account?
-        </Button>
+          <Typography paragraph>
+            <span
+              dangerouslySetInnerHTML={{
+                __html: props.paragraph ?? "",
+              }}
+            />
+          </Typography>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: -5 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -5 }}
+          transition={{
+            type: "spring",
+            bounce: 0,
+          }}
+        >
+          <Button
+            onClick={navigateToLogin}
+            startIcon={<ChevronLeftOutlined />}
+            variant="text"
+            sx={{
+              color: "white",
+              fontSize: "12px",
+              width: "fit-content",
+            }}
+          >
+            Already have an account?
+          </Button>
+        </motion.div>
       </Stack>
     </Grid>
   );

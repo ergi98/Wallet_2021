@@ -20,7 +20,7 @@ function Login() {
     <>
       <div className="absolute top-12 sm:top-32 left-1/2 -translate-x-1/2">
         <motion.div
-          exit={{ opacity: 0, y: -2 }}
+          exit={{ opacity: 0, y: -20 }}
           transition={{
             type: "spring",
             stiffness: 100,

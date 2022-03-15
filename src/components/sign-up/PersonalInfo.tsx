@@ -13,6 +13,9 @@ import { Button, Grid, Stack, TextField, Typography } from "@mui/material";
 // Utilities
 import { genderList } from "../../utilities/general-utilities";
 
+// Animation
+import { motion } from "framer-motion";
+
 // Components
 import ExplainSection from "./ExplainSection";
 import CustomSelect from "../general/CustomSelect";
@@ -79,79 +82,89 @@ function PersonalInfo(props: PropsInterface) {
         paragraph="Tell us a little bit more about yourself and what you do."
       />
       <Grid xs={12} md={6} className="p-6" item>
-        <Stack>
-          {/* Birthday */}
-          <Typography variant="subtitle1">
-            Alright {formik.values.name},
-          </Typography>
-          <Typography
-            className=" w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis"
-            variant="h4"
-            gutterBottom
-          >
-            Who are you?
-          </Typography>
-          {/* Birthday */}
-          <div className="mb-3">
-            <CustomDatePicker fieldName="birthday" label="Birthday" />
-          </div>
-          {/* Gender */}
-          <div className="mb-3">
-            <CustomSelect
-              options={genderList}
-              fieldName="gender"
-              label="Gender"
-            />
-          </div>
-          {/* Profession */}
-          <TextField
-            sx={{ marginBottom: "12px" }}
-            value={formik.values.profession}
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            error={!!formik.errors.profession && formik.touched.profession}
-            helperText={
-              !!formik.errors.profession && formik.touched.profession
-                ? formik.errors.profession
-                : " "
-            }
-            autoComplete="off"
-            label="Profession"
-            name="profession"
-            size="small"
-            fullWidth
-          />
-          {/* Employer */}
-          <TextField
-            sx={{ marginBottom: "12px" }}
-            value={formik.values.employer}
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            error={!!formik.errors.employer && formik.touched.employer}
-            helperText={
-              !!formik.errors.employer && formik.touched.employer
-                ? formik.errors.employer
-                : " "
-            }
-            autoComplete="off"
-            label="Employer"
-            name="employer"
-            size="small"
-            fullWidth
-          />
-          <Stack className=" justify-end" direction="row" spacing={4}>
-            <Button onClick={goBack} variant="text">
-              Go Back
-            </Button>
-            <Button
-              endIcon={<ChevronRightOutlined />}
-              onClick={validateAndProceed}
-              variant="contained"
+        <motion.div
+          initial={{ opacity: 0, x: 5 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 5 }}
+          transition={{
+            type: "spring",
+            bounce: 0,
+          }}
+        >
+          <Stack>
+            {/* Birthday */}
+            <Typography variant="subtitle1">
+              Alright {formik.values.name},
+            </Typography>
+            <Typography
+              className=" w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis"
+              variant="h4"
+              gutterBottom
             >
-              Proceed
-            </Button>
+              Who are you?
+            </Typography>
+            {/* Birthday */}
+            <div className="mb-3">
+              <CustomDatePicker fieldName="birthday" label="Birthday" />
+            </div>
+            {/* Gender */}
+            <div className="mb-3">
+              <CustomSelect
+                options={genderList}
+                fieldName="gender"
+                label="Gender"
+              />
+            </div>
+            {/* Profession */}
+            <TextField
+              sx={{ marginBottom: "12px" }}
+              value={formik.values.profession}
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              error={!!formik.errors.profession && formik.touched.profession}
+              helperText={
+                !!formik.errors.profession && formik.touched.profession
+                  ? formik.errors.profession
+                  : " "
+              }
+              autoComplete="off"
+              label="Profession"
+              name="profession"
+              size="small"
+              fullWidth
+            />
+            {/* Employer */}
+            <TextField
+              sx={{ marginBottom: "12px" }}
+              value={formik.values.employer}
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              error={!!formik.errors.employer && formik.touched.employer}
+              helperText={
+                !!formik.errors.employer && formik.touched.employer
+                  ? formik.errors.employer
+                  : " "
+              }
+              autoComplete="off"
+              label="Employer"
+              name="employer"
+              size="small"
+              fullWidth
+            />
+            <Stack className=" justify-end" direction="row" spacing={4}>
+              <Button onClick={goBack} variant="text">
+                Go Back
+              </Button>
+              <Button
+                endIcon={<ChevronRightOutlined />}
+                onClick={validateAndProceed}
+                variant="contained"
+              >
+                Proceed
+              </Button>
+            </Stack>
           </Stack>
-        </Stack>
+        </motion.div>
       </Grid>
     </Grid>
   );
