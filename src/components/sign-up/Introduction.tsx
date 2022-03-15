@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 // Formik
 import { useFormikContext } from "formik";
@@ -6,51 +6,44 @@ import { useFormikContext } from "formik";
 // Utilities
 import { isStringEmpty } from "../../utilities/general-utilities";
 
-// Custom Hooks
-import useLocalContext from "../../custom_hooks/useLocalContext";
-
-// Validations
-import { introductionSchema } from "../../validators/credentials";
-
 // Mui
-import { Button, Stack, TextField, Typography } from "@mui/material";
+import { Button, Grid, Stack, TextField, Typography } from "@mui/material";
 
 // Icons
 import { ChevronRightOutlined } from "@mui/icons-material";
 
-interface PropsInterface {
-  changeStep: (a: number) => void;
-}
+// Components
+import ExplainSection from "./ExplainSection";
+
+// HOC
+import withContextSaver from "../../hoc/withContextSaver";
+
+// Navigate
+import { useNavigate } from "react-router-dom";
 
 interface FieldObject {
   [key: string]: boolean;
 }
 
+interface PropsInterface {
+  saveContext: (a: string, b: any) => void;
+}
+
 function Introduction(props: PropsInterface) {
   const formik: any = useFormikContext();
 
-  const [localContext, persistContext] = useLocalContext("introduction", {
-    name: "",
-    surname: "",
-  });
-
-  useEffect(() => {
-    function populateFromContext(context: Object) {
-      introductionSchema.validate(context).then((res) => {
-        formik.setValues(res);
-      });
-    }
-    populateFromContext(localContext);
-  }, []);
+  const navigate = useNavigate();
 
   async function validateAndProceed() {
     let errorObject = await formik.validateForm();
     if (!errorObject["name"] && !errorObject["surname"]) {
-      persistContext("introduction", {
-        name: formik.values.name?.trim(),
-        surname: formik.values.surname?.trim(),
+      let { username, password, ...rest } = formik.values;
+      props.saveContext("register-context", {
+        username: "",
+        password: "",
+        ...rest,
       });
-      props.changeStep(1);
+      navigate("/sign-up/personal-info");
     } else {
       let fieldsToTouch: FieldObject = {};
       for (let key of Object.keys(errorObject)) {
@@ -73,69 +66,78 @@ function Introduction(props: PropsInterface) {
   }, [formik.values.name, formik.values.surname]);
 
   return (
-    <Stack rowGap={2}>
-      <div>
-        <Typography variant="subtitle1">Hi there, 👋🏼</Typography>
-        <Typography
-          className=" w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis capitalize"
-          variant="h4"
-          gutterBottom
-        >
-          {fullName}
-        </Typography>
-      </div>
-      <div>
-        <TextField
-          sx={{ marginBottom: "12px" }}
-          value={formik.values.name}
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          error={!!formik.errors.name && formik.touched.name}
-          helperText={
-            !!formik.errors.name && formik.touched.name
-              ? formik.errors.name
-              : " "
-          }
-          autoComplete="off"
-          spellCheck={false}
-          autoCorrect="off"
-          label="First Name"
-          size="small"
-          name="name"
-          fullWidth
-          required
-        />
-        <TextField
-          sx={{ marginBottom: "12px" }}
-          value={formik.values.surname}
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          error={!!formik.errors.surname && formik.touched.surname}
-          helperText={
-            !!formik.errors.surname && formik.touched.surname
-              ? formik.errors.surname
-              : " "
-          }
-          spellCheck={false}
-          autoCorrect="off"
-          autoComplete="off"
-          label="Last Name"
-          name="surname"
-          size="small"
-          fullWidth
-          required
-        />
-      </div>
-      <Button
-        onClick={validateAndProceed}
-        endIcon={<ChevronRightOutlined />}
-        variant="contained"
-        className="w-fit self-end"
-      >
-        Proceed
-      </Button>
-    </Stack>
+    <Grid container>
+      <ExplainSection
+        step={1}
+        title="What should we call you?"
+        subtitle="Welcome to your account setup."
+      />
+      <Grid xs={12} md={6} className="p-6" item>
+        <Stack rowGap={2}>
+          <div>
+            <Typography variant="subtitle1">Hi there, 👋🏼</Typography>
+            <Typography
+              className=" w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis capitalize"
+              variant="h4"
+              gutterBottom
+            >
+              {fullName}
+            </Typography>
+          </div>
+          <div>
+            <TextField
+              sx={{ marginBottom: "12px" }}
+              value={formik.values.name}
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              error={!!formik.errors.name && formik.touched.name}
+              helperText={
+                !!formik.errors.name && formik.touched.name
+                  ? formik.errors.name
+                  : " "
+              }
+              autoComplete="off"
+              spellCheck={false}
+              autoCorrect="off"
+              label="First Name"
+              size="small"
+              name="name"
+              fullWidth
+              required
+            />
+            <TextField
+              sx={{ marginBottom: "12px" }}
+              value={formik.values.surname}
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              error={!!formik.errors.surname && formik.touched.surname}
+              helperText={
+                !!formik.errors.surname && formik.touched.surname
+                  ? formik.errors.surname
+                  : " "
+              }
+              spellCheck={false}
+              autoCorrect="off"
+              autoComplete="off"
+              label="Last Name"
+              name="surname"
+              size="small"
+              fullWidth
+              required
+            />
+          </div>
+          <Button
+            onClick={validateAndProceed}
+            endIcon={<ChevronRightOutlined />}
+            variant="contained"
+            className="w-fit self-end"
+          >
+            Proceed
+          </Button>
+        </Stack>
+      </Grid>
+    </Grid>
   );
 }
 
-export default Introduction;
+export default withContextSaver(Introduction);

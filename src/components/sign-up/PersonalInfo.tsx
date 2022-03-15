@@ -1,61 +1,39 @@
-import { useEffect } from "react";
-
-// Custom Hooks
-import useLocalContext from "../../custom_hooks/useLocalContext";
-
-// Validations
-import { personalInfoSchema } from "../../validators/credentials";
+// Navigation
+import { useNavigate } from "react-router-dom";
 
 // Formik
 import { useFormikContext } from "formik";
 
-// MUI
+// Icons
 import { ChevronRightOutlined } from "@mui/icons-material";
+
+// MUI
 import { Button, Grid, Stack, TextField, Typography } from "@mui/material";
 
 // Utilities
 import { genderList } from "../../utilities/general-utilities";
 
 // Components
+import ExplainSection from "./ExplainSection";
 import CustomSelect from "../general/CustomSelect";
 import CustomDatePicker from "../general/CustomDatePicker";
-interface PropsInterface {
-  changeStep: (a: number) => void;
-}
+
+// HOC
+import withContextSaver from "../../hoc/withContextSaver";
+
 interface FieldObject {
   [key: string]: boolean;
+}
+interface PropsInterface {
+  saveContext: (a: string, b: any) => void;
 }
 
 function PersonalInfo(props: PropsInterface) {
   const formik: any = useFormikContext();
 
-  const [localContext, persistContext] = useLocalContext("personal-info", {
-    gender: "",
-    birthday: null,
-    employer: "",
-    profession: "",
-  });
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    function populateFromContext(context: Object) {
-      personalInfoSchema.validate(context).then((res) => {
-        formik.setValues(res);
-      });
-    }
-    console.log(localContext);
-    populateFromContext(localContext);
-  }, []);
-
-  function goBack() {
-    persistContext("personal-info", {
-      gender: formik.values.gender,
-      birthday: formik.values.birthday,
-      employer: formik.values.employer?.trim(),
-      profession: formik.values.profession?.trim(),
-      defaultCurrency: formik.values.defaultCurrency,
-    });
-    props.changeStep(-1);
-  }
+  const goBack = () => navigate("/sign-up/introduction");
 
   async function validateAndProceed() {
     let errorObject = await formik.validateForm();
@@ -66,14 +44,13 @@ function PersonalInfo(props: PropsInterface) {
       !errorObject.profession &&
       !errorObject.defaultCurrency
     ) {
-      persistContext("personal-info", {
-        gender: formik.values.gender,
-        birthday: formik.values.birthday,
-        employer: formik.values.employer?.trim(),
-        profession: formik.values.profession?.trim(),
-        defaultCurrency: formik.values.defaultCurrency,
+      let { username, password, ...rest } = formik.values;
+      props.saveContext("register-context", {
+        username: "",
+        password: "",
+        ...rest,
       });
-      props.changeStep(1);
+      navigate("/sign-up/credentials");
     } else {
       let fieldsToTouch: FieldObject = {};
       for (let key of Object.keys(errorObject)) {
@@ -93,75 +70,91 @@ function PersonalInfo(props: PropsInterface) {
       formik.setErrors(errorObject);
     }
   }
+
   return (
-    <Stack>
-      {/* Birthday */}
-      <Typography variant="subtitle1">Alright {formik.values.name},</Typography>
-      <Typography
-        className=" w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis"
-        variant="h4"
-        gutterBottom
-      >
-        Who are you?
-      </Typography>
-      {/* Birthday */}
-      <div className="mb-3">
-        <CustomDatePicker fieldName="birthday" label="Birthday" />
-      </div>
-      {/* Gender */}
-      <div className="mb-3">
-        <CustomSelect options={genderList} fieldName="gender" label="Gender" />
-      </div>
-      {/* Profession */}
-      <TextField
-        sx={{ marginBottom: "12px" }}
-        value={formik.values.profession}
-        onBlur={formik.handleBlur}
-        onChange={formik.handleChange}
-        error={!!formik.errors.profession && formik.touched.profession}
-        helperText={
-          !!formik.errors.profession && formik.touched.profession
-            ? formik.errors.profession
-            : " "
-        }
-        autoComplete="off"
-        label="Profession"
-        name="profession"
-        size="small"
-        fullWidth
+    <Grid container>
+      <ExplainSection
+        step={2}
+        title={`Lets get to know you ${formik.values.name?.trim()}.`}
+        paragraph="Tell us a little bit more about yourself and what you do."
       />
-      {/* Employer */}
-      <TextField
-        sx={{ marginBottom: "12px" }}
-        value={formik.values.employer}
-        onBlur={formik.handleBlur}
-        onChange={formik.handleChange}
-        error={!!formik.errors.employer && formik.touched.employer}
-        helperText={
-          !!formik.errors.employer && formik.touched.employer
-            ? formik.errors.employer
-            : " "
-        }
-        autoComplete="off"
-        label="Employer"
-        name="employer"
-        size="small"
-        fullWidth
-      />
-      <Stack className=" justify-end" direction="row" spacing={4}>
-        <Button onClick={goBack} variant="text">
-          Go Back
-        </Button>
-        <Button
-          endIcon={<ChevronRightOutlined />}
-          onClick={validateAndProceed}
-          variant="contained"
-        >
-          Proceed
-        </Button>
-      </Stack>
-    </Stack>
+      <Grid xs={12} md={6} className="p-6" item>
+        <Stack>
+          {/* Birthday */}
+          <Typography variant="subtitle1">
+            Alright {formik.values.name},
+          </Typography>
+          <Typography
+            className=" w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis"
+            variant="h4"
+            gutterBottom
+          >
+            Who are you?
+          </Typography>
+          {/* Birthday */}
+          <div className="mb-3">
+            <CustomDatePicker fieldName="birthday" label="Birthday" />
+          </div>
+          {/* Gender */}
+          <div className="mb-3">
+            <CustomSelect
+              options={genderList}
+              fieldName="gender"
+              label="Gender"
+            />
+          </div>
+          {/* Profession */}
+          <TextField
+            sx={{ marginBottom: "12px" }}
+            value={formik.values.profession}
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            error={!!formik.errors.profession && formik.touched.profession}
+            helperText={
+              !!formik.errors.profession && formik.touched.profession
+                ? formik.errors.profession
+                : " "
+            }
+            autoComplete="off"
+            label="Profession"
+            name="profession"
+            size="small"
+            fullWidth
+          />
+          {/* Employer */}
+          <TextField
+            sx={{ marginBottom: "12px" }}
+            value={formik.values.employer}
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            error={!!formik.errors.employer && formik.touched.employer}
+            helperText={
+              !!formik.errors.employer && formik.touched.employer
+                ? formik.errors.employer
+                : " "
+            }
+            autoComplete="off"
+            label="Employer"
+            name="employer"
+            size="small"
+            fullWidth
+          />
+          <Stack className=" justify-end" direction="row" spacing={4}>
+            <Button onClick={goBack} variant="text">
+              Go Back
+            </Button>
+            <Button
+              endIcon={<ChevronRightOutlined />}
+              onClick={validateAndProceed}
+              variant="contained"
+            >
+              Proceed
+            </Button>
+          </Stack>
+        </Stack>
+      </Grid>
+    </Grid>
   );
 }
 
-export default PersonalInfo;
+export default withContextSaver(PersonalInfo);

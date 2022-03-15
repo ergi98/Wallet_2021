@@ -115,8 +115,8 @@ function InitialScreen() {
             rowSpacing={8}
             container
           >
-            {mainPoints.map((point) => (
-              <Grid xs={12} md={12} lg={4} xl={4} item>
+            {mainPoints.map((point, index) => (
+              <Grid xs={12} md={12} lg={4} xl={4} key={index} item>
                 <motion.div
                   initial={point.initial}
                   animate={point.animate}
@@ -139,9 +139,7 @@ function InitialScreen() {
                   >
                     {point.icon}
                   </Paper>
-                  <div className="text-gray-100 w-64">
-                    {point.text}
-                  </div>
+                  <div className="text-gray-100 w-64">{point.text}</div>
                 </motion.div>
               </Grid>
             ))}

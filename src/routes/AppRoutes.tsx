@@ -13,6 +13,9 @@ import SignUp from "../views/sign-up/SignUp";
 import ProtectedRoute from "./ProtectedRoute";
 import PageLoading from "../components/general/PageLoading";
 import InitialScreen from "../views/initial-screen/InitialScreen";
+import Introduction from "../components/sign-up/Introduction";
+import PersonalInfo from "../components/sign-up/PersonalInfo";
+import Credentials from "../components/sign-up/Credentials";
 const Pin = lazy(() => import("../views/pin/Pin"));
 const Home = lazy(() => import("../views/home/Home"));
 const HeatMap = lazy(() => import("../views/heat-map/HeatMap"));
@@ -40,76 +43,109 @@ const appRoutes = [
     path: "/",
     element: <InitialScreen />,
     private: false,
+    index: false,
   },
   {
     path: "/login",
     element: <Login />,
     private: false,
+    index: false,
   },
   {
-    path: "/sign-up/:step",
+    path: "/sign-up",
     element: <SignUp />,
     private: false,
+    index: false,
+    children: [
+      {
+        path: "introduction",
+        element: <Introduction />,
+      },
+      {
+        path: "personal-info",
+        element: <PersonalInfo />,
+      },
+      {
+        path: "credentials",
+        element: <Credentials />,
+      },
+      {
+        path: "*",
+        element: <NotFound />,
+      },
+    ],
   },
   {
     path: "/pin",
     element: <Pin />,
     private: true,
+    index: false,
   },
   {
     path: "/home",
     element: <Home />,
     private: true,
+    index: false,
   },
   {
     path: "/portfolios",
     element: <Portfolios />,
     private: true,
+    index: false,
   },
   {
     path: "/settings",
     element: <Settings />,
+    index: false,
     private: true,
   },
   {
     path: "/profile",
     element: <Profile />,
     private: true,
+    index: false,
   },
   {
     path: "/profit",
     element: <RegisterProfit />,
     private: true,
+    index: false,
   },
   {
     path: "/expense",
     element: <RegisterExpense />,
     private: true,
+    index: false,
   },
   {
     path: "/expense/select-location",
     element: <SelectLocation />,
     private: true,
+    index: false,
   },
   {
     path: "/transactions",
     element: <Transactions />,
     private: true,
+    index: false,
   },
   {
     path: "/analysis",
     element: <Analysis />,
     private: true,
+    index: false,
   },
   {
     path: "/analysis/heat-map",
     element: <HeatMap />,
     private: true,
+    index: false,
   },
   {
     path: "*",
     element: <NotFound />,
     private: false,
+    index: false,
   },
 ];
 
@@ -131,22 +167,44 @@ function AppRoutes(props: PropsInterface) {
                   <Route
                     key={route.path}
                     path={route.path}
+                    index={route.index}
                     element={
                       <ProtectedRoute authenticated={props.isAuthenticated}>
                         {route.element}
                       </ProtectedRoute>
                     }
-                  />
+                  >
+                    {route.children
+                      ? route.children.map((child) => (
+                          <Route
+                            key={child.path}
+                            path={child.path}
+                            element={child.element}
+                          />
+                        ))
+                      : null}
+                  </Route>
                 ) : (
                   <Route
                     key={route.path}
                     path={route.path}
+                    index={route.index}
                     element={
                       <PublicRoute authenticated={props.isAuthenticated}>
                         {route.element}
                       </PublicRoute>
                     }
-                  />
+                  >
+                    {route.children
+                      ? route.children.map((child) => (
+                          <Route
+                            key={child.path}
+                            path={child.path}
+                            element={child.element}
+                          />
+                        ))
+                      : null}
+                  </Route>
                 )
               )}
             </Routes>

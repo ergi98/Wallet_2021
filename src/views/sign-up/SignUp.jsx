@@ -1,5 +1,6 @@
 // MUI
 import { Stack, Paper } from "@mui/material";
+import { useEffect } from "react";
 
 // Navigation
 import { useNavigate } from "react-router-dom";
@@ -16,7 +17,7 @@ import SignUpForm from "../../components/sign-up/SignUpForm";
 function SignUp() {
   const navigate = useNavigate();
   const navigateHome = () => navigate("/");
-
+  
   return (
     <Stack
       className="relative z-10 w-full h-full"
