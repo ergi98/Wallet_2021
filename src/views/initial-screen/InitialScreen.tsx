@@ -47,137 +47,139 @@ function InitialScreen() {
   const navigateTo = (url: string) => navigate(url);
 
   return (
-    <div className="relative z-50 full-height flex justify-center overflow-auto py-10">
-      <div className="my-auto w-10/12 max-w-7xl p-3">
-        <Grid container direction="column" alignItems="center">
-          <Grid item>
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 1, y: -8 }}
-              transition={{
-                type: "spring",
-                stiffness: 100,
-                duration: 150,
-              }}
-            >
-              <WalletLogo className="relative w-20 sm:w-24 mx-auto mt-0 h-auto" />
-            </motion.div>
-          </Grid>
-          <Grid item>
-            <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{
-                type: "spring",
-                stiffness: 100,
-                duration: 500,
-              }}
-            >
-              <Typography
-                variant="h6"
-                align="center"
-                className="text-gray-100 pt-3"
-                gutterBottom
-              >
-                Track your everyday transactions.
-              </Typography>
-            </motion.div>
-          </Grid>
-          <Grid className="w-full sm:w-4/5" item>
-            <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{
-                type: "spring",
-                stiffness: 100,
-                duration: 500,
-              }}
-            >
-              <Typography className=" text-gray-100" paragraph>
-                With wallet it is simple than ever to be on top of your
-                expenditures and earnings. We help you keep track of each and
-                every transaction you do during the day and provide useful
-                reports and charts to visualize your spending habits.
-              </Typography>
-            </motion.div>
-          </Grid>
-          <Grid className="py-12" item>
-            <Grid
-              className="justify-center"
-              container
-              rowSpacing={8}
-              columnSpacing={8}
-            >
-              {mainPoints.map((point) => (
-                <Grid item>
-                  <motion.div
-                    initial={point.initial}
-                    animate={point.animate}
-                    exit={point.exit}
-                    transition={{
-                      type: "spring",
-                      stiffness: 100,
-                      duration: 500,
-                    }}
-                    className="flex flex-col items-center"
-                  >
-                    <Paper
-                      sx={{
-                        width: "fit-content",
-                        borderRadius: "50%",
-                        backgroundColor: "#FEFEFE",
-                      }}
-                      className="p-5 mb-3"
-                      elevation={4}
-                    >
-                      {point.icon}
-                    </Paper>
-                    <div className="text-gray-100 min-w-[250px] max-w-fit">
-                      {point.text}
-                    </div>
-                  </motion.div>
-                </Grid>
-              ))}
-            </Grid>
-          </Grid>
-
+    <>
+      <div className="absolute top-24 left-1/2 -translate-x-1/2">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 1, y: 30.5 }}
+          transition={{
+            type: "spring",
+            stiffness: 100,
+            duration: 150,
+          }}
+        >
+          <WalletLogo className="relative w-20 sm:w-24 mx-auto mt-0 h-auto" />
+        </motion.div>
+      </div>
+      <Grid
+        className="z-10 relative w-10/12 max-w-7xl mx-auto sm:pb-0 pb-6 pt-44"
+        alignItems="center"
+        direction="column"
+        container
+      >
+        <Grid xs={12} item>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            exit={{ opacity: 0 }}
             transition={{
               type: "spring",
               stiffness: 100,
-              duration: 650,
+              duration: 500,
             }}
           >
-            <Grid className="pt-12" item>
-              <Button
-                onClick={() => navigateTo("/sign-up/introduction")}
-                variant="contained"
-              >
-                Create an Account
-              </Button>
-            </Grid>
-            <Grid className="pt-3" item>
-              <Divider className=" text-gray-100 w-48 text-[12px] ">OR</Divider>
-            </Grid>
-            <Grid className="pt-3" item>
-              <Button
-                onClick={() => navigateTo("/login")}
-                variant="text"
-                sx={{ color: "#f3f4f6", fontSize: "12px" }}
-              >
-                Login with your account
-              </Button>
-            </Grid>
+            <Typography
+              variant="h6"
+              align="center"
+              className="text-gray-100 pt-3"
+              gutterBottom
+            >
+              Track your everyday transactions.
+            </Typography>
           </motion.div>
         </Grid>
-      </div>
-    </div>
+        <Grid xs={12} className="sm:w-2/3 w-4/5" item>
+          <motion.div
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 100,
+              duration: 500,
+            }}
+          >
+            <Typography className=" text-gray-100" paragraph>
+              With wallet it is simple than ever to be on top of your
+              expenditures and earnings. We help you keep track of each and
+              every transaction you do during the day and provide useful reports
+              and charts to visualize your spending habits.
+            </Typography>
+          </motion.div>
+        </Grid>
+        <Grid xs={12} className="py-12" item>
+          <Grid
+            className="justify-center"
+            columnSpacing={8}
+            rowSpacing={8}
+            container
+          >
+            {mainPoints.map((point) => (
+              <Grid xs={12} md={12} lg={4} xl={4} item>
+                <motion.div
+                  initial={point.initial}
+                  animate={point.animate}
+                  exit={point.exit}
+                  transition={{
+                    type: "spring",
+                    stiffness: 100,
+                    duration: 500,
+                  }}
+                  className="flex flex-col items-center"
+                >
+                  <Paper
+                    sx={{
+                      width: "fit-content",
+                      borderRadius: "50%",
+                      backgroundColor: "#FEFEFE",
+                    }}
+                    className="p-5 mb-3"
+                    elevation={4}
+                  >
+                    {point.icon}
+                  </Paper>
+                  <div className="text-gray-100 w-64">
+                    {point.text}
+                  </div>
+                </motion.div>
+              </Grid>
+            ))}
+          </Grid>
+        </Grid>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{
+            type: "spring",
+            stiffness: 100,
+            duration: 650,
+          }}
+        >
+          <Grid className="pt-12" item>
+            <Button
+              onClick={() => navigateTo("/sign-up/introduction")}
+              variant="contained"
+            >
+              Create an Account
+            </Button>
+          </Grid>
+          <Grid className="pt-3" item>
+            <Divider className=" text-gray-100 w-48 text-[12px] ">OR</Divider>
+          </Grid>
+          <Grid className="pt-3 pb-6" item>
+            <Button
+              onClick={() => navigateTo("/login")}
+              variant="text"
+              sx={{ color: "#f3f4f6", fontSize: "12px" }}
+            >
+              Login with your account
+            </Button>
+          </Grid>
+        </motion.div>
+      </Grid>
+    </>
   );
 }
 
