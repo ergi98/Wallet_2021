@@ -52,7 +52,7 @@ function InitialScreen() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 1, y: 30.5 }}
+          exit={{ opacity: 1, y: 32 }}
           transition={{
             type: "spring",
             stiffness: 100,
@@ -63,7 +63,7 @@ function InitialScreen() {
         </motion.div>
       </div>
       <Grid
-        className="z-10 relative w-10/12 max-w-7xl mx-auto sm:pb-0 pb-6 pt-44"
+        className="w-10/12 max-w-7xl mx-auto sm:pb-0 pb-6 pt-44"
         alignItems="center"
         direction="column"
         container
