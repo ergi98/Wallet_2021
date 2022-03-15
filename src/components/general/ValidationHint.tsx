@@ -25,7 +25,7 @@ function ValidationHint({ content }: { content: ReactChild }) {
         >
           <HelpOutline
             className="cursor-pointer"
-            sx={{ color: "#9e9e9e", fontSize: "18px" }}
+            sx={{ fontSize: "20px" }}
             onClick={() => setShowTooltip(!showTooltip)}
           />
         </Tooltip>

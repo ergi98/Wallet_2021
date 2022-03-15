@@ -1,8 +1,5 @@
 // Icons
-import {
-  RemoveRedEyeOutlined,
-  VisibilityOffOutlined,
-} from "@mui/icons-material";
+import { LockOutlined, LockOpenOutlined } from "@mui/icons-material";
 
 interface PropsInterface {
   value: boolean;
@@ -12,14 +9,14 @@ function ToggleVisibility(props: PropsInterface) {
   return (
     <>
       {props.value ? (
-        <VisibilityOffOutlined
-          sx={{ color: "#9e9e9e", fontSize: "18px" }}
+        <LockOpenOutlined
+          sx={{ fontSize: "20px" }}
           className="cursor-pointer"
           onClick={props.onClick}
         />
       ) : (
-        <RemoveRedEyeOutlined
-          sx={{ color: "#9e9e9e", fontSize: "18px" }}
+        <LockOutlined
+          sx={{ fontSize: "20px" }}
           className="cursor-pointer"
           onClick={props.onClick}
         />

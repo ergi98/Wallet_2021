@@ -7,24 +7,22 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
 // Components
+import PublicRoute from "./PublicRoute";
+import Login from "../views/login/Login";
+import SignUp from "../views/sign-up/SignUp";
+import ProtectedRoute from "./ProtectedRoute";
 import PageLoading from "../components/general/PageLoading";
+import InitialScreen from "../views/initial-screen/InitialScreen";
 const Pin = lazy(() => import("../views/pin/Pin"));
 const Home = lazy(() => import("../views/home/Home"));
-const Login = lazy(() => import("../views/login/Login"));
-const SignUp = lazy(() => import("../views/sign-up/SignUp"));
 const HeatMap = lazy(() => import("../views/heat-map/HeatMap"));
-const PublicRoute = lazy(() => import("./PublicRoute"));
 const Analysis = lazy(() => import("../views/analysis/Analysis"));
 const Settings = lazy(() => import("../views/settings/Settings"));
 const NotFound = lazy(() => import("../views/not-found/NotFound"));
-const ProtectedRoute = lazy(() => import("./ProtectedRoute"));
 const Portfolios = lazy(() => import("../views/portfolios/Portfolios"));
 const Transactions = lazy(() => import("../views/transactions/Transactions"));
 const SelectLocation = lazy(
   () => import("../views/select-location/SelectLocation")
-);
-const InitialScreen = lazy(
-  () => import("../views/initial-screen/InitialScreen")
 );
 const RegisterProfit = lazy(
   () => import("../views/register-profit/RegisterProfit")

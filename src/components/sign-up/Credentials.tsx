@@ -7,7 +7,13 @@ import { useFormikContext } from "formik";
 import { CelebrationOutlined } from "@mui/icons-material";
 
 // MUI
-import { Button, Stack, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  InputAdornment,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 
 // Components
 import ValidationHint from "../general/ValidationHint";
@@ -65,9 +71,7 @@ function Credentials(props: PropsInterface) {
       });
   }
 
-  function validateAndRegister() {
-    
-  }
+  function validateAndRegister() {}
 
   return (
     <Stack>
@@ -96,15 +100,17 @@ function Credentials(props: PropsInterface) {
         }
         InputProps={{
           endAdornment: (
-            <ValidationHint
-              content={
-                <ul className=" list-disc ml-3">
-                  {usernameRules.map((rule) => (
-                    <li key={rule}>{rule}.</li>
-                  ))}
-                </ul>
-              }
-            />
+            <InputAdornment position="end">
+              <ValidationHint
+                content={
+                  <ul className=" list-disc ml-3">
+                    {usernameRules.map((rule) => (
+                      <li key={rule}>{rule}.</li>
+                    ))}
+                  </ul>
+                }
+              />
+            </InputAdornment>
           ),
         }}
         spellCheck={false}
@@ -129,12 +135,16 @@ function Credentials(props: PropsInterface) {
             : " "
         }
         InputProps={{
-          endAdornment: (
-            <Stack direction="row" className=" items-center" spacing={0.5}>
+          startAdornment: (
+            <InputAdornment position="start">
               <ToggleVisibility
                 value={showPassword}
                 onClick={toggleShowPassword}
               />
+            </InputAdornment>
+          ),
+          endAdornment: (
+            <InputAdornment position="end">
               <ValidationHint
                 content={
                   <ul className=" list-disc ml-3">
@@ -144,7 +154,7 @@ function Credentials(props: PropsInterface) {
                   </ul>
                 }
               />
-            </Stack>
+            </InputAdornment>
           ),
         }}
         type={showPassword ? "text" : "password"}
@@ -166,11 +176,13 @@ function Credentials(props: PropsInterface) {
         error={matchError.show}
         helperText={!!matchError.show ? matchError.message : " "}
         InputProps={{
-          endAdornment: (
-            <ToggleVisibility
-              value={showRepeatPwd}
-              onClick={toggleShowRepeatPwd}
-            />
+          startAdornment: (
+            <InputAdornment position="start">
+              <ToggleVisibility
+                value={showRepeatPwd}
+                onClick={toggleShowRepeatPwd}
+              />
+            </InputAdornment>
           ),
         }}
         type={showRepeatPwd ? "text" : "password"}

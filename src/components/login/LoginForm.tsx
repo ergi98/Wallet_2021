@@ -7,27 +7,25 @@ import { useFormik } from "formik";
 import { loginSchema } from "../../validators/credentials";
 
 // Icons
-import {
-  LockOutlined,
-  LoginOutlined,
-  PersonOutlineOutlined,
-} from "@mui/icons-material";
+import { LoginOutlined, PersonOutlineOutlined } from "@mui/icons-material";
 
 // MUI
 import {
-  TextField,
   Grid,
-  InputAdornment,
-  Divider,
   Button,
+  Divider,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
 // Navigation
 import { useNavigate } from "react-router-dom";
+import ToggleVisibility from "../general/ToggleVisibility";
 
 function LoginForm() {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const navigateToSignUp = () => navigate("/sign-up/introduction");
 
@@ -56,6 +54,7 @@ function LoginForm() {
   return (
     <form noValidate onSubmit={formik.handleSubmit}>
       <Grid rowGap={2} direction="column" alignItems="center" container>
+        {/* Username */}
         <Grid className="w-full" item>
           <TextField
             value={formik.values.username}
@@ -81,12 +80,14 @@ function LoginForm() {
             required
           />
         </Grid>
+        {/* Password */}
         <Grid className="w-full" item>
           <TextField
             value={formik.values.password}
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
             error={!!formik.errors.password && formik.touched.password}
+            type={showPassword ? "text" : "password"}
             helperText={
               !!formik.errors.password && formik.touched.password
                 ? formik.errors.password
@@ -94,12 +95,14 @@ function LoginForm() {
             }
             label="Password"
             name="password"
-            type="password"
             size="small"
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <LockOutlined />
+                  <ToggleVisibility
+                    value={showPassword}
+                    onClick={() => setShowPassword((prev) => !prev)}
+                  />
                 </InputAdornment>
               ),
             }}
