@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 // Navigation
 import { useNavigate } from "react-router-dom";
 
@@ -14,7 +16,6 @@ import { ReactComponent as WalletLogo } from "../../assets/logo/wallet-logo.svg"
 import { ReactComponent as EasyIllustration } from "../../assets/illustrations/easy.svg";
 import { ReactComponent as SecureIllustration } from "../../assets/illustrations/secure.svg";
 import { ReactComponent as AnalysisIllustration } from "../../assets/illustrations/analysis.svg";
-import { useState } from "react";
 
 const iconClasses = "w-32 h-32";
 
@@ -76,7 +77,7 @@ function InitialScreen() {
         </motion.div>
       </div>
       <Grid
-        className="w-10/12 max-w-7xl mx-auto sm:pb-0 pb-6 pt-44"
+        className="w-10/12 max-w-7xl mx-auto sm:pb-0 pb-6 pt-44 pb-env"
         alignItems="center"
         direction="column"
         container

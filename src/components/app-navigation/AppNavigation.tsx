@@ -73,7 +73,7 @@ function AppNavigation() {
     <Paper
       sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }}
       elevation={10}
-      className="pt-2"
+      className="pb-env pt-2"
       square
     >
       <BottomNavigation

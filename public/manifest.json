@@ -62,9 +62,9 @@
   "start_url": ".",
   "dir": "ltr",
   "lang": "en-US",
-  "display": "fullscreen",
-  "theme_color": "#2196F3",
-  "background_color": "#2196F3",
+  "display": "standalone",
+  "theme_color": "#1e3a8a",
+  "background_color": "#1e3a8a",
   "orientation": "portrait-primary",
   "categories": ["finance", "lifestyle", "shopping"]
 }

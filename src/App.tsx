@@ -74,7 +74,7 @@ function App() {
         <Container
           disableGutters
           maxWidth={false}
-          className="z-10 full-height overflow-y-auto overflow-x-hidden relative"
+          className="z-10 h-full overflow-x-hidden overflow-y-auto relative px-env pt-env"
         >
           <React.StrictMode>
             <ThemeProvider theme={theme}>

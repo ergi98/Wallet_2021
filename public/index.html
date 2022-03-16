@@ -5,9 +5,9 @@
     <link rel="icon" href="%PUBLIC_URL%/logos/favicon.ico" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, user-scalable=no"
+      content="viewport-fit=cover, width=device-width, initial-scale=1, user-scalable=no"
     />
-    <meta name="theme-color" content="#2196F3" />
+    <meta name="theme-color" content="#1e3a8a" />
     <meta name="description" content="Track your everyday transactions." />
 
     <!-- Apple Stuff -->
@@ -54,21 +54,11 @@
     -->
     <title>Wallet</title>
   </head>
-  <body>
+  <body
+    class="bg-gradient-to-b from-blue-900 to-blue-400 relative overflow-hidden"
+  >
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div
-      id="root"
-      class="full-height overflow-hidden relative bg-gradient-to-b from-blue-900 to-blue-400"
-    ></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+    <div id="root" class="h-full relative overflow-hidden"></div>
+    <script src="inobounce.min.js"></script>
   </body>
 </html>
