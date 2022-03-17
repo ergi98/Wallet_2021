@@ -72,3 +72,7 @@ body {
     padding-right: var(--right) !important;
   }
 }
+
+.app-height {
+  height: calc(100% - var(--bottom) - 64px);
+}

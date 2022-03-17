@@ -1,4 +1,19 @@
-import { parse, isDate } from "date-fns";
+import { isDate, getDate, getMonth, getYear } from "date-fns";
+
+const months = [
+  "Jan",
+  "Feb",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "Aug",
+  "Sept",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 function convertToUTC(date: Date): Date {
   var utcDate = Date.UTC(
@@ -25,4 +40,12 @@ function parseDateString(parsedValue: Object, value: string) {
   return parsedDate;
 }
 
-export { convertToUTC, isValidDate, parseDateString };
+function formatDate(date: Date): string {
+  let day = getDate(date);
+  let month = getMonth(date);
+  let year = getYear(date);
+
+  return `${day} ${months[month]} ${year}`;
+}
+
+export { convertToUTC, isValidDate, parseDateString, formatDate };

@@ -16,6 +16,8 @@ import InitialScreen from "../views/initial-screen/InitialScreen";
 import Introduction from "../components/sign-up/Introduction";
 import PersonalInfo from "../components/sign-up/PersonalInfo";
 import Credentials from "../components/sign-up/Credentials";
+import HomeEarnings from "../views/home/HomeEarnings";
+import HomeExpenses from "../views/home/HomeExpenses";
 const Pin = lazy(() => import("../views/pin/Pin"));
 const Home = lazy(() => import("../views/home/Home"));
 const HeatMap = lazy(() => import("../views/heat-map/HeatMap"));
@@ -86,6 +88,16 @@ const appRoutes = [
     element: <Home />,
     private: true,
     index: false,
+    children: [
+      {
+        path: "expenses",
+        element: <HomeExpenses />,
+      },
+      {
+        path: "earnings",
+        element: <HomeEarnings />,
+      },
+    ],
   },
   {
     path: "/portfolios",
