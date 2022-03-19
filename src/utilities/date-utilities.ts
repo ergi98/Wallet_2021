@@ -1,4 +1,4 @@
-import { isDate, getDate, getMonth, getYear } from "date-fns";
+import { isDate, getDate, getMonth, getYear, isValid } from "date-fns";
 
 const months = [
   "Jan",
@@ -27,6 +27,13 @@ function convertToUTC(date: Date): Date {
   return new Date(utcDate);
 }
 
+function isTodayDate(date: string): Boolean {
+  let dateObject = new Date(date);
+  if (isValidDate(dateObject)) {
+    return isValid(dateObject);
+  } else return false;
+}
+
 function isValidDate(date: any): Boolean {
   let isValid = false;
   if (Object.prototype.toString.call(date) === "[object Date]") {
@@ -40,12 +47,19 @@ function parseDateString(parsedValue: Object, value: string) {
   return parsedDate;
 }
 
-function formatDate(date: Date): string {
-  let day = getDate(date);
-  let month = getMonth(date);
-  let year = getYear(date);
+function formatDate(date: string, format: string = "short"): string {
+  let dateObject = new Date(date);
+  if (isValidDate(dateObject)) {
+    let day = getDate(dateObject);
+    let month = getMonth(dateObject);
+    let year = getYear(dateObject);
 
-  return `${day} ${months[month]} ${year}`;
+    let time = getTimeFromDateString(date);
+
+    return format === "short"
+      ? `${day} ${months[month]} ${year}`
+      : `${time} ${day} ${months[month]} ${year}`;
+  } else return "";
 }
 
 function getTimeFromDateString(date: string) {
@@ -60,9 +74,10 @@ function getTimeFromDateString(date: string) {
 }
 
 export {
-  convertToUTC,
-  isValidDate,
-  parseDateString,
   formatDate,
+  isTodayDate,
+  isValidDate,
+  convertToUTC,
+  parseDateString,
   getTimeFromDateString,
 };

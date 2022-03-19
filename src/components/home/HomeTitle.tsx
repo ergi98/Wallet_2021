@@ -1,18 +1,17 @@
 // MUI
-import { SwapHorizOutlined } from "@mui/icons-material";
 import { Button, IconButton, Stack, Typography } from "@mui/material";
 
-// Date FNS
-import { isToday } from "date-fns";
+// Icons
+import { SwapHorizOutlined } from "@mui/icons-material";
 
 // Utilities
-import { formatDate } from "../../utilities/date-utilities";
+import { formatDate, isTodayDate } from "../../utilities/date-utilities";
 
 interface PropsInterface {
-  date: Date;
+  date: string;
   label: String;
   swapClick: () => void;
-  changeDate: (a: Date) => void;
+  changeDate: (a: string) => void;
 }
 
 function HomeTitle(props: PropsInterface) {
@@ -22,7 +21,9 @@ function HomeTitle(props: PropsInterface) {
     <Stack className="px-3 pt-1" direction="row" justifyContent="space-between">
       <div>
         <Typography className="text-gray-100" variant="h6">
-          {isToday(props.date) ? `Today's ${props.label}` : `${props.label}`}
+          {isTodayDate(props.date)
+            ? `Today's ${props.label}`
+            : `${props.label}`}
         </Typography>
         <Stack className="cursor-pointer" direction="row" gap={1}>
           <Button

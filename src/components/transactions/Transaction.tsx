@@ -13,6 +13,7 @@ import { getTimeFromDateString } from "../../utilities/date-utilities";
 import AmountDisplay from "../general/AmountDisplay";
 
 interface PropsInterface {
+  onClick: (a: boolean, b: TransactionInterface | null) => void;
   transaction: TransactionInterface;
 }
 function Transaction(props: PropsInterface) {
@@ -23,6 +24,7 @@ function Transaction(props: PropsInterface) {
   return (
     <Grid
       container
+      onClick={() => props.onClick(true, props.transaction)}
       className="w-full shadow-sm bg-white mb-3 p-2 rounded-lg h-fit overflow-hidden"
     >
       <Grid xs={8} item>
@@ -30,7 +32,9 @@ function Transaction(props: PropsInterface) {
           <div>
             {/** Title */}
             <div className="text-slate-900 text-ellipsis overflow-hidden whitespace-nowrap w-full">
-              {time && <span className="text-sm">{time}&nbsp;&minus;&nbsp;</span>}
+              {time && (
+                <span className="text-sm">{time}&nbsp;&minus;&nbsp;</span>
+              )}
               <Typography component="span" variant="subtitle2">
                 {props.transaction.title}
               </Typography>

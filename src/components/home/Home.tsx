@@ -23,7 +23,7 @@ const transaction = [
     _id: "5f7f2fd6323a3b0017e1ec1d",
     date: new Date().toISOString(),
     type: "expense",
-    title: "Kafe tek Moncheriaaaaaaaaaaaaaa aaaa  a aaaaaaaaaaaaaaaaa",
+    title: "Kafe tek Moncheriaaa aaaaaaaaaaa aaaa  a aaaaaaaaaa aaaaaaa",
     amount: 2000,
     currency: "ALL",
     portfolio: "5f8351f9d4d24d00172cd7bc",

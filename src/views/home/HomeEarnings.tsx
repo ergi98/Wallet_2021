@@ -12,7 +12,9 @@ import HomeTitle from "../../components/home/HomeTitle";
 import AmountDisplay from "../../components/general/AmountDisplay";
 
 function HomeEarnings() {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<string>(() =>
+    new Date().toISOString()
+  );
 
   const navigate = useNavigate();
 
