@@ -51,7 +51,6 @@ function VerticalSwipe(props: PropsInterface) {
   }, []);
 
   function registerTouchStart(event: TouchEvent<HTMLDivElement>) {
-    event.stopPropagation();
     verticalSwiper.current!.classList.remove("transition-all");
     userTouchYPosition = event.touches[0].clientY;
     bottomPosition = parseInt(
@@ -60,7 +59,6 @@ function VerticalSwipe(props: PropsInterface) {
   }
 
   function registerTouchMove(event: TouchEvent<HTMLDivElement>) {
-    event.stopPropagation();
     let currentPosition = event.touches[0].clientY;
     let delta = userTouchYPosition - currentPosition;
     let newBottom = bottomPosition + delta;

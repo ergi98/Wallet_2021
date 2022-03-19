@@ -32,17 +32,8 @@ interface PropsInterface {
 function TransactionDetailsDialog(props: PropsInterface) {
   const handleClose = () => props.onClose(false, null);
   return (
-    <Dialog
-      sx={{
-        "& .MuiDialog-paper": {
-          width: "92%",
-          margin: "34px 0px",
-          maxHeight: "90%",
-        },
-      }}
-      open={props.show}
-      onClose={handleClose}
-    >
+    <Dialog className="px-env" fullScreen open={props.show} onClose={handleClose}>
+      <div className="pt-env"></div>
       <Stack
         direction="row"
         alignItems="center"
@@ -168,6 +159,7 @@ function TransactionDetailsDialog(props: PropsInterface) {
           Edit
         </Button>
       </DialogActions>
+      <div className="pb-env"></div>
     </Dialog>
   );
 }
