@@ -19,7 +19,7 @@ const TouchArea = React.forwardRef(
       onTouchEnd={props.onTouchEnd}
       className={`${props.className} bg-transparent flex items-center justify-center`}
     >
-      <div className=" bg-gray-500 h-1 w-3/12 rounded-full"></div>
+      <div className=" bg-gray-400 h-1 w-3/12 rounded-full"></div>
     </Stack>
   )
 );

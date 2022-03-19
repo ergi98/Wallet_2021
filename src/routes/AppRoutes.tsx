@@ -19,7 +19,6 @@ import Credentials from "../components/sign-up/Credentials";
 import HomeEarnings from "../views/home/HomeEarnings";
 import HomeExpenses from "../views/home/HomeExpenses";
 const Pin = lazy(() => import("../views/pin/Pin"));
-const Home = lazy(() => import("../views/home/Home"));
 const HeatMap = lazy(() => import("../views/heat-map/HeatMap"));
 const Analysis = lazy(() => import("../views/analysis/Analysis"));
 const Settings = lazy(() => import("../views/settings/Settings"));
@@ -29,8 +28,8 @@ const Transactions = lazy(() => import("../views/transactions/Transactions"));
 const SelectLocation = lazy(
   () => import("../views/select-location/SelectLocation")
 );
-const RegisterProfit = lazy(
-  () => import("../views/register-profit/RegisterProfit")
+const RegisterIncome = lazy(
+  () => import("../views/register-income/RegisterIncome")
 );
 const RegisterExpense = lazy(
   () => import("../views/register-expense/RegisterExpense")
@@ -84,20 +83,16 @@ const appRoutes = [
     index: false,
   },
   {
-    path: "/home",
-    element: <Home />,
+    path: "/home/expenses",
+    element: <HomeExpenses />,
     private: true,
     index: false,
-    children: [
-      {
-        path: "expenses",
-        element: <HomeExpenses />,
-      },
-      {
-        path: "earnings",
-        element: <HomeEarnings />,
-      },
-    ],
+  },
+  {
+    path: "/home/earnings",
+    element: <HomeEarnings />,
+    private: true,
+    index: false,
   },
   {
     path: "/portfolios",
@@ -118,8 +113,8 @@ const appRoutes = [
     index: false,
   },
   {
-    path: "/profit",
-    element: <RegisterProfit />,
+    path: "/income",
+    element: <RegisterIncome />,
     private: true,
     index: false,
   },

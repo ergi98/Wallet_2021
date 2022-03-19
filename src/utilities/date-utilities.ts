@@ -48,4 +48,21 @@ function formatDate(date: Date): string {
   return `${day} ${months[month]} ${year}`;
 }
 
-export { convertToUTC, isValidDate, parseDateString, formatDate };
+function getTimeFromDateString(date: string) {
+  let time = "";
+  let dateObject = new Date(date);
+  if (isValidDate(dateObject)) {
+    let hours = dateObject.getHours().toString().padStart(2, "0");
+    let minutes = dateObject.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
+  }
+  return time;
+}
+
+export {
+  convertToUTC,
+  isValidDate,
+  parseDateString,
+  formatDate,
+  getTimeFromDateString,
+};

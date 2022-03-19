@@ -3,14 +3,14 @@ import { useState, useEffect } from "react";
 // Utilities
 import { roundNumber } from "../../utilities/math-utilities";
 
-interface AmountDisplayProps {
+interface PropsInterface {
   amount: number;
   className?: string;
   wholeClass?: string;
   decimalClass?: string;
 }
 
-function AmountDisplay(props: AmountDisplayProps) {
+function AmountDisplay(props: PropsInterface) {
   const [completePart, setCompletePart] = useState<string>("");
   const [decimalPart, setDecimalPart] = useState<string>("");
 
@@ -48,12 +48,10 @@ function AmountDisplay(props: AmountDisplayProps) {
   }, [props.amount]);
   return (
     <div className={props.className}>
-      <span className={props.wholeClass || "text-5xl gradient-text"}>
+      <span className={props.wholeClass || "text-5xl"}>
         {`${completePart}.`}
       </span>
-      <span className={props.decimalClass || "text-3xl gradient-text"}>
-        {decimalPart}
-      </span>
+      <span className={props.decimalClass || "text-3xl"}>{decimalPart}</span>
     </div>
   );
 }

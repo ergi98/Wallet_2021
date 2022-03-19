@@ -42,7 +42,7 @@ function AppNavigation() {
             className={`${activePath === 2 ? "h-8 w-8" : "h-6 w-6"}`}
           />
         ),
-        path: "/home",
+        path: "/home/expenses",
       },
       {
         key: "analysis",

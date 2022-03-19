@@ -74,5 +74,20 @@ body {
 }
 
 .app-height {
-  height: calc(100% - var(--bottom) - 64px);
+  height: calc(100% - var(--bottom) - var(--top) - 64px);
+}
+
+.income {
+  border: 1px solid theme("colors.green.400");
+  color: theme("colors.green.400");
+}
+
+.expense {
+  border: 1px solid theme("colors.red.400");
+  color: theme("colors.red.400");
+}
+
+.investment {
+  border: 1px solid theme("colors.orange.400");
+  color: theme("colors.orange.400");
 }
