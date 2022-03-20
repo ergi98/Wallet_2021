@@ -4,7 +4,7 @@ import Transaction from "./Transaction";
 import TransactionDetailsDialog from "./TransactionDetailsDialog";
 
 // Interfaces
-import TransactionInterface from "./transactions-interface";
+import { TransactionInterface } from "./transactions-interface";
 
 interface PropsInterface {
   height?: number;

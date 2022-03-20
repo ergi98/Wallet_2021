@@ -15,12 +15,13 @@ import {
 import { CloseOutlined, Delete, Edit } from "@mui/icons-material";
 
 // Interface
-import TransactionInterface from "./transactions-interface";
+import { TransactionInterface } from "./transactions-interface";
 
 // Utilities
 import { formatDate } from "../../utilities/date-utilities";
 
 // Components
+import Map from "../general/Map";
 import AmountDisplay from "../general/AmountDisplay";
 
 interface PropsInterface {
@@ -32,7 +33,12 @@ interface PropsInterface {
 function TransactionDetailsDialog(props: PropsInterface) {
   const handleClose = () => props.onClose(false, null);
   return (
-    <Dialog className="px-env" fullScreen open={props.show} onClose={handleClose}>
+    <Dialog
+      className="px-env"
+      fullScreen
+      open={props.show}
+      onClose={handleClose}
+    >
       <div className="pt-env"></div>
       <Stack
         direction="row"
@@ -54,10 +60,14 @@ function TransactionDetailsDialog(props: PropsInterface) {
         <Grid className="pb-12" rowSpacing={1} container>
           {props.transaction?.location && (
             <Grid xs={12} item>
-              <div className="w-full h-32 bg-red-50 rounded-lg"></div>
+              <Map
+              zoom={17}
+                className="w-full h-36 rounded-lg border-2"
+                location={props.transaction.location}
+              />
             </Grid>
           )}
-          <Grid xs={12}>
+          <Grid xs={12} item>
             <Divider className="py-2">
               <span className="uppercase text-gray-400 text-xs">Amount</span>
             </Divider>
@@ -81,7 +91,7 @@ function TransactionDetailsDialog(props: PropsInterface) {
               {props.transaction?.currencyRate}
             </Grid>
           )}
-          <Grid xs={12}>
+          <Grid xs={12} item>
             <Divider className="py-2">
               <span className="uppercase text-gray-400 text-xs">Time</span>
             </Divider>
@@ -93,7 +103,7 @@ function TransactionDetailsDialog(props: PropsInterface) {
           <Grid className="break-all text-slate-900" xs={7} item>
             {formatDate(props.transaction?.date ?? "", "long")}
           </Grid>
-          <Grid xs={12}>
+          <Grid xs={12} item>
             <Divider className="py-2">
               <span className="uppercase text-gray-400 text-xs">Specifics</span>
             </Divider>
@@ -119,7 +129,7 @@ function TransactionDetailsDialog(props: PropsInterface) {
           <Grid className="break-all text-slate-900" xs={7} item>
             {props.transaction?.portfolio}
           </Grid>
-          <Grid xs={12}>
+          <Grid xs={12} item>
             <Divider className="py-2">
               <span className="uppercase text-gray-400 text-xs">
                 Information

@@ -24,4 +24,4 @@ interface Location {
   latitude: number;
 }
 
-export default TransactionInterface;
+export type { TransactionInterface, Location };
