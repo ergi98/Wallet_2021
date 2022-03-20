@@ -3,34 +3,34 @@ import { useState } from "react";
 // MUI
 import { Stack } from "@mui/material";
 
-// Navigate
+// Navigation
 import { useNavigate } from "react-router-dom";
 
 // Components
-import Home from "../../components/home/Home";
-import HomeTitle from "../../components/home/HomeTitle";
-import AmountDisplay from "../../components/general/AmountDisplay";
+import Home from "../../../components/mobile/home/Home";
+import HomeTitle from "../../../components/mobile/home/HomeTitle";
+import AmountDisplay from "../../../components/general/AmountDisplay";
 
-function HomeEarnings() {
+function HomeExpenses() {
   const [selectedDate, setSelectedDate] = useState<string>(() =>
     new Date().toISOString()
   );
 
   const navigate = useNavigate();
 
-  const goToExpenses = () => navigate("/home/expenses");
+  const goToEarnings = () => navigate("/home/earnings");
 
   return (
     <Home>
       <Stack>
         <HomeTitle
-          label="Earnings"
+          label="Expenses"
           date={selectedDate}
-          swapClick={goToExpenses}
+          swapClick={goToEarnings}
           changeDate={(event) => setSelectedDate(event)}
         />
         <AmountDisplay
-          amount={25000.35}
+          amount={134000.35}
           className="self-center py-4 text-gray-300"
         />
       </Stack>
@@ -38,4 +38,4 @@ function HomeEarnings() {
   );
 }
 
-export default HomeEarnings;
+export default HomeExpenses;

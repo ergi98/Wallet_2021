@@ -10,7 +10,7 @@ import { Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 // Components
-import VerticalSwipe from "../general/VerticalSwipe";
+import VerticalSwipe from "../../general/VerticalSwipe";
 import TransactionsList from "../transactions/TransactionsList";
 
 interface PropsInterface {

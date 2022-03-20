@@ -7,10 +7,10 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 // Logo
-import { ReactComponent as WalletLogo } from "../../assets/logo/wallet-logo.svg";
+import { ReactComponent as WalletLogo } from "../../../assets/logo/wallet-logo.svg";
 
 // Components
-import LoginForm from "../../components/login/LoginForm";
+import LoginForm from "../../../components/shared/login/LoginForm";
 
 function Login() {
   const navigate = useNavigate();

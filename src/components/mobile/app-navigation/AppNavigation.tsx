@@ -7,10 +7,10 @@ import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 
 // SVGs
-import { ReactComponent as Home } from "../../assets/icons/home.svg";
-import { ReactComponent as Charts } from "../../assets/icons/charts.svg";
-import { ReactComponent as Settings } from "../../assets/icons/settings.svg";
-import { ReactComponent as Portfolios } from "../../assets/icons/portfolios.svg";
+import { ReactComponent as Home } from "../../../assets/icons/home.svg";
+import { ReactComponent as Charts } from "../../../assets/icons/charts.svg";
+import { ReactComponent as Settings } from "../../../assets/icons/settings.svg";
+import { ReactComponent as Portfolios } from "../../../assets/icons/portfolios.svg";
 
 // Router
 import { useNavigate } from "react-router-dom";

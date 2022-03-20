@@ -23,12 +23,13 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 // Validation
-import { passwordRules, usernameRules } from "../../validators/credentials";
+import { passwordRules, usernameRules } from "../../../validators/credentials";
 
 // Components
 import ExplainSection from "./ExplainSection";
-import ValidationHint from "../general/ValidationHint";
-import ToggleVisibility from "../general/ToggleVisibility";
+import ValidationHint from "../../general/ValidationHint";
+import ToggleVisibility from "../../general/ToggleVisibility";
+
 interface MatchErrorInterface {
   show: boolean;
   message: string;

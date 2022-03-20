@@ -8,16 +8,16 @@ import { AnimatePresence } from "framer-motion";
 
 // Components
 import PublicRoute from "./PublicRoute";
-import Login from "../views/login/Login";
-import SignUp from "../views/sign-up/SignUp";
+import Login from "../views/desktop/login/Login";
+import SignUp from "../views/desktop/sign-up/SignUp";
 import ProtectedRoute from "./ProtectedRoute";
 import PageLoading from "../components/general/PageLoading";
-import InitialScreen from "../views/initial-screen/InitialScreen";
-import Introduction from "../components/sign-up/Introduction";
-import PersonalInfo from "../components/sign-up/PersonalInfo";
-import Credentials from "../components/sign-up/Credentials";
-import HomeEarnings from "../views/home/HomeEarnings";
-import HomeExpenses from "../views/home/HomeExpenses";
+import InitialScreen from "../views/desktop/initial-screen/InitialScreen";
+import Introduction from "../components/desktop/sign-up/Introduction";
+import PersonalInfo from "../components/desktop/sign-up/PersonalInfo";
+import Credentials from "../components/desktop/sign-up/Credentials";
+import HomeEarnings from "../views/mobile/home/HomeEarnings";
+import HomeExpenses from "../views/mobile/home/HomeExpenses";
 const Pin = lazy(() => import("../views/pin/Pin"));
 const HeatMap = lazy(() => import("../views/heat-map/HeatMap"));
 const Analysis = lazy(() => import("../views/analysis/Analysis"));
@@ -36,7 +36,7 @@ const RegisterExpense = lazy(
 );
 const Profile = lazy(() => import("../views/profile/Profile"));
 const AppNavigation = lazy(
-  () => import("../components/app-navigation/AppNavigation")
+  () => import("../components/mobile/app-navigation/AppNavigation")
 );
 
 const appRoutes = [

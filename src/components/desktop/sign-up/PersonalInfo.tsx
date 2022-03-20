@@ -11,18 +11,18 @@ import { ChevronRightOutlined } from "@mui/icons-material";
 import { Button, Grid, Stack, TextField, Typography } from "@mui/material";
 
 // Utilities
-import { genderList } from "../../utilities/general-utilities";
+import { genderList } from "../../../utilities/general-utilities";
 
 // Animation
 import { motion } from "framer-motion";
 
 // Components
 import ExplainSection from "./ExplainSection";
-import CustomSelect from "../general/CustomSelect";
-import CustomDatePicker from "../general/CustomDatePicker";
+import CustomSelect from "../../general/CustomSelect";
+import CustomDatePicker from "../../general/CustomDatePicker";
 
 // HOC
-import withContextSaver from "../../hoc/withContextSaver";
+import withContextSaver from "../../../hoc/withContextSaver";
 
 interface FieldObject {
   [key: string]: boolean;

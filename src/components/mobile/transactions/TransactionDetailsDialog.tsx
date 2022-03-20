@@ -18,11 +18,11 @@ import { CloseOutlined, Delete, Edit } from "@mui/icons-material";
 import { TransactionInterface } from "./transactions-interface";
 
 // Utilities
-import { formatDate } from "../../utilities/date-utilities";
+import { formatDate } from "../../../utilities/date-utilities";
 
 // Components
-import Map from "../general/Map";
-import AmountDisplay from "../general/AmountDisplay";
+import Map from "../../general/Map";
+import AmountDisplay from "../../general/AmountDisplay";
 
 interface PropsInterface {
   show: boolean;

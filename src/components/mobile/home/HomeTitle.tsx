@@ -5,7 +5,7 @@ import { Button, IconButton, Stack, Typography } from "@mui/material";
 import { SwapHorizOutlined } from "@mui/icons-material";
 
 // Utilities
-import { formatDate, isTodayDate } from "../../utilities/date-utilities";
+import { formatDate, isTodayDate } from "../../../utilities/date-utilities";
 
 interface PropsInterface {
   date: string;
