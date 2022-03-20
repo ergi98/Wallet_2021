@@ -2,13 +2,13 @@
 import { Formik } from "formik";
 
 // Validations
-import { signUpSchema } from "../../validators/credentials";
+import { signUpSchema } from "../../../validators/credentials";
 
 // Navigation
 import { Outlet } from "react-router-dom";
 
 // Custom Hooks
-import useLocalContext from "../../custom_hooks/useLocalContext";
+import useLocalContext from "../../../custom_hooks/useLocalContext";
 
 function SignUpForm() {
   const [localContext] = useLocalContext("register-context", {

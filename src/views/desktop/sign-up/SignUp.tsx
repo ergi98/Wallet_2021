@@ -10,10 +10,10 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 // Logo
-import { ReactComponent as WalletLogo } from "../../assets/logo/wallet-logo.svg";
+import { ReactComponent as WalletLogo } from "../../../assets/logo/wallet-logo.svg";
 
 // Components
-import SignUpForm from "../../components/sign-up/SignUpForm";
+import SignUpForm from "../../../components/desktop/sign-up/SignUpForm";
 
 function SignUp() {
   const [exitStyles, setExitStyles] = useState<any>();

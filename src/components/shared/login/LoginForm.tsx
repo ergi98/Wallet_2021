@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useFormik } from "formik";
 
 // Validations
-import { loginSchema } from "../../validators/credentials";
+import { loginSchema } from "../../../validators/credentials";
 
 // Icons
 import { LoginOutlined, PersonOutlineOutlined } from "@mui/icons-material";
@@ -21,7 +21,9 @@ import { LoadingButton } from "@mui/lab";
 
 // Navigation
 import { useNavigate } from "react-router-dom";
-import ToggleVisibility from "../general/ToggleVisibility";
+
+// Components
+import ToggleVisibility from "../../general/ToggleVisibility";
 
 function LoginForm() {
   const navigate = useNavigate();

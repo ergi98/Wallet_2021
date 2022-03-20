@@ -10,12 +10,12 @@ import { Button, Typography, Divider, Grid, Paper } from "@mui/material";
 import { motion } from "framer-motion";
 
 // Logo
-import { ReactComponent as WalletLogo } from "../../assets/logo/wallet-logo.svg";
+import { ReactComponent as WalletLogo } from "../../../assets/logo/wallet-logo.svg";
 
 // Illustration
-import { ReactComponent as EasyIllustration } from "../../assets/illustrations/easy.svg";
-import { ReactComponent as SecureIllustration } from "../../assets/illustrations/secure.svg";
-import { ReactComponent as AnalysisIllustration } from "../../assets/illustrations/analysis.svg";
+import { ReactComponent as EasyIllustration } from "../../../assets/illustrations/easy.svg";
+import { ReactComponent as SecureIllustration } from "../../../assets/illustrations/secure.svg";
+import { ReactComponent as AnalysisIllustration } from "../../../assets/illustrations/analysis.svg";
 
 const iconClasses = "w-32 h-32";
 

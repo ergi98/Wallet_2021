@@ -7,10 +7,10 @@ import { TransactionInterface } from "./transactions-interface";
 import { Grid, Stack, Typography } from "@mui/material";
 
 // Utilities
-import { getTimeFromDateString } from "../../utilities/date-utilities";
+import { getTimeFromDateString } from "../../../utilities/date-utilities";
 
 // Components
-import AmountDisplay from "../general/AmountDisplay";
+import AmountDisplay from "../../general/AmountDisplay";
 
 interface PropsInterface {
   onClick: (a: boolean, b: TransactionInterface | null) => void;
