@@ -28,8 +28,8 @@ const transaction = [
     currency: "ALL",
     portfolio: "5f8351f9d4d24d00172cd7bc",
     location: {
-      longitude: 1.512345234,
-      latitude: 1.512345234,
+      longitude: 19.834378436425062,
+      latitude: 41.33407116183822,
     },
     currencyRate: 1,
     category: "Entertainment",
@@ -57,8 +57,8 @@ const transaction = [
     currency: "ALL",
     portfolio: "5f8351f9d4d24d00172cd7bc",
     location: {
-      longitude: 1.512345234,
-      latitude: 1.512345234,
+      longitude: 19.834378436425062,
+      latitude: 41.33407116183822,
     },
     currencyRate: 1,
     category: "Entertainment",
@@ -73,8 +73,8 @@ const transaction = [
     currency: "ALL",
     portfolio: "5f8351f9d4d24d00172cd7bc",
     location: {
-      longitude: 1.512345234,
-      latitude: 1.512345234,
+      longitude: 19.834378436425062,
+      latitude: 41.33407116183822,
     },
     currencyRate: 1,
     category: "Entertainment",
@@ -89,8 +89,8 @@ const transaction = [
     currency: "ALL",
     portfolio: "5f8351f9d4d24d00172cd7bc",
     location: {
-      longitude: 1.512345234,
-      latitude: 1.512345234,
+      longitude: 19.834378436425062,
+      latitude: 41.33407116183822,
     },
     currencyRate: 1,
     category: "Entertainment",

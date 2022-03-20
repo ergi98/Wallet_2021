@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 // Interfaces
-import TransactionInterface from "./transactions-interface";
+import { TransactionInterface } from "./transactions-interface";
 
 // MUI
 import { Grid, Stack, Typography } from "@mui/material";
