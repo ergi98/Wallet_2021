@@ -62,6 +62,7 @@ function MobileInitialScreen() {
             </Typography>
           </div>
           <Carousel
+            showThumbs={false}
             autoPlay={true}
             showStatus={false}
             showArrows={false}
