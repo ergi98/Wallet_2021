@@ -1,60 +1,57 @@
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 
 // Router
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 
 // Animations
 import { AnimatePresence } from "framer-motion";
 
-// Components
+// General
 import PublicRoute from "./PublicRoute";
-import Login from "../views/desktop/login/Login";
-import SignUp from "../views/desktop/sign-up/SignUp";
 import ProtectedRoute from "./ProtectedRoute";
+import NotFound from "../views/not-found/NotFound";
 import PageLoading from "../components/general/PageLoading";
-import InitialScreen from "../views/desktop/initial-screen/InitialScreen";
-import Introduction from "../components/desktop/sign-up/Introduction";
-import PersonalInfo from "../components/desktop/sign-up/PersonalInfo";
-import Credentials from "../components/desktop/sign-up/Credentials";
-import HomeEarnings from "../views/mobile/home/HomeEarnings";
-import HomeExpenses from "../views/mobile/home/HomeExpenses";
-const Pin = lazy(() => import("../views/pin/Pin"));
-const HeatMap = lazy(() => import("../views/heat-map/HeatMap"));
-const Analysis = lazy(() => import("../views/analysis/Analysis"));
-const Settings = lazy(() => import("../views/settings/Settings"));
-const NotFound = lazy(() => import("../views/not-found/NotFound"));
-const Portfolios = lazy(() => import("../views/portfolios/Portfolios"));
-const Transactions = lazy(() => import("../views/transactions/Transactions"));
-const SelectLocation = lazy(
-  () => import("../views/select-location/SelectLocation")
-);
-const RegisterIncome = lazy(
-  () => import("../views/register-income/RegisterIncome")
-);
-const RegisterExpense = lazy(
-  () => import("../views/register-expense/RegisterExpense")
-);
-const Profile = lazy(() => import("../views/profile/Profile"));
-const AppNavigation = lazy(
-  () => import("../components/mobile/app-navigation/AppNavigation")
-);
 
-const appRoutes = [
+// Desktop
+import DesktopLogin from "../views/desktop/login/DesktopLogin";
+import DesktopSignUp from "../views/desktop/sign-up/DesktopSignUp";
+import Credentials from "../components/desktop/sign-up/Credentials";
+import PersonalInfo from "../components/desktop/sign-up/PersonalInfo";
+import Introduction from "../components/desktop/sign-up/Introduction";
+import DesktopInitialScreen from "../views/desktop/initial-screen/DesktopInitialScreen";
+
+// import HomeEarnings from "../views/mobile/home/HomeEarnings";
+// import HomeExpenses from "../views/mobile/home/HomeExpenses";
+// import Pin from "../views/pin/Pin";
+// import HeatMap from "../views/heat-map/HeatMap";
+// import Analysis from "../views/analysis/Analysis";
+// import Settings from "../views/settings/Settings";
+// import Portfolios from "../views/portfolios/Portfolios";
+// import Transactions from "../views/transactions/Transactions";
+// import SelectLocation from "../views/select-location/SelectLocation";
+// import RegisterIncome from "../views/register-income/RegisterIncome";
+// import RegisterExpense from "../views/register-expense/RegisterExpense";
+// import Profile from "../views/profile/Profile";
+
+// Mobile
+import AppNavigation from "../components/mobile/app-navigation/AppNavigation";
+
+const desktopRoutes = [
   {
     path: "/",
-    element: <InitialScreen />,
+    element: <DesktopInitialScreen />,
     private: false,
     index: false,
   },
   {
     path: "/login",
-    element: <Login />,
+    element: <DesktopLogin />,
     private: false,
     index: false,
   },
   {
     path: "/sign-up",
-    element: <SignUp />,
+    element: <DesktopSignUp />,
     private: false,
     index: false,
     children: [
@@ -76,89 +73,53 @@ const appRoutes = [
       },
     ],
   },
+];
+
+const mobileRoutes = [
   {
-    path: "/pin",
-    element: <Pin />,
-    private: true,
-    index: false,
-  },
-  {
-    path: "/home/expenses",
-    element: <HomeExpenses />,
-    private: true,
-    index: false,
-  },
-  {
-    path: "/home/earnings",
-    element: <HomeEarnings />,
-    private: true,
-    index: false,
-  },
-  {
-    path: "/portfolios",
-    element: <Portfolios />,
-    private: true,
-    index: false,
-  },
-  {
-    path: "/settings",
-    element: <Settings />,
-    index: false,
-    private: true,
-  },
-  {
-    path: "/profile",
-    element: <Profile />,
-    private: true,
-    index: false,
-  },
-  {
-    path: "/income",
-    element: <RegisterIncome />,
-    private: true,
-    index: false,
-  },
-  {
-    path: "/expense",
-    element: <RegisterExpense />,
-    private: true,
-    index: false,
-  },
-  {
-    path: "/expense/select-location",
-    element: <SelectLocation />,
-    private: true,
-    index: false,
-  },
-  {
-    path: "/transactions",
-    element: <Transactions />,
-    private: true,
-    index: false,
-  },
-  {
-    path: "/analysis",
-    element: <Analysis />,
-    private: true,
-    index: false,
-  },
-  {
-    path: "/analysis/heat-map",
-    element: <HeatMap />,
-    private: true,
-    index: false,
-  },
-  {
-    path: "*",
-    element: <NotFound />,
+    path: "/",
+    element: <DesktopInitialScreen />,
     private: false,
     index: false,
+  },
+  {
+    path: "/login",
+    element: <DesktopLogin />,
+    private: false,
+    index: false,
+  },
+  {
+    path: "/sign-up",
+    element: <DesktopSignUp />,
+    private: false,
+    index: false,
+    children: [
+      {
+        path: "introduction",
+        element: <Introduction />,
+      },
+      {
+        path: "personal-info",
+        element: <PersonalInfo />,
+      },
+      {
+        path: "credentials",
+        element: <Credentials />,
+      },
+      {
+        path: "*",
+        element: <NotFound />,
+      },
+    ],
   },
 ];
 
 interface PropsInterface {
   isAuthenticated: Boolean;
 }
+
+const isMobile = window.innerWidth <= 640;
+const appRoutes = isMobile ? mobileRoutes : desktopRoutes;
 
 function AppRoutes(props: PropsInterface) {
   const location = useLocation();
@@ -216,7 +177,7 @@ function AppRoutes(props: PropsInterface) {
               )}
             </Routes>
           </AnimatePresence>
-          {props.isAuthenticated && <AppNavigation />}
+          {props.isAuthenticated && isMobile ? <AppNavigation /> : null}
         </Suspense>
       ) : (
         <PageLoading />
