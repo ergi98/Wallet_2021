@@ -21,6 +21,7 @@ html {
 
 body {
   height: calc(100vh);
+  height: calc(var(--vh, 1vh) * 100);
   min-height: calc(100vh);
   min-height: calc(var(--vh, 1vh) * 100);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
@@ -32,14 +33,16 @@ body {
 
 @media only screen and (max-width: 640px) {
   html {
-    height: calc(100vh + var(--top, 0px)) !important;
-    height: calc(var(--vh, 1vh) * 100) + var(--top, 0px) !important;
+    height: calc(100vh + var(--top)) !important;
+    height: calc(var(--vh, 1vh) * 100 + var(--top)) !important;
   }
 
   body {
-    height: calc(100vh + var(--top, 0px)) !important;
-    min-height: calc(100vh + var(--top, 0px)) !important;
-    min-height: calc(var(--vh, 1vh) * 100 + var(--top, 0px)) !important;
+    position: relative;
+    height: calc(100vh + var(--top)) !important;
+    height: calc(var(--vh, 1vh) * 100 + var(--top)) !important;
+    min-height: calc(100vh + var(--top)) !important;
+    min-height: calc(var(--vh, 1vh) * 100 + var(--top)) !important;
   }
 
   .p-env {
