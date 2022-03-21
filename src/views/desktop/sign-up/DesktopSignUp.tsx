@@ -15,7 +15,7 @@ import { ReactComponent as WalletLogo } from "../../../assets/logo/wallet-logo.s
 // Components
 import SignUpForm from "../../../components/desktop/sign-up/SignUpForm";
 
-function SignUp() {
+function DesktopSignUp() {
   const [exitStyles, setExitStyles] = useState<any>();
   const [logoExitStyles, setLogoExitStyles] = useState<any>();
 
@@ -63,4 +63,4 @@ function SignUp() {
   );
 }
 
-export default SignUp;
+export default DesktopSignUp;

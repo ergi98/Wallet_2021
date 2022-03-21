@@ -43,7 +43,7 @@ const mainPoints = [
   },
 ];
 
-function InitialScreen() {
+function DesktopInitialScreen() {
   const navigate = useNavigate();
 
   const navigateTo = (url: string) => {
@@ -195,4 +195,4 @@ function InitialScreen() {
   );
 }
 
-export default InitialScreen;
+export default DesktopInitialScreen;

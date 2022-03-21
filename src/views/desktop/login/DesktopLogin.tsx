@@ -1,4 +1,10 @@
-import { Stack, Typography, Card, CardHeader, CardContent } from "@mui/material";
+import {
+  Stack,
+  Typography,
+  Card,
+  CardHeader,
+  CardContent,
+} from "@mui/material";
 
 // Animation
 import { motion } from "framer-motion";
@@ -12,7 +18,7 @@ import { ReactComponent as WalletLogo } from "../../../assets/logo/wallet-logo.s
 // Components
 import LoginForm from "../../../components/shared/login/LoginForm";
 
-function Login() {
+function DesktopLogin() {
   const navigate = useNavigate();
   const navigateHome = () => navigate("/");
 
@@ -33,10 +39,7 @@ function Login() {
           />
         </motion.div>
       </div>
-      <Stack
-        className="pt-32 sm:pt-60 w-full"
-        alignItems="center"
-      >
+      <Stack className="pt-32 sm:pt-60 w-full" alignItems="center">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -68,4 +71,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default DesktopLogin;
