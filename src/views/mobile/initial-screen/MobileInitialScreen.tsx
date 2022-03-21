@@ -48,13 +48,9 @@ function MobileInitialScreen() {
 
   return (
     <>
-      <WalletLogo className="w-7 h-fit absolute top-3 left-3" />
+      <WalletLogo className="w-7 h-auto absolute top-3 left-3" />
       <Stack className="w-full h-full pb-env px-3">
-        <Stack
-          justifySelf="flex-end"
-          spacing={2}
-          className="mt-auto pb-6 text-gray-100"
-        >
+        <Stack spacing={2} className="mt-auto pb-6 text-gray-100">
           <div>
             <Typography variant="h6">Welcome to Wallet!</Typography>
             <Typography variant="subtitle2" gutterBottom>
