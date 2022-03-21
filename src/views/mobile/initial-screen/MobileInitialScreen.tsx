@@ -8,11 +8,13 @@ import { Button, Divider, Stack, Typography } from "@mui/material";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 
+// Navigation
+import { useNavigate } from "react-router-dom";
+
 // Illustration
 import { ReactComponent as EasyIllustration } from "../../../assets/illustrations/easy.svg";
 import { ReactComponent as SecureIllustration } from "../../../assets/illustrations/secure.svg";
 import { ReactComponent as AnalysisIllustration } from "../../../assets/illustrations/analysis.svg";
-import { useNavigate } from "react-router-dom";
 
 const iconClasses = "w-32 h-32";
 
