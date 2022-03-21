@@ -47,10 +47,10 @@ function MobileInitialScreen() {
   };
 
   return (
-    <>
+    <div className="w-full h-full relative">
       <WalletLogo className="w-7 h-auto absolute top-3 left-3" />
       <Stack className="w-full h-full pb-env px-3">
-        <Stack spacing={2} className="mt-auto pb-6 text-gray-100">
+        <Stack spacing={2} className="mt-auto pb-12 text-gray-100">
           <div>
             <Typography variant="h6">Welcome to Wallet!</Typography>
             <Typography variant="subtitle2" gutterBottom>
@@ -64,7 +64,7 @@ function MobileInitialScreen() {
             showArrows={false}
             showIndicators={false}
             interval={5000}
-            transitionTime={1000}
+            transitionTime={300}
             className="py-3"
           >
             {mainPoints.map((point, index) => (
@@ -94,7 +94,7 @@ function MobileInitialScreen() {
           </Button>
         </Stack>
       </Stack>
-    </>
+    </div>
   );
 }
 

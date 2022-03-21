@@ -15,12 +15,12 @@ function MobileLogin() {
   const navigateHome = () => navigate("/");
 
   return (
-    <>
+    <div className="h-full w-full relative">
       <WalletLogo
         onClick={navigateHome}
         className="z-10 w-7 h-auto absolute top-3 left-1/2 -translate-x-1/2 cursor-pointer hover:scale-110 transition-transform"
       />
-      <Stack className="h-full w-full relative">
+      <Stack className="h-full w-full">
         <Stack spacing={2} className="text-gray-100 w-full mt-auto pb-6 px-3">
           <div>
             <Typography variant="h6">Welcome Back!</Typography>
@@ -36,10 +36,10 @@ function MobileLogin() {
             borderTopRightRadius: "1.5rem",
           }}
         >
-          <CardContent children={<LoginForm />} />
+          <CardContent className="pb-12" children={<LoginForm />} />
         </Card>
       </Stack>
-    </>
+    </div>
   );
 }
 
