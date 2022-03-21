@@ -26,7 +26,7 @@ import { motion } from "framer-motion";
 import { passwordRules, usernameRules } from "../../../validators/credentials";
 
 // Components
-import ExplainSection from "./ExplainSection";
+import ExplainSection from "./DesktopExplainSection";
 import ValidationHint from "../../general/ValidationHint";
 import ToggleVisibility from "../../general/ToggleVisibility";
 
@@ -35,7 +35,7 @@ interface MatchErrorInterface {
   message: string;
 }
 
-function Credentials() {
+function DesktopCredentials() {
   const formik: any = useFormikContext();
   const navigate = useNavigate();
 
@@ -100,7 +100,7 @@ function Credentials() {
     <Grid container>
       <ExplainSection
         step={3}
-        title="Credentials"
+        title="Desktop"
         paragraph="Try to pick a username you easily remember and a<strong> strong password </strong> so your data is safe."
       />
       <Grid xs={12} md={6} className="p-6" item>
@@ -254,4 +254,4 @@ function Credentials() {
   );
 }
 
-export default Credentials;
+export default DesktopCredentials;

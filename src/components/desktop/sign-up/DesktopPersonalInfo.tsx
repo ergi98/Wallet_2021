@@ -17,7 +17,7 @@ import { genderList } from "../../../utilities/general-utilities";
 import { motion } from "framer-motion";
 
 // Components
-import ExplainSection from "./ExplainSection";
+import ExplainSection from "./DesktopExplainSection";
 import CustomSelect from "../../general/CustomSelect";
 import CustomDatePicker from "../../general/CustomDatePicker";
 
@@ -31,7 +31,7 @@ interface PropsInterface {
   saveContext: (a: string, b: any) => void;
 }
 
-function PersonalInfo(props: PropsInterface) {
+function DesktopPersonalInfo(props: PropsInterface) {
   const formik: any = useFormikContext();
 
   const navigate = useNavigate();
@@ -170,4 +170,4 @@ function PersonalInfo(props: PropsInterface) {
   );
 }
 
-export default withContextSaver(PersonalInfo);
+export default withContextSaver(DesktopPersonalInfo);
