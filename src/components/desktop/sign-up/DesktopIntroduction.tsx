@@ -13,7 +13,7 @@ import { Button, Grid, Stack, TextField, Typography } from "@mui/material";
 import { ChevronRightOutlined } from "@mui/icons-material";
 
 // Components
-import ExplainSection from "./ExplainSection";
+import ExplainSection from "./DesktopExplainSection";
 
 // HOC
 import withContextSaver from "../../../hoc/withContextSaver";
@@ -32,7 +32,7 @@ interface PropsInterface {
   saveContext: (a: string, b: any) => void;
 }
 
-function Introduction(props: PropsInterface) {
+function DesktopIntroduction(props: PropsInterface) {
   const formik: any = useFormikContext();
 
   const navigate = useNavigate();
@@ -153,4 +153,4 @@ function Introduction(props: PropsInterface) {
   );
 }
 
-export default withContextSaver(Introduction);
+export default withContextSaver(DesktopIntroduction);

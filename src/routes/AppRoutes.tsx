@@ -15,9 +15,9 @@ import PageLoading from "../components/general/PageLoading";
 // Desktop
 import DesktopLogin from "../views/desktop/login/DesktopLogin";
 import DesktopSignUp from "../views/desktop/sign-up/DesktopSignUp";
-import Credentials from "../components/desktop/sign-up/Credentials";
-import PersonalInfo from "../components/desktop/sign-up/PersonalInfo";
-import Introduction from "../components/desktop/sign-up/Introduction";
+import DesktopCredentials from "../components/desktop/sign-up/DesktopCredentials";
+import DesktopPersonalInfo from "../components/desktop/sign-up/DesktopPersonalInfo";
+import DesktopIntroduction from "../components/desktop/sign-up/DesktopIntroduction";
 import DesktopInitialScreen from "../views/desktop/initial-screen/DesktopInitialScreen";
 
 // import HomeEarnings from "../views/mobile/home/HomeEarnings";
@@ -35,6 +35,13 @@ import DesktopInitialScreen from "../views/desktop/initial-screen/DesktopInitial
 
 // Mobile
 import AppNavigation from "../components/mobile/app-navigation/AppNavigation";
+import MobileCredentials from "../components/mobile/sign-up/MobileCredentials";
+import MobilePersonalInfo from "../components/mobile/sign-up/MobilePersonalInfo";
+import MobileIntroduction from "../components/mobile/sign-up/MobileIntroduction";
+
+import MobileLogin from "../views/mobile/login/MobileLogin";
+import MobileSignUp from "../views/mobile/sign-up/MobileSignUp";
+import MobileInitialScreen from "../views/mobile/initial-screen/MobileInitialScreen";
 
 const desktopRoutes = [
   {
@@ -57,15 +64,15 @@ const desktopRoutes = [
     children: [
       {
         path: "introduction",
-        element: <Introduction />,
+        element: <DesktopIntroduction />,
       },
       {
         path: "personal-info",
-        element: <PersonalInfo />,
+        element: <DesktopPersonalInfo />,
       },
       {
         path: "credentials",
-        element: <Credentials />,
+        element: <DesktopCredentials />,
       },
       {
         path: "*",
@@ -78,33 +85,33 @@ const desktopRoutes = [
 const mobileRoutes = [
   {
     path: "/",
-    element: <DesktopInitialScreen />,
+    element: <MobileInitialScreen />,
     private: false,
     index: false,
   },
   {
     path: "/login",
-    element: <DesktopLogin />,
+    element: <MobileLogin />,
     private: false,
     index: false,
   },
   {
     path: "/sign-up",
-    element: <DesktopSignUp />,
+    element: <MobileSignUp />,
     private: false,
     index: false,
     children: [
       {
         path: "introduction",
-        element: <Introduction />,
+        element: <MobileIntroduction />,
       },
       {
         path: "personal-info",
-        element: <PersonalInfo />,
+        element: <MobilePersonalInfo />,
       },
       {
         path: "credentials",
-        element: <Credentials />,
+        element: <MobileCredentials />,
       },
       {
         path: "*",

@@ -17,7 +17,7 @@ interface PropsInterface {
   paragraph?: string;
 }
 
-function ExplainSection(props: PropsInterface) {
+function DesktopExplainSection(props: PropsInterface) {
   const navigate = useNavigate();
   const navigateToLogin = () => navigate("/login");
 
@@ -91,4 +91,4 @@ function ExplainSection(props: PropsInterface) {
   );
 }
 
-export default ExplainSection;
+export default DesktopExplainSection;
