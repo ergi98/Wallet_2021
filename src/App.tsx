@@ -84,9 +84,9 @@ function App() {
             </ThemeProvider>
           </React.StrictMode>
         </Container>
-        <TopRightBlob className="top-0 right-0 absolute rotate-50 select-none translate-x-1/2 -translate-y-1/2" />
-        <MiddleLeftBlob className="left-0 top-1/4 absolute select-none -translate-y-1/5 -translate-x-1/3" />
-        <BottomRightBlob className="right-0 bottom-0 absolute select-none translate-y-1/4 translate-x-1/3" />
+        <TopRightBlob className="top-0 right-0 absolute rotate-50 select-none translate-x-1/2 -translate-y-1/2 opacity-50" />
+        <MiddleLeftBlob className="left-0 top-1/4 absolute select-none -translate-y-1/5 -translate-x-1/3 opacity-50" />
+        <BottomRightBlob className="right-0 bottom-0 absolute select-none translate-y-1/2 translate-x-1/2 opacity-50" />
       </CssBaseline>
     </LocalizationProvider>
   );

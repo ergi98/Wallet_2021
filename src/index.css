@@ -74,7 +74,7 @@ body {
 }
 
 .app-height {
-  height: calc(var(--vh, 1vh) * 100  - var(--bottom) - var(--top) - 64px);
+  height: calc(var(--vh, 1vh) * 100 - var(--bottom) - var(--top) - 64px);
 }
 
 .income {
