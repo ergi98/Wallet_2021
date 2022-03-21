@@ -30,7 +30,7 @@ function MobileLogin() {
           </div>
         </Stack>
         <Card
-          className="w-full rounded-t-3xl p-3 pt-8 h-fit"
+          className="w-full rounded-t-3xl p-3 pt-8 pb-env h-fit"
           sx={{
             borderTopLeftRadius: "1.5rem",
             borderTopRightRadius: "1.5rem",
