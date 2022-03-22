@@ -43,7 +43,6 @@ function DesktopSignUp() {
         />
       </motion.div>
       <div className="pt-60 pb-10 md:pb-0">
-        {/* All the rest */}
         <motion.div
           exit={exitStyles}
           transition={{
