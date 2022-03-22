@@ -118,7 +118,11 @@ function PersonalInfoFields(props: PropsInterface) {
         size="small"
         fullWidth
       />
-      <Stack className=" justify-end" direction="row" spacing={4}>
+      <Stack
+        className=" justify-end"
+        direction="row"
+        spacing={isMobile ? 1 : 4}
+      >
         <Button onClick={goBack} variant="text" fullWidth={isMobile}>
           Go Back
         </Button>
