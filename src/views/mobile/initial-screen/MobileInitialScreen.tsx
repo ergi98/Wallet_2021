@@ -4,6 +4,9 @@ import { ReactComponent as WalletLogo } from "../../../assets/logo/wallet-logo.s
 // MUI
 import { Button, Divider, Stack, Typography } from "@mui/material";
 
+// Animation
+import { motion } from "framer-motion";
+
 // Carousel
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
@@ -15,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { ReactComponent as EasyIllustration } from "../../../assets/illustrations/easy.svg";
 import { ReactComponent as SecureIllustration } from "../../../assets/illustrations/secure.svg";
 import { ReactComponent as AnalysisIllustration } from "../../../assets/illustrations/analysis.svg";
+import { useState } from "react";
 
 const iconClasses = "w-32 h-32";
 
@@ -34,64 +38,140 @@ const mainPoints = [
 ];
 
 function MobileInitialScreen() {
+  const [delay, setDelay] = useState<number>(0.2);
   const navigate = useNavigate();
 
   const navigateTo = (url: string) => {
-    switch (url) {
-      case "/login":
-        break;
-      case "/sign-up/introduction":
-        break;
-    }
+    setDelay(0);
     navigate(url);
   };
 
   return (
     <div className="w-full h-full relative">
-      <WalletLogo className="w-7 h-auto absolute top-3 left-3" />
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ x: "43%" }}
+        transition={{
+          bounce: 0,
+          duration: 0.75,
+        }}
+      >
+        <WalletLogo className="w-7 h-auto absolute top-3 left-3" />
+      </motion.div>
       <Stack className="w-full h-full pb-env px-3">
         <Stack spacing={2} className="mt-auto pb-12 text-gray-100">
           <div>
-            <Typography variant="h6">Welcome to Wallet!</Typography>
-            <Typography variant="subtitle2" gutterBottom>
-              Track your everyday transactions.
-            </Typography>
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{
+                bounce: 0,
+                duration: 0.75,
+                delay: delay,
+              }}
+            >
+              <Typography variant="h6">Welcome to Wallet!</Typography>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{
+                bounce: 0,
+                duration: 0.75,
+                delay: delay * 1.25,
+              }}
+            >
+              <Typography variant="subtitle2" gutterBottom>
+                Track your everyday transactions.
+              </Typography>
+            </motion.div>
           </div>
-          <Carousel
-            showThumbs={false}
-            autoPlay={true}
-            showStatus={false}
-            showArrows={false}
-            showIndicators={false}
-            interval={5000}
-            transitionTime={300}
-            className="py-3"
-          >
-            {mainPoints.map((point, index) => (
-              <Stack alignItems="center" key={index}>
-                {point.icon}
-                <Typography paragraph>{point.text}</Typography>
-              </Stack>
-            ))}
-          </Carousel>
-
-          <Button onClick={() => navigateTo("/login")} variant="contained">
-            Log In
-          </Button>
-          <Stack direction="row" justifyContent="center" alignItems="center">
-            <Divider className="text-gray-100 w-1/2 text-[12px]">OR</Divider>
-          </Stack>
-          <Button
-            onClick={() => navigateTo("/sign-up/introduction")}
-            variant="text"
-            sx={{
-              color: "#f3f4f6",
-              fontSize: "12px",
-              border: "1px solid #f3f4f6",
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{
+              bounce: 0,
+              duration: 0.75,
+              delay: delay * 1.75,
             }}
           >
-            Create an Account
-          </Button>
+            <Carousel
+              showThumbs={false}
+              autoPlay={true}
+              showStatus={false}
+              showArrows={false}
+              showIndicators={false}
+              interval={5000}
+              transitionTime={300}
+              className="py-3"
+            >
+              {mainPoints.map((point, index) => (
+                <Stack alignItems="center" key={index}>
+                  {point.icon}
+                  <Typography paragraph>{point.text}</Typography>
+                </Stack>
+              ))}
+            </Carousel>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{
+              bounce: 0,
+              duration: 0.75,
+              delay: delay * 2,
+            }}
+          >
+            <Button
+              onClick={() => navigateTo("/login")}
+              variant="contained"
+              fullWidth
+            >
+              Log In
+            </Button>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{
+              bounce: 0,
+              duration: 0.75,
+              delay: delay * 2.25,
+            }}
+          >
+            <Stack direction="row" justifyContent="center" alignItems="center">
+              <Divider className="text-gray-100 w-1/2 text-[12px]">OR</Divider>
+            </Stack>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{
+              bounce: 0,
+              duration: 0.75,
+              delay: delay * 2.5,
+            }}
+          >
+            <Button
+              onClick={() => navigateTo("/sign-up/introduction")}
+              variant="text"
+              sx={{
+                color: "#f3f4f6",
+                fontSize: "12px",
+                border: "1px solid #f3f4f6",
+              }}
+              fullWidth
+            >
+              Create an Account
+            </Button>
+          </motion.div>
         </Stack>
       </Stack>
     </div>
