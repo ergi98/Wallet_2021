@@ -7,13 +7,10 @@ import { useFormikContext } from "formik";
 import { isStringEmpty } from "../../../utilities/general-utilities";
 
 // Mui
-import { Button, Grid, Stack, TextField, Typography } from "@mui/material";
+import { Button, Grid, Stack, TextField } from "@mui/material";
 
 // Icons
 import { ChevronRightOutlined } from "@mui/icons-material";
-
-// Components
-import ExplainSection from "./DesktopExplainSection";
 
 // HOC
 import withContextSaver from "../../../hoc/withContextSaver";
@@ -23,6 +20,10 @@ import { useNavigate } from "react-router-dom";
 
 // Animation
 import { motion } from "framer-motion";
+
+// Components
+import ExplainSection from "./DesktopExplainSection";
+import IntroductionText from "../../shared/sign-up/IntroductionText";
 
 interface FieldObject {
   [key: string]: boolean;
@@ -86,16 +87,7 @@ function DesktopIntroduction(props: PropsInterface) {
           }}
         >
           <Stack rowGap={2}>
-            <div>
-              <Typography variant="subtitle1">Hi there, 👋🏼</Typography>
-              <Typography
-                className=" w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis capitalize"
-                variant="h4"
-                gutterBottom
-              >
-                {fullName}
-              </Typography>
-            </div>
+            <IntroductionText text={fullName} />
             <div>
               <TextField
                 sx={{ marginBottom: "12px" }}
