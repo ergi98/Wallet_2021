@@ -24,6 +24,8 @@ interface MatchErrorInterface {
   message: string;
 }
 
+const isMobile = window.innerWidth <= 640;
+
 function CredentialsFields() {
   const formik: any = useFormikContext();
   const navigate = useNavigate();
@@ -196,13 +198,18 @@ function CredentialsFields() {
         required
         fullWidth
       />
-      <Stack className=" justify-end" direction="row" spacing={4}>
-        <Button onClick={navigateBack} variant="text">
+      <Stack
+        className=" justify-end"
+        direction="row"
+        spacing={isMobile ? 1 : 4}
+      >
+        <Button onClick={navigateBack} fullWidth={isMobile} variant="text">
           Go Back
         </Button>
         <Button
-          onClick={handleSubmit}
           endIcon={<CelebrationOutlined />}
+          onClick={handleSubmit}
+          fullWidth={isMobile}
           variant="contained"
           type="submit"
         >

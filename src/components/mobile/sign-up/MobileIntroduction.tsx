@@ -1,5 +1,5 @@
 // Formik
-import { Card, CardContent, Paper } from "@mui/material";
+import { Card, CardContent } from "@mui/material";
 
 // Formik
 import { useFormikContext } from "formik";
