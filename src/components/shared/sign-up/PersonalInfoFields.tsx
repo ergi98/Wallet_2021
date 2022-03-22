@@ -27,6 +27,8 @@ interface PropsInterface {
   saveContext: (a: string, b: any) => void;
 }
 
+const isMobile = window.innerWidth <= 640;
+
 function PersonalInfoFields(props: PropsInterface) {
   const formik: any = useFormikContext();
 
@@ -117,13 +119,14 @@ function PersonalInfoFields(props: PropsInterface) {
         fullWidth
       />
       <Stack className=" justify-end" direction="row" spacing={4}>
-        <Button onClick={goBack} variant="text">
+        <Button onClick={goBack} variant="text" fullWidth={isMobile}>
           Go Back
         </Button>
         <Button
           endIcon={<ChevronRightOutlined />}
           onClick={validateAndProceed}
           variant="contained"
+          fullWidth={isMobile}
         >
           Proceed
         </Button>
