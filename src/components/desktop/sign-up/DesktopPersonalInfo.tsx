@@ -1,78 +1,19 @@
-// Navigation
-import { useNavigate } from "react-router-dom";
-
 // Formik
 import { useFormikContext } from "formik";
 
-// Icons
-import { ChevronRightOutlined } from "@mui/icons-material";
-
 // MUI
-import { Button, Grid, Stack, TextField, Typography } from "@mui/material";
-
-// Utilities
-import { genderList } from "../../../utilities/general-utilities";
+import { Grid, Stack } from "@mui/material";
 
 // Animation
 import { motion } from "framer-motion";
 
 // Components
 import ExplainSection from "./DesktopExplainSection";
-import CustomSelect from "../../general/CustomSelect";
-import CustomDatePicker from "../../general/CustomDatePicker";
+import PersonalInfoText from "../../shared/sign-up/PersonalInfoText";
+import PersonalInfoFields from "../../shared/sign-up/PersonalInfoFields";
 
-// HOC
-import withContextSaver from "../../../hoc/withContextSaver";
-
-interface FieldObject {
-  [key: string]: boolean;
-}
-interface PropsInterface {
-  saveContext: (a: string, b: any) => void;
-}
-
-function DesktopPersonalInfo(props: PropsInterface) {
+function DesktopPersonalInfo() {
   const formik: any = useFormikContext();
-
-  const navigate = useNavigate();
-
-  const goBack = () => navigate("/sign-up/introduction");
-
-  async function validateAndProceed() {
-    let errorObject = await formik.validateForm();
-    if (
-      !errorObject.gender &&
-      !errorObject.birthday &&
-      !errorObject.employer &&
-      !errorObject.profession &&
-      !errorObject.defaultCurrency
-    ) {
-      let { username, password, ...rest } = formik.values;
-      props.saveContext("register-context", {
-        username: "",
-        password: "",
-        ...rest,
-      });
-      navigate("/sign-up/credentials");
-    } else {
-      let fieldsToTouch: FieldObject = {};
-      for (let key of Object.keys(errorObject)) {
-        if (
-          [
-            "gender",
-            "birthday",
-            "employer",
-            "profession",
-            "defaultCurrency",
-          ].includes(key)
-        ) {
-          fieldsToTouch[key] = true;
-        }
-      }
-      formik.setTouched(fieldsToTouch);
-      formik.setErrors(errorObject);
-    }
-  }
 
   return (
     <Grid container>
@@ -92,77 +33,8 @@ function DesktopPersonalInfo(props: PropsInterface) {
           }}
         >
           <Stack>
-            {/* Birthday */}
-            <Typography variant="subtitle1">
-              Alright {formik.values.name},
-            </Typography>
-            <Typography
-              className=" w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis"
-              variant="h4"
-              gutterBottom
-            >
-              Who are you?
-            </Typography>
-            {/* Birthday */}
-            <div className="mb-3">
-              <CustomDatePicker fieldName="birthday" label="Birthday" />
-            </div>
-            {/* Gender */}
-            <div className="mb-3">
-              <CustomSelect
-                options={genderList}
-                fieldName="gender"
-                label="Gender"
-              />
-            </div>
-            {/* Profession */}
-            <TextField
-              sx={{ marginBottom: "12px" }}
-              value={formik.values.profession}
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              error={!!formik.errors.profession && formik.touched.profession}
-              helperText={
-                !!formik.errors.profession && formik.touched.profession
-                  ? formik.errors.profession
-                  : " "
-              }
-              autoComplete="off"
-              label="Profession"
-              name="profession"
-              size="small"
-              fullWidth
-            />
-            {/* Employer */}
-            <TextField
-              sx={{ marginBottom: "12px" }}
-              value={formik.values.employer}
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              error={!!formik.errors.employer && formik.touched.employer}
-              helperText={
-                !!formik.errors.employer && formik.touched.employer
-                  ? formik.errors.employer
-                  : " "
-              }
-              autoComplete="off"
-              label="Employer"
-              name="employer"
-              size="small"
-              fullWidth
-            />
-            <Stack className=" justify-end" direction="row" spacing={4}>
-              <Button onClick={goBack} variant="text">
-                Go Back
-              </Button>
-              <Button
-                endIcon={<ChevronRightOutlined />}
-                onClick={validateAndProceed}
-                variant="contained"
-              >
-                Proceed
-              </Button>
-            </Stack>
+            <PersonalInfoText name={formik.values.name} />
+            <PersonalInfoFields />
           </Stack>
         </motion.div>
       </Grid>
@@ -170,4 +42,4 @@ function DesktopPersonalInfo(props: PropsInterface) {
   );
 }
 
-export default withContextSaver(DesktopPersonalInfo);
+export default DesktopPersonalInfo;

@@ -9,6 +9,7 @@ import { isStringEmpty } from "../../../utilities/general-utilities";
 interface PropsInterface {
   name: string;
   surname: string;
+  className?: string;
 }
 
 function IntroductionText(props: PropsInterface) {
@@ -23,9 +24,11 @@ function IntroductionText(props: PropsInterface) {
 
   return (
     <>
-      <Typography variant="subtitle1">Hi there, 👋🏼</Typography>
+      <Typography className={props.className} variant="subtitle1">
+        Hi there, 👋🏼
+      </Typography>
       <Typography
-        className=" w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis capitalize"
+        className={`w-11/12 pb-3 whitespace-nowrap overflow-hidden text-ellipsis capitalize ${props.className}`}
         variant="h4"
         gutterBottom
       >

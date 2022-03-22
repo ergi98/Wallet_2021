@@ -10,6 +10,9 @@ import { ChevronRightOutlined } from "@mui/icons-material";
 // Navigation
 import { useNavigate } from "react-router-dom";
 
+// HOC
+import withContextSaver from "../../../hoc/withContextSaver";
+
 interface PropsInterface {
   saveContext: (a: string, b: any) => void;
 }
@@ -17,6 +20,8 @@ interface PropsInterface {
 interface FieldObject {
   [key: string]: boolean;
 }
+
+const isMobile = window.innerWidth <= 640;
 
 function IntroductionFields(props: PropsInterface) {
   const navigate = useNavigate();
@@ -91,6 +96,7 @@ function IntroductionFields(props: PropsInterface) {
       <Button
         endIcon={<ChevronRightOutlined />}
         onClick={validateAndProceed}
+        fullWidth={isMobile}
         className="w-fit self-end"
         variant="contained"
       >
@@ -100,4 +106,4 @@ function IntroductionFields(props: PropsInterface) {
   );
 }
 
-export default IntroductionFields;
+export default withContextSaver(IntroductionFields);
