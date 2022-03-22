@@ -8,11 +8,7 @@ import { useFormikContext } from "formik";
 import IntroductionText from "../../shared/sign-up/IntroductionText";
 import IntroductionFields from "../../shared/sign-up/IntroductionFields";
 
-interface PropsInterface {
-  saveContext: (a: string, b: any) => void;
-}
-
-function MobileIntroduction(props: PropsInterface) {
+function MobileIntroduction() {
   const formik: any = useFormikContext();
 
   return (

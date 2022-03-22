@@ -44,7 +44,7 @@ function DesktopIntroduction(props: PropsInterface) {
               name={formik.values.name}
               surname={formik.values.surname}
             />
-            <IntroductionFields saveContext={props.saveContext} />
+            <IntroductionFields />
           </Stack>
         </motion.div>
       </Grid>
