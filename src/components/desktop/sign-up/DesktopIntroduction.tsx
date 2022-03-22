@@ -1,22 +1,11 @@
-import { useMemo } from "react";
-
 // Formik
 import { useFormikContext } from "formik";
 
-// Utilities
-import { isStringEmpty } from "../../../utilities/general-utilities";
-
 // Mui
-import { Button, Grid, Stack, TextField } from "@mui/material";
-
-// Icons
-import { ChevronRightOutlined } from "@mui/icons-material";
+import { Grid, Stack } from "@mui/material";
 
 // HOC
 import withContextSaver from "../../../hoc/withContextSaver";
-
-// Navigate
-import { useNavigate } from "react-router-dom";
 
 // Animation
 import { motion } from "framer-motion";
@@ -24,10 +13,7 @@ import { motion } from "framer-motion";
 // Components
 import ExplainSection from "./DesktopExplainSection";
 import IntroductionText from "../../shared/sign-up/IntroductionText";
-
-interface FieldObject {
-  [key: string]: boolean;
-}
+import IntroductionFields from "../../shared/sign-up/IntroductionFields";
 
 interface PropsInterface {
   saveContext: (a: string, b: any) => void;
@@ -35,39 +21,6 @@ interface PropsInterface {
 
 function DesktopIntroduction(props: PropsInterface) {
   const formik: any = useFormikContext();
-
-  const navigate = useNavigate();
-
-  async function validateAndProceed() {
-    let errorObject = await formik.validateForm();
-    if (!errorObject["name"] && !errorObject["surname"]) {
-      let { username, password, ...rest } = formik.values;
-      props.saveContext("register-context", {
-        username: "",
-        password: "",
-        ...rest,
-      });
-      navigate("/sign-up/personal-info");
-    } else {
-      let fieldsToTouch: FieldObject = {};
-      for (let key of Object.keys(errorObject)) {
-        if (["name", "surname"].includes(key)) {
-          fieldsToTouch[key] = true;
-        }
-      }
-      formik.setTouched(fieldsToTouch);
-      formik.setErrors(errorObject);
-    }
-  }
-
-  const fullName = useMemo(() => {
-    let value = "";
-    let name = formik.values.name?.trim();
-    let surname = formik.values.surname?.trim();
-    if (isStringEmpty(name) && isStringEmpty(surname)) value = "...";
-    else value = `${name} ${surname}!`;
-    return value;
-  }, [formik.values.name, formik.values.surname]);
 
   return (
     <Grid container>
@@ -87,57 +40,11 @@ function DesktopIntroduction(props: PropsInterface) {
           }}
         >
           <Stack rowGap={2}>
-            <IntroductionText text={fullName} />
-            <div>
-              <TextField
-                sx={{ marginBottom: "12px" }}
-                value={formik.values.name}
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
-                error={!!formik.errors.name && formik.touched.name}
-                helperText={
-                  !!formik.errors.name && formik.touched.name
-                    ? formik.errors.name
-                    : " "
-                }
-                autoComplete="off"
-                spellCheck={false}
-                autoCorrect="off"
-                label="First Name"
-                size="small"
-                name="name"
-                fullWidth
-                required
-              />
-              <TextField
-                sx={{ marginBottom: "12px" }}
-                value={formik.values.surname}
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
-                error={!!formik.errors.surname && formik.touched.surname}
-                helperText={
-                  !!formik.errors.surname && formik.touched.surname
-                    ? formik.errors.surname
-                    : " "
-                }
-                spellCheck={false}
-                autoCorrect="off"
-                autoComplete="off"
-                label="Last Name"
-                name="surname"
-                size="small"
-                fullWidth
-                required
-              />
-            </div>
-            <Button
-              onClick={validateAndProceed}
-              endIcon={<ChevronRightOutlined />}
-              variant="contained"
-              className="w-fit self-end"
-            >
-              Proceed
-            </Button>
+            <IntroductionText
+              name={formik.values.name}
+              surname={formik.values.surname}
+            />
+            <IntroductionFields saveContext={props.saveContext} />
           </Stack>
         </motion.div>
       </Grid>
