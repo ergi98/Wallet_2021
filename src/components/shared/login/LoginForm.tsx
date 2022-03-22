@@ -4,7 +4,11 @@ import { useState } from "react";
 import { useFormik } from "formik";
 
 // Validations
-import { loginSchema } from "../../../validators/credentials";
+import {
+  loginSchema,
+  passwordRules,
+  usernameRules,
+} from "../../../validators/credentials";
 
 // Icons
 import { LoginOutlined, PersonOutlineOutlined } from "@mui/icons-material";
@@ -24,6 +28,7 @@ import { useNavigate } from "react-router-dom";
 
 // Components
 import ToggleVisibility from "../../general/ToggleVisibility";
+import ValidationHint from "../../general/ValidationHint";
 
 function LoginForm() {
   const navigate = useNavigate();
@@ -68,6 +73,9 @@ function LoginForm() {
                 ? formik.errors.username
                 : " "
             }
+            spellCheck={false}
+            autoCapitalize="none"
+            autoCorrect="off"
             label="Username"
             name="username"
             size="small"
@@ -75,6 +83,19 @@ function LoginForm() {
               startAdornment: (
                 <InputAdornment position="start">
                   <PersonOutlineOutlined />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <ValidationHint
+                    content={
+                      <ul className=" list-disc ml-3">
+                        {usernameRules.map((rule) => (
+                          <li key={rule}>{rule}.</li>
+                        ))}
+                      </ul>
+                    }
+                  />
                 </InputAdornment>
               ),
             }}
@@ -95,6 +116,9 @@ function LoginForm() {
                 ? formik.errors.password
                 : " "
             }
+            spellCheck={false}
+            autoCapitalize="none"
+            autoCorrect="off"
             label="Password"
             name="password"
             size="small"
@@ -104,6 +128,19 @@ function LoginForm() {
                   <ToggleVisibility
                     value={showPassword}
                     onClick={() => setShowPassword((prev) => !prev)}
+                  />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <ValidationHint
+                    content={
+                      <ul className=" list-disc ml-3">
+                        {passwordRules.map((rule) => (
+                          <li key={rule}>{rule}.</li>
+                        ))}
+                      </ul>
+                    }
                   />
                 </InputAdornment>
               ),
