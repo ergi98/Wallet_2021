@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 // Logo
 import { ReactComponent as WalletLogo } from "../../../assets/logo/wallet-logo.svg";
 
@@ -12,13 +14,12 @@ import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 
 // Navigation
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // Illustration
 import { ReactComponent as EasyIllustration } from "../../../assets/illustrations/easy.svg";
 import { ReactComponent as SecureIllustration } from "../../../assets/illustrations/secure.svg";
 import { ReactComponent as AnalysisIllustration } from "../../../assets/illustrations/analysis.svg";
-import { useState } from "react";
 
 const iconClasses = "w-32 h-32";
 
@@ -39,18 +40,26 @@ const mainPoints = [
 
 function MobileInitialScreen() {
   const [delay, setDelay] = useState<number>(0.2);
+
   const navigate = useNavigate();
+  const location: any = useLocation();
+
+  const navigatingInternally: boolean = ["login", "sign-up"].includes(
+    location.state
+  );
+
+  window.history.replaceState({}, document.title);
 
   const navigateTo = (url: string) => {
     setDelay(0);
-    navigate(url);
+    navigate(url, { state: "initial-page" });
   };
 
   return (
     <div className="w-full h-full relative">
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={navigatingInternally ? { x: "43%" } : { opacity: 0, y: -10 }}
+        animate={navigatingInternally ? { x: 0 } : { opacity: 1, y: 0 }}
         exit={{ x: "43%" }}
         transition={{
           bounce: 0,
