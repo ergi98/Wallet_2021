@@ -1,7 +1,9 @@
+import { useEffect } from "react";
+
 import {
   Stack,
-  Typography,
   Card,
+  Typography,
   CardHeader,
   CardContent,
 } from "@mui/material";
@@ -21,6 +23,10 @@ import LoginForm from "../../../components/shared/login/LoginForm";
 function DesktopLogin() {
   const navigate = useNavigate();
   const navigateHome = () => navigate("/");
+
+  useEffect(() => {
+    localStorage.removeItem("register-context");
+  }, []);
 
   return (
     <>
