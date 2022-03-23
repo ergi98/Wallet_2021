@@ -116,39 +116,39 @@ function Home(props: PropsInterface) {
   const goTo = (url: string) => navigate(url);
 
   return (
-    <div className="app-height relative overflow-hidden">
+    <div className="app-height relative overflow-x-hidden overflow-y-auto">
       {props.children}
-      <VerticalSwipe minHeight={48} context="home-swiper">
-        <div className="px-3 max-h-12">
-          <Stack className="pb-3" direction="row" gap={2}>
-            <Button
-              sx={{
-                borderRadius: "25px",
-                background: "white",
-                border: "none",
-                color: "gray",
-              }}
-              className="shadow-sm"
-              startIcon={<RemoveOutlined />}
-              onClick={() => goTo("/expense")}
-              variant="outlined"
-              fullWidth
-            >
-              Expense
-            </Button>
-            <Button
-              sx={{ borderRadius: "25px" }}
-              startIcon={<AddOutlined />}
-              onClick={() => goTo("/income")}
-              variant="contained"
-              fullWidth
-            >
-              Income
-            </Button>
-          </Stack>
-        </div>
-        <TransactionsList className="px-3" transactions={transaction} />
-      </VerticalSwipe>
+      {/* <VerticalSwipe minHeight={48} context="home-swiper"> */}
+      <div className="px-3 max-h-12">
+        <Stack className="pb-3" direction="row" gap={2}>
+          <Button
+            sx={{
+              borderRadius: "25px",
+              background: "white",
+              border: "none",
+              color: "gray",
+            }}
+            className="shadow-sm"
+            startIcon={<RemoveOutlined />}
+            onClick={() => goTo("/expense")}
+            variant="outlined"
+            fullWidth
+          >
+            Expense
+          </Button>
+          <Button
+            sx={{ borderRadius: "25px" }}
+            startIcon={<AddOutlined />}
+            onClick={() => goTo("/income")}
+            variant="contained"
+            fullWidth
+          >
+            Income
+          </Button>
+        </Stack>
+      </div>
+      <TransactionsList className="px-3" transactions={transaction} />
+      {/* </VerticalSwipe> */}
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 // Components
-import Home from "../../../components/mobile/home/Home";
+import Home from "../../../components/mobile/home/MobileHome";
 import HomeTitle from "../../../components/mobile/home/HomeTitle";
 import AmountDisplay from "../../../components/general/AmountDisplay";
 
