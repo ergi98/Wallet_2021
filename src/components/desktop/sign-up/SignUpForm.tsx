@@ -49,8 +49,12 @@ function SignUpForm() {
         handleUserSignUp(values, setSubmitting)
       }
     >
-      {/* All form stages */}
-      <Outlet />
+      {(props) => (
+        <form noValidate onSubmit={props.handleSubmit}>
+          {/* All form stages */}
+          <Outlet />
+        </form>
+      )}
     </Formik>
   );
 }

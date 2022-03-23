@@ -1,6 +1,7 @@
 import { ChangeEvent, FocusEvent, useEffect, useState } from "react";
 
 // MUI
+import { LoadingButton } from "@mui/lab";
 import { Button, InputAdornment, Stack, TextField } from "@mui/material";
 
 // Icons
@@ -66,11 +67,14 @@ function CredentialsFields() {
         show: true,
         message: "Passwords do not match!",
       });
-    } else
+      return true;
+    } else {
       setMatchError({
         show: false,
         message: "",
       });
+      return false;
+    }
   }
 
   function handlePwdBlur() {
@@ -79,12 +83,13 @@ function CredentialsFields() {
   }
 
   function handleSubmit() {
-    checkForRepeatPwdErrors(true);
-    formik.handleSubmit();
+    let hasErrors = checkForRepeatPwdErrors(true);
+    !hasErrors && formik.handleSubmit();
   }
 
   function validateUsernameAndHandleBlue(event: FocusEvent<HTMLInputElement>) {
-    // formik.handleBlur(event);
+    // TODO: Make API call to check if the given username is taken or not
+    formik.handleBlur(event);
   }
 
   return (
@@ -203,18 +208,24 @@ function CredentialsFields() {
         direction="row"
         spacing={isMobile ? 1 : 4}
       >
-        <Button onClick={navigateBack} fullWidth={isMobile} variant="text">
+        <Button
+          onClick={navigateBack}
+          disabled={formik.isSubmitting}
+          fullWidth={isMobile}
+          variant="text"
+        >
           Go Back
         </Button>
-        <Button
-          endIcon={<CelebrationOutlined />}
-          onClick={handleSubmit}
+        <LoadingButton
           fullWidth={isMobile}
+          onClick={handleSubmit}
+          loading={formik.isSubmitting}
+          endIcon={<CelebrationOutlined />}
+          aria-label="sign-up"
           variant="contained"
-          type="submit"
         >
           Finish!
-        </Button>
+        </LoadingButton>
       </Stack>
     </>
   );
