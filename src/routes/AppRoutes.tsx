@@ -34,7 +34,7 @@ import DesktopInitialScreen from "../views/desktop/initial-screen/DesktopInitial
 // import Profile from "../views/profile/Profile";
 
 // Mobile
-import AppNavigation from "../components/mobile/app-navigation/AppNavigation";
+import AppNavigation from "../components/mobile/app-navigation/MobileAppNavigation";
 import MobileCredentials from "../components/mobile/sign-up/MobileCredentials";
 import MobilePersonalInfo from "../components/mobile/sign-up/MobilePersonalInfo";
 import MobileIntroduction from "../components/mobile/sign-up/MobileIntroduction";

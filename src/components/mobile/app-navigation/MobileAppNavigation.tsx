@@ -6,14 +6,18 @@ import Avatar from "@mui/material/Avatar";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 
-// SVGs
-import { ReactComponent as Home } from "../../../assets/icons/home.svg";
-import { ReactComponent as Charts } from "../../../assets/icons/charts.svg";
-import { ReactComponent as Settings } from "../../../assets/icons/settings.svg";
-import { ReactComponent as Portfolios } from "../../../assets/icons/portfolios.svg";
-
 // Router
 import { useNavigate } from "react-router-dom";
+import {
+  Settings,
+  HomeRounded,
+  HomeOutlined,
+  SettingsOutlined,
+  ShowChartRounded,
+  AccountBalanceWallet,
+  StackedLineChartRounded,
+  AccountBalanceWalletOutlined,
+} from "@mui/icons-material";
 
 function AppNavigation() {
   const [activePath, setActivePath] = useState<Number>(2);
@@ -24,29 +28,42 @@ function AppNavigation() {
     () => [
       {
         key: "settings",
-        icon: <Settings style={activePath === 0 ? { color: "#f3f4f6" } : {}} />,
+        icon:
+          activePath === 0 ? (
+            <Settings />
+          ) : (
+            <SettingsOutlined className="text-neutral-400" />
+          ),
         path: "/settings",
       },
       {
         key: "portfolios",
-        icon: (
-          <Portfolios style={activePath === 1 ? { color: "#f3f4f6" } : {}} />
-        ),
+        icon:
+          activePath === 1 ? (
+            <AccountBalanceWallet />
+          ) : (
+            <AccountBalanceWalletOutlined className="text-neutral-400" />
+          ),
         path: "/portfolios",
       },
       {
         key: "home",
-        icon: (
-          <Home
-            style={activePath === 2 ? { color: "#f3f4f6" } : {}}
-            className={`${activePath === 2 ? "h-8 w-8" : "h-6 w-6"}`}
-          />
-        ),
+        icon:
+          activePath === 2 ? (
+            <HomeRounded />
+          ) : (
+            <HomeOutlined className="text-neutral-400" />
+          ),
         path: "/home/expenses",
       },
       {
         key: "analysis",
-        icon: <Charts style={activePath === 3 ? { color: "#f3f4f6" } : {}} />,
+        icon:
+          activePath === 3 ? (
+            <StackedLineChartRounded />
+          ) : (
+            <ShowChartRounded className="text-neutral-400" />
+          ),
         path: "/analysis",
       },
       {
@@ -72,36 +89,18 @@ function AppNavigation() {
   return (
     <Paper
       sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }}
+      className="pb-env"
       elevation={10}
-      className="pb-env pt-2"
       square
     >
       <BottomNavigation
         value={activePath}
         showLabels={false}
-        sx={{ gap: "12px" }}
+        sx={{ padding: 0 }}
         onChange={handleUserNavigation}
       >
         {navigationItems.map((item, index) => (
-          <BottomNavigationAction
-            sx={{
-              ...{
-                borderRadius: "50%",
-                minWidth: "46px",
-                height: "46px",
-                flex: "0 0 46px",
-              },
-              ...(activePath === index
-                ? {
-                    backgroundImage:
-                      "linear-gradient(to bottom, #1e3a8a, #60a5fa)",
-                    color: "white",
-                  }
-                : {}),
-            }}
-            icon={item.icon}
-            key={item.key}
-          />
+          <BottomNavigationAction icon={item.icon} key={item.key} />
         ))}
       </BottomNavigation>
     </Paper>

@@ -74,10 +74,10 @@ body {
   .pr-env {
     padding-right: var(--right) !important;
   }
-}
-
-.app-height {
-  height: calc(var(--vh, 1vh) * 100 - var(--bottom) - var(--top) - 64px);
+  
+  .app-height {
+    height: calc(var(--vh, 1vh) * 100 - var(--bottom) - var(--top) - 56px);
+  }
 }
 
 .income {
