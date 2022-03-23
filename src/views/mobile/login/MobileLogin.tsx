@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Animation
 import { motion } from "framer-motion";
@@ -20,6 +20,10 @@ function MobileLogin() {
 
   const navigate = useNavigate();
   const location: any = useLocation();
+
+  useEffect(() => {
+    localStorage.removeItem("register-context");
+  }, []);
 
   const navigatingInternally: boolean = ["login", "initial-page"].includes(
     location.state

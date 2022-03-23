@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Navigation
 import { useNavigate } from "react-router-dom";
@@ -45,6 +45,10 @@ const mainPoints = [
 
 function DesktopInitialScreen() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.removeItem("register-context");
+  }, []);
 
   const navigateTo = (url: string) => {
     switch (url) {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Logo
 import { ReactComponent as WalletLogo } from "../../../assets/logo/wallet-logo.svg";
@@ -40,6 +40,10 @@ const mainPoints = [
 
 function MobileInitialScreen() {
   const [delay, setDelay] = useState<number>(0.2);
+
+  useEffect(() => {
+    localStorage.removeItem("register-context");
+  }, []);
 
   const navigate = useNavigate();
   const location: any = useLocation();
