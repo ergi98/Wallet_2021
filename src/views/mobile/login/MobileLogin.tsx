@@ -44,7 +44,7 @@ function MobileLogin() {
         exit={navigatingInternally ? {} : { opacity: 0, y: -10 }}
         transition={{
           bounce: 0,
-          duration: 0.75,
+          duration: 0.5,
         }}
       >
         <WalletLogo
@@ -60,8 +60,8 @@ function MobileLogin() {
             exit={{ opacity: 0, y: 10 }}
             transition={{
               bounce: 0,
-              duration: 1,
-              delay: delay * 7,
+              duration: 0.5,
+              delay: delay * 3,
             }}
           >
             <Typography variant="h6">Welcome Back!</Typography>
@@ -76,7 +76,7 @@ function MobileLogin() {
           exit={{ y: "100%" }}
           transition={{
             bounce: 0,
-            duration: 1,
+            duration: 0.5,
             delay: delay,
           }}
         >
@@ -93,8 +93,8 @@ function MobileLogin() {
               exit={{ opacity: 0, y: 10 }}
               transition={{
                 bounce: 0,
-                duration: 1,
-                delay: delay * 5,
+                duration: 0.5,
+                delay: delay * 3,
               }}
             >
               <CardContent className="pb-12" children={<LoginForm />} />
