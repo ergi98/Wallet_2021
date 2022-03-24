@@ -3,21 +3,22 @@ import { useMemo, useState } from "react";
 // MUI
 import Paper from "@mui/material/Paper";
 import Avatar from "@mui/material/Avatar";
+import SvgIcon from "@mui/material/SvgIcon";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 
 // Router
 import { useNavigate } from "react-router-dom";
 import {
-  Settings,
-  HomeRounded,
-  HomeOutlined,
-  SettingsOutlined,
-  ShowChartRounded,
-  AccountBalanceWallet,
-  StackedLineChartRounded,
-  AccountBalanceWalletOutlined,
-} from "@mui/icons-material";
+  RiHome2Line,
+  RiHome2Fill,
+  RiWalletFill,
+  RiWalletLine,
+  RiSettings4Line,
+  RiSettings4Fill,
+  RiPieChartLine,
+  RiPieChart2Fill,
+} from "react-icons/ri";
 
 function AppNavigation() {
   const [activePath, setActivePath] = useState<Number>(2);
@@ -28,42 +29,38 @@ function AppNavigation() {
     () => [
       {
         key: "settings",
-        icon:
-          activePath === 0 ? (
-            <Settings />
-          ) : (
-            <SettingsOutlined className="text-neutral-400" />
-          ),
+        icon: (
+          <SvgIcon className={`${activePath !== 0 && "scale-75"}`}>
+            {activePath === 0 ? <RiSettings4Fill /> : <RiSettings4Line />}
+          </SvgIcon>
+        ),
         path: "/settings",
       },
       {
         key: "portfolios",
-        icon:
-          activePath === 1 ? (
-            <AccountBalanceWallet />
-          ) : (
-            <AccountBalanceWalletOutlined className="text-neutral-400" />
-          ),
+        icon: (
+          <SvgIcon className={`${activePath !== 1 && "scale-75"}`}>
+            {activePath === 1 ? <RiWalletFill /> : <RiWalletLine />}
+          </SvgIcon>
+        ),
         path: "/portfolios",
       },
       {
         key: "home",
-        icon:
-          activePath === 2 ? (
-            <HomeRounded />
-          ) : (
-            <HomeOutlined className="text-neutral-400" />
-          ),
+        icon: (
+          <SvgIcon className={`${activePath !== 2 && "scale-75"}`}>
+            {activePath === 2 ? <RiHome2Fill /> : <RiHome2Line />}
+          </SvgIcon>
+        ),
         path: "/home/expenses",
       },
       {
         key: "analysis",
-        icon:
-          activePath === 3 ? (
-            <StackedLineChartRounded />
-          ) : (
-            <ShowChartRounded className="text-neutral-400" />
-          ),
+        icon: (
+          <SvgIcon className={`${activePath !== 3 && "scale-75"}`}>
+            {activePath === 3 ? <RiPieChart2Fill /> : <RiPieChartLine />}
+          </SvgIcon>
+        ),
         path: "/analysis",
       },
       {
@@ -90,7 +87,6 @@ function AppNavigation() {
     <Paper
       sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }}
       className="pb-env"
-      elevation={10}
       square
     >
       <BottomNavigation
@@ -99,7 +95,7 @@ function AppNavigation() {
         sx={{ padding: 0 }}
         onChange={handleUserNavigation}
       >
-        {navigationItems.map((item, index) => (
+        {navigationItems.map((item) => (
           <BottomNavigationAction icon={item.icon} key={item.key} />
         ))}
       </BottomNavigation>
