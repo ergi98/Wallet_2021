@@ -73,7 +73,7 @@ function MobileInitialScreen() {
         <WalletLogo className="w-7 h-auto absolute top-3 left-3" />
       </motion.div>
       <Stack className="w-full h-full pb-env px-3">
-        <Stack spacing={2} className="mt-auto pb-12 text-gray-100">
+        <Stack spacing={2} className="mt-auto pb-12 text-neutral-50">
           <div>
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -159,7 +159,7 @@ function MobileInitialScreen() {
             }}
           >
             <Stack direction="row" justifyContent="center" alignItems="center">
-              <Divider className="text-gray-100 w-1/2 text-[12px]">OR</Divider>
+              <Divider className="text-neutral-50 w-1/2 text-[12px]">OR</Divider>
             </Stack>
           </motion.div>
           <motion.div

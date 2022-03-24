@@ -1,16 +1,15 @@
 import { ReactNode } from "react";
 
 // Icons
-import { AddOutlined, RemoveOutlined } from "@mui/icons-material";
+import { RiAddFill } from "react-icons/ri";
 
 // MUI
-import { Button, Stack } from "@mui/material";
+import { Button, IconButton, Stack, Typography } from "@mui/material";
 
 // Navigation
 import { useNavigate } from "react-router-dom";
 
 // Components
-import VerticalSwipe from "../../general/VerticalSwipe";
 import TransactionsList from "../transactions/TransactionsList";
 
 interface PropsInterface {
@@ -118,9 +117,8 @@ function Home(props: PropsInterface) {
   return (
     <div className="app-height relative overflow-x-hidden overflow-y-auto">
       {props.children}
-      {/* <VerticalSwipe minHeight={48} context="home-swiper"> */}
-      <div className="px-3 max-h-12">
-        <Stack className="pb-3" direction="row" gap={2}>
+      <div className="px-3">
+        {/* <Stack className="pb-3" direction="row" gap={2}>
           <Button
             sx={{
               borderRadius: "25px",
@@ -145,10 +143,20 @@ function Home(props: PropsInterface) {
           >
             Income
           </Button>
+        </Stack> */}
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          className="text-neutral-50 pb-3"
+        >
+          <Typography variant="subtitle1">Today's Transactions</Typography>
+          <Button startIcon={<RiAddFill />} variant="text" color="inherit">
+            New
+          </Button>
         </Stack>
+        <TransactionsList transactions={transaction} />
       </div>
-      <TransactionsList className="px-3" transactions={transaction} />
-      {/* </VerticalSwipe> */}
     </div>
   );
 }

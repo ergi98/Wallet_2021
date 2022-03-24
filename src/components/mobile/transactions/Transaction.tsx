@@ -25,7 +25,7 @@ function Transaction(props: PropsInterface) {
     <Grid
       container
       onClick={() => props.onClick(true, props.transaction)}
-      className="w-full shadow-sm bg-white mb-3 p-2 rounded-lg h-fit overflow-hidden"
+      className="w-full shadow-sm bg-neutral-50 mb-3 p-2 rounded-lg h-fit overflow-hidden"
     >
       <Grid xs={8} item>
         <Stack className="h-full" justifyContent="space-between" rowGap={1.25}>

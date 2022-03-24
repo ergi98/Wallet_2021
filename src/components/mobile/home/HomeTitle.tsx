@@ -1,8 +1,8 @@
 // MUI
-import { Button, IconButton, Stack, Typography } from "@mui/material";
+import { IconButton, Stack, Typography } from "@mui/material";
 
 // Icons
-import { SwapHorizOutlined } from "@mui/icons-material";
+import { RiEqualizerLine, RiArrowLeftRightLine } from "react-icons/ri";
 
 // Utilities
 import { formatDate, isTodayDate } from "../../../utilities/date-utilities";
@@ -15,32 +15,24 @@ interface PropsInterface {
 }
 
 function HomeTitle(props: PropsInterface) {
-  function openDatePicker() {}
+  function openDateFilter() {}
 
   return (
-    <Stack className="px-3 pt-1" direction="row" justifyContent="space-between">
+    <Stack className="px-3 pt-3">
+      <Stack direction="row" justifyContent="space-between" className="pb-6">
+        <IconButton onClick={openDateFilter} sx={{ fontSize: "20px" }}>
+          <RiEqualizerLine className="text-neutral-50" />
+        </IconButton>
+        <IconButton onClick={() => props.swapClick()} sx={{ fontSize: "20px" }}>
+          <RiArrowLeftRightLine className="text-neutral-50" />
+        </IconButton>
+      </Stack>
       <div>
-        <Typography className="text-gray-100" variant="h6">
+        <Typography className="text-neutral-50" variant="subtitle1">
           {isTodayDate(props.date)
             ? `Today's ${props.label}`
             : `${props.label}`}
         </Typography>
-        <Stack className="cursor-pointer" direction="row" gap={1}>
-          <Button
-            onClick={openDatePicker}
-            sx={{ textTransform: "none", padding: 0, fontSize: "16px" }}
-            size="small"
-          >
-            <Typography className="text-gray-100" variant="subtitle1">
-              {formatDate(props.date)}
-            </Typography>
-          </Button>
-        </Stack>
-      </div>
-      <div>
-        <IconButton onClick={() => props.swapClick()}>
-          <SwapHorizOutlined className="text-gray-100" />
-        </IconButton>
       </div>
     </Stack>
   );

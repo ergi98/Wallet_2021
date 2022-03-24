@@ -124,7 +124,7 @@ function VerticalSwipe(props: PropsInterface) {
       className={`
         ${props.position || "absolute bottom-0"} 
         ${props.dimensions || "w-full h-3/4"} 
-        ${props.background || "bg-white bg-opacity-90"} 
+        ${props.background || "bg-neutral-50 bg-opacity-90"} 
         ${props.styling || "rounded-t-3xl"}
       `}
     >

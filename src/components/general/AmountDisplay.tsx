@@ -5,6 +5,7 @@ import { roundNumber } from "../../utilities/math-utilities";
 
 interface PropsInterface {
   amount: number;
+  suffix?: string;
   currency?: string;
   className?: string;
   wholeClass?: string;
@@ -53,7 +54,9 @@ function AmountDisplay(props: PropsInterface) {
       <span className={props.wholeClass || "text-5xl"}>
         {`${completePart}.`}
       </span>
-      <span className={props.decimalClass || "text-3xl"}>{decimalPart}</span>
+      <span className={props.decimalClass || "text-3xl"}>
+        {decimalPart}&nbsp;{props.suffix}
+      </span>
     </div>
   );
 }

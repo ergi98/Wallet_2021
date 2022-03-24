@@ -13,7 +13,7 @@ function MobileCredentials() {
 
   return (
     <>
-      <CredentialsText className="text-white px-3" name={formik.values.name} />
+      <CredentialsText className="text-neutral-50 px-3" name={formik.values.name} />
       <Card
         className="w-full rounded-t-3xl p-3 pt-8 pb-env h-fit"
         sx={{
