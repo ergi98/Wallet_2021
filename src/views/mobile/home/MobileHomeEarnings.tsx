@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 // Components
 import Home from "../../../components/mobile/home/MobileHome";
 import HomeTitle from "../../../components/mobile/home/HomeTitle";
-import AmountDisplay from "../../../components/general/AmountDisplay";
+import HomeTopActions from "../../../components/mobile/home/HomeTopActions";
 
 function HomeEarnings() {
   const [selectedDate, setSelectedDate] = useState<string>(() =>
@@ -23,22 +23,16 @@ function HomeEarnings() {
   return (
     <Home>
       <Stack>
-        <HomeTitle
-          label="Earnings"
+        <HomeTopActions
           date={selectedDate}
           swapClick={goToExpenses}
           changeDate={(event) => setSelectedDate(event)}
         />
-        <AmountDisplay
-          amount={25000.35}
-          className="self-center pt-4 text-gray-300"
-        />
-        <AmountDisplay
-          amount={2.5}
-          suffix={"%"}
-          wholeClass="text-sm"
-          decimalClass="text-xs"
-          className="self-center text-gray-300 pb-4"
+        <HomeTitle
+          label="Earnings"
+          date={selectedDate}
+          amount={18023.23}
+          percent={2.34}
         />
       </Stack>
     </Home>
