@@ -7,8 +7,6 @@ import TransactionDetailsDialog from "./TransactionDetailsDialog";
 import { TransactionInterface } from "./transactions-interface";
 
 interface PropsInterface {
-  height?: number;
-  className?: string;
   transactions: Array<TransactionInterface>;
 }
 
@@ -35,14 +33,7 @@ function TransactionsList(props: PropsInterface) {
 
   return (
     <>
-      <div
-        className={`overflow-x-hidden overflow-y-auto ${props.className}`}
-        style={{
-          height: props.height
-            ? `${props.height}px`
-            : "calc(100% - 24px - 48px)",
-        }}
-      >
+      <div className="-mr-3 pr-3 max-h-80 overflow-x-hidden overflow-y-scroll rounded-b-xl">
         <ul>
           {props.transactions.map((transaction) => (
             <li key={transaction._id}>

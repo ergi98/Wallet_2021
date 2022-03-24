@@ -1,40 +1,43 @@
 // MUI
-import { IconButton, Stack, Typography } from "@mui/material";
-
-// Icons
-import { RiEqualizerLine, RiArrowLeftRightLine } from "react-icons/ri";
+import { Stack, Typography } from "@mui/material";
 
 // Utilities
-import { formatDate, isTodayDate } from "../../../utilities/date-utilities";
+import { isTodayDate } from "../../../utilities/date-utilities";
+
+// Components
+import AmountDisplay from "../../general/AmountDisplay";
 
 interface PropsInterface {
   date: string;
   label: String;
-  swapClick: () => void;
-  changeDate: (a: string) => void;
+  amount: number;
+  percent: number;
 }
 
 function HomeTitle(props: PropsInterface) {
-  function openDateFilter() {}
-
   return (
-    <Stack className="px-3 pt-3">
-      <Stack direction="row" justifyContent="space-between" className="pb-6">
-        <IconButton onClick={openDateFilter} sx={{ fontSize: "20px" }}>
-          <RiEqualizerLine className="text-neutral-50" />
-        </IconButton>
-        <IconButton onClick={() => props.swapClick()} sx={{ fontSize: "20px" }}>
-          <RiArrowLeftRightLine className="text-neutral-50" />
-        </IconButton>
+    <div className="bg-neutral-50 rounded-xl mx-3 mb-6 pt-2 shadow-md">
+      <Stack className="px-3">
+        <div>
+          <Typography className="text-blue-900" variant="subtitle1">
+            {isTodayDate(props.date)
+              ? `Today's ${props.label}`
+              : `${props.label}`}
+          </Typography>
+        </div>
+        <AmountDisplay
+          amount={props.amount}
+          className="self-center pt-4 text-slate-900"
+        />
+        <AmountDisplay
+          amount={props.percent}
+          suffix={"%"}
+          wholeClass="text-sm"
+          decimalClass="text-xs"
+          className="self-center text-slate-900 pb-4"
+        />
       </Stack>
-      <div>
-        <Typography className="text-neutral-50" variant="subtitle1">
-          {isTodayDate(props.date)
-            ? `Today's ${props.label}`
-            : `${props.label}`}
-        </Typography>
-      </div>
-    </Stack>
+    </div>
   );
 }
 

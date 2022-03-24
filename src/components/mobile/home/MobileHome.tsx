@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { RiAddFill } from "react-icons/ri";
 
 // MUI
-import { Button, IconButton, Stack, Typography } from "@mui/material";
+import { Button, Card, Paper, Stack, Typography } from "@mui/material";
 
 // Navigation
 import { useNavigate } from "react-router-dom";
@@ -118,44 +118,24 @@ function Home(props: PropsInterface) {
     <div className="app-height relative overflow-x-hidden overflow-y-auto">
       {props.children}
       <div className="px-3">
-        {/* <Stack className="pb-3" direction="row" gap={2}>
-          <Button
-            sx={{
-              borderRadius: "25px",
-              background: "white",
-              border: "none",
-              color: "gray",
-            }}
-            className="shadow-sm"
-            startIcon={<RemoveOutlined />}
-            onClick={() => goTo("/expense")}
-            variant="outlined"
-            fullWidth
+        <div className="bg-neutral-50 rounded-xl px-3 pt-2 shadow-md">
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            className=" text-blue-900 pb-3"
           >
-            Expense
-          </Button>
-          <Button
-            sx={{ borderRadius: "25px" }}
-            startIcon={<AddOutlined />}
-            onClick={() => goTo("/income")}
-            variant="contained"
-            fullWidth
-          >
-            Income
-          </Button>
-        </Stack> */}
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          className="text-neutral-50 pb-3"
-        >
-          <Typography variant="subtitle1">Today's Transactions</Typography>
-          <Button startIcon={<RiAddFill />} variant="text" color="inherit">
-            New
-          </Button>
-        </Stack>
-        <TransactionsList transactions={transaction} />
+            <Typography variant="subtitle1">Today's Transactions</Typography>
+            <Button
+              sx={{ minWidth: 24, padding: 1, borderRadius: "50%" }}
+              variant="contained"
+              disableElevation
+            >
+              <RiAddFill />
+            </Button>
+          </Stack>
+          <TransactionsList transactions={transaction} />
+        </div>
       </div>
     </div>
   );

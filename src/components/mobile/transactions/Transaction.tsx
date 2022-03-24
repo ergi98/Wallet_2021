@@ -16,6 +16,7 @@ interface PropsInterface {
   onClick: (a: boolean, b: TransactionInterface | null) => void;
   transaction: TransactionInterface;
 }
+
 function Transaction(props: PropsInterface) {
   const [time, setTime] = useState(() =>
     getTimeFromDateString(props.transaction.date)
@@ -25,7 +26,7 @@ function Transaction(props: PropsInterface) {
     <Grid
       container
       onClick={() => props.onClick(true, props.transaction)}
-      className="w-full shadow-sm bg-neutral-50 mb-3 p-2 rounded-lg h-fit overflow-hidden"
+      className="w-full bg-neutral-50 p-2 rounded-lg rounded-b-none h-fit overflow-hidden border-b border-neutral-200"
     >
       <Grid xs={8} item>
         <Stack className="h-full" justifyContent="space-between" rowGap={1.25}>
@@ -44,12 +45,12 @@ function Transaction(props: PropsInterface) {
             <Stack direction="row" gap={0.75}>
               {/* Transaction Type */}
               <div
-                className={`text-[9px] uppercase border-[1px] w-fit px-1 rounded-lg ${props.transaction.type}`}
+                className={`text-[8px] uppercase border-[1px] w-fit px-1 rounded-lg ${props.transaction.type}`}
               >
                 {props.transaction.type}
               </div>
               {/* Category */}
-              <div className="text-[9px] text-gray-600 uppercase border-[1px] w-fit px-1 rounded-lg">
+              <div className="text-[8px] text-gray-600 uppercase border-[1px] w-fit px-1 rounded-lg">
                 {props.transaction.category || props.transaction.source}
               </div>
             </Stack>
