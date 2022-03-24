@@ -31,7 +31,7 @@ function HomeExpenses() {
         />
         <AmountDisplay
           amount={134000.35}
-          className="self-center py-4 text-gray-300"
+          className="self-center py-4 text-neutral-50"
         />
       </Stack>
     </Home>

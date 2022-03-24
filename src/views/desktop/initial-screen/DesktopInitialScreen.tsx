@@ -100,7 +100,7 @@ function DesktopInitialScreen() {
             <Typography
               variant="h6"
               align="center"
-              className="text-gray-100 pt-3"
+              className="text-neutral-50 pt-3"
               gutterBottom
             >
               Track your everyday transactions.
@@ -118,7 +118,7 @@ function DesktopInitialScreen() {
               duration: 500,
             }}
           >
-            <Typography className=" text-gray-100" paragraph>
+            <Typography className=" text-neutral-50" paragraph>
               With wallet it is simple than ever to be on top of your
               expenditures and earnings. We help you keep track of each and
               every transaction you do during the day and provide useful reports
@@ -157,7 +157,7 @@ function DesktopInitialScreen() {
                   >
                     {point.icon}
                   </Paper>
-                  <div className="text-gray-100 w-64">{point.text}</div>
+                  <div className="text-neutral-50 w-64">{point.text}</div>
                 </motion.div>
               </Grid>
             ))}
@@ -182,7 +182,7 @@ function DesktopInitialScreen() {
             </Button>
           </Grid>
           <Grid className="pt-3" item>
-            <Divider className=" text-gray-100 w-48 text-[12px] ">OR</Divider>
+            <Divider className=" text-neutral-50 w-48 text-[12px] ">OR</Divider>
           </Grid>
           <Grid className="pt-3 pb-6" item>
             <Button

@@ -28,7 +28,7 @@ function DesktopExplainSection(props: PropsInterface) {
       md={6}
       item
     >
-      <Stack justifyContent="space-between" className="h-full text-gray-50">
+      <Stack justifyContent="space-between" className="h-full text-neutral-50">
         <motion.div
           initial={{ opacity: 0, x: -5 }}
           animate={{ opacity: 1, x: 0 }}

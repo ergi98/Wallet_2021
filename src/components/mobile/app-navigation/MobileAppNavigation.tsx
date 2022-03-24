@@ -7,8 +7,7 @@ import SvgIcon from "@mui/material/SvgIcon";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 
-// Router
-import { useNavigate } from "react-router-dom";
+// Icons
 import {
   RiHome2Line,
   RiHome2Fill,
@@ -19,6 +18,9 @@ import {
   RiPieChartLine,
   RiPieChart2Fill,
 } from "react-icons/ri";
+
+// Router
+import { useNavigate } from "react-router-dom";
 
 function AppNavigation() {
   const [activePath, setActivePath] = useState<Number>(2);

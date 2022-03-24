@@ -43,6 +43,9 @@ import MobileLogin from "../views/mobile/login/MobileLogin";
 import MobileSignUp from "../views/mobile/sign-up/MobileSignUp";
 import MobileInitialScreen from "../views/mobile/initial-screen/MobileInitialScreen";
 
+import MobileHomeExpenses from "../views/mobile/home/MobileHomeExpenses";
+import MobileHomeEarnings from "../views/mobile/home/MobileHomeEarnings";
+
 const desktopRoutes = [
   {
     path: "/",
@@ -118,6 +121,18 @@ const mobileRoutes = [
         element: <NotFound />,
       },
     ],
+  },
+  {
+    path: "/home/expenses",
+    element: <MobileHomeExpenses />,
+    private: true,
+    index: false,
+  },
+  {
+    path: "/home/earnings",
+    element: <MobileHomeEarnings />,
+    private: true,
+    index: false,
   },
 ];
 

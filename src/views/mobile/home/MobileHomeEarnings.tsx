@@ -31,7 +31,14 @@ function HomeEarnings() {
         />
         <AmountDisplay
           amount={25000.35}
-          className="self-center py-4 text-gray-300"
+          className="self-center pt-4 text-gray-300"
+        />
+        <AmountDisplay
+          amount={2.5}
+          suffix={"%"}
+          wholeClass="text-sm"
+          decimalClass="text-xs"
+          className="self-center text-gray-300 pb-4"
         />
       </Stack>
     </Home>
