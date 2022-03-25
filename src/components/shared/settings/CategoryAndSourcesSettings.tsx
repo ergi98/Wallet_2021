@@ -19,7 +19,7 @@ import { RiSortAsc, RiSortDesc } from "react-icons/ri";
 // Components
 import ValidationHint from "../../general/ValidationHint";
 
-const options = [
+const options: Array<any> = [
   {
     direction: true,
     value: "frequency",
@@ -37,7 +37,7 @@ const options = [
   },
 ];
 
-let entries = [
+let entries: Array<any> = [
   {
     key: "categories",
     label: "By default sort <strong>categories</strong> by:",
@@ -48,14 +48,19 @@ let entries = [
   },
 ];
 
+interface SortInterface {
+  direction: string;
+  type: string;
+}
+
 function CategoryAndSourcesSettings() {
-  const [categorySort, setCategorySort] = useState({
+  const [categorySort, setCategorySort] = useState<SortInterface>({
     direction: "dsc",
-    type: "",
+    type: "intelligent",
   });
-  const [sourcesSort, setSourcesSort] = useState({
+  const [sourcesSort, setSourcesSort] = useState<SortInterface>({
     direction: "dsc",
-    type: "",
+    type: "intelligent",
   });
 
   function handleCategoryChange(event: ChangeEvent<HTMLInputElement>) {
