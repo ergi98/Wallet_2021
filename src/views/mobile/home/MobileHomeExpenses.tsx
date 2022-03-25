@@ -8,8 +8,8 @@ import { useNavigate } from "react-router-dom";
 
 // Components
 import Home from "../../../components/mobile/home/MobileHome";
-import HomeTitle from "../../../components/mobile/home/HomeTitle";
-import HomeTopActions from "../../../components/mobile/home/HomeTopActions";
+import HomeTitle from "../../../components/mobile/home/MobileHomeTitle";
+import HomeTopActions from "../../../components/mobile/home/MobileHomeTopActions";
 
 function HomeExpenses() {
   const [selectedDate, setSelectedDate] = useState<string>(() =>
