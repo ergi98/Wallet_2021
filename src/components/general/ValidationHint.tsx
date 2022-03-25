@@ -6,15 +6,21 @@ import { HelpOutline } from "@mui/icons-material";
 // MUI
 import { ClickAwayListener, Tooltip } from "@mui/material";
 
-function ValidationHint({ content }: { content: ReactChild }) {
+interface PropsInterface {
+  content: ReactChild;
+  placement?: any;
+}
+
+function ValidationHint(props: PropsInterface) {
   const [showTooltip, setShowTooltip] = useState<boolean>(false);
 
   return (
     <ClickAwayListener onClickAway={() => setShowTooltip(false)}>
       <div>
         <Tooltip
-          title={content}
+          title={props.content}
           PopperProps={{
+            placement: props.placement ?? "bottom-start",
             disablePortal: true,
           }}
           onClose={() => setShowTooltip(true)}
@@ -22,6 +28,7 @@ function ValidationHint({ content }: { content: ReactChild }) {
           disableFocusListener
           disableHoverListener
           disableTouchListener
+          arrow
         >
           <HelpOutline
             className="cursor-pointer"

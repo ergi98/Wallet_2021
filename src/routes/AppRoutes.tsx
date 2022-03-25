@@ -46,6 +46,8 @@ import MobileInitialScreen from "../views/mobile/initial-screen/MobileInitialScr
 import MobileHomeExpenses from "../views/mobile/home/MobileHomeExpenses";
 import MobileHomeEarnings from "../views/mobile/home/MobileHomeEarnings";
 
+import MobileSettings from "../views/mobile/settings/MobileSettings";
+
 const desktopRoutes = [
   {
     path: "/",
@@ -131,6 +133,12 @@ const mobileRoutes = [
   {
     path: "/home/earnings",
     element: <MobileHomeEarnings />,
+    private: true,
+    index: false,
+  },
+  {
+    path: "/settings",
+    element: <MobileSettings />,
     private: true,
     index: false,
   },
