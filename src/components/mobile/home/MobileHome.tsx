@@ -12,11 +12,14 @@ import { useNavigate } from "react-router-dom";
 // Components
 import TransactionsList from "../transactions/TransactionsList";
 
+// Interfaces
+import { TransactionInterface } from "../../../interfaces/transactions-interface";
+
 interface PropsInterface {
   children: ReactNode;
 }
 
-const transaction = [
+const transaction: Array<TransactionInterface> = [
   // Expense
   {
     _id: "5f7f2fd6323a3b0017e1ec1d",
@@ -33,6 +36,7 @@ const transaction = [
     currencyRate: 1,
     category: "Entertainment",
     description: "Ika per kafe te moncheria te shtunen ne mgjes.",
+    deleted: false,
   },
   // Income
   {
@@ -46,6 +50,7 @@ const transaction = [
     description: "Kalimi i rroges nga ESDP",
     currencyRate: 1,
     source: "Job",
+    deleted: false,
   },
   {
     _id: "5f7f2fd6323a3b0017e1ec1f",
@@ -62,6 +67,7 @@ const transaction = [
     currencyRate: 1,
     category: "Entertainment",
     description: "Ika per kafe te moncheria te shtunen ne mgjes.",
+    deleted: false,
   },
   {
     _id: "5f7f2fd6323a3b0017e1ec31f",
@@ -78,6 +84,7 @@ const transaction = [
     currencyRate: 1,
     category: "Entertainment",
     description: "Ika per kafe te moncheria te shtunen ne mgjes.",
+    deleted: false,
   },
   {
     _id: "5f7f2fd6323a3b0017e1ec11f",
@@ -94,6 +101,7 @@ const transaction = [
     currencyRate: 1,
     category: "Entertainment",
     description: "Ika per kafe te moncheria te shtunen ne mgjes.",
+    deleted: false,
   },
   // Income
   {
@@ -107,6 +115,7 @@ const transaction = [
     description: "Kalimi i rroges nga ESDP",
     currencyRate: 1,
     source: "Job",
+    deleted: false,
   },
 ];
 

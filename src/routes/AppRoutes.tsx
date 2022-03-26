@@ -48,6 +48,8 @@ import MobileHomeEarnings from "../views/mobile/home/MobileHomeEarnings";
 
 import MobileSettings from "../views/mobile/settings/MobileSettings";
 
+import MobilePortfolios from "../views/mobile/portfolios/MobilePortfolios";
+
 const desktopRoutes = [
   {
     path: "/",
@@ -141,6 +143,18 @@ const mobileRoutes = [
     element: <MobileSettings />,
     private: true,
     index: false,
+  },
+  {
+    path: "/portfolios",
+    element: <MobilePortfolios />,
+    private: true,
+    index: false,
+    children: [
+      // {
+      //   path: ":id",
+      //   element
+      // }
+    ]
   },
 ];
 

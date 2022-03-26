@@ -14,7 +14,7 @@ function MobileSettings() {
         <div className="bg-neutral-50 rounded-xl mb-6 px-3 py-2 shadow-md">
           <CategoryAndSourcesSettings />
         </div>
-        <div className="bg-neutral-50 rounded-xl mb-6 px-3 py-2 shadow-md">
+        <div className="bg-neutral-50 rounded-xl px-3 py-2 shadow-md">
           <TransactionsSettings />
         </div>
       </Stack>

@@ -15,7 +15,7 @@ import {
 import { CloseOutlined, Delete, Edit } from "@mui/icons-material";
 
 // Interface
-import { TransactionInterface } from "./transactions-interface";
+import { TransactionInterface } from "../../../interfaces/transactions-interface";
 
 // Utilities
 import { formatDate } from "../../../utilities/date-utilities";
