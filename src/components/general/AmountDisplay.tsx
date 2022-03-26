@@ -55,7 +55,7 @@ function AmountDisplay(props: PropsInterface) {
         {`${completePart}.`}
       </span>
       <span className={props.decimalClass || "text-3xl"}>
-        {decimalPart}&nbsp;{props.suffix}
+        {`${decimalPart}${props.suffix ? ` ${props.suffix}` : ""}`}
       </span>
     </div>
   );

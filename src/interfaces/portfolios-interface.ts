@@ -1,3 +1,5 @@
+import { TransactionInterface } from "./transactions-interface";
+
 interface PortfolioInterface {
   _id: string;
   name: string;
@@ -5,18 +7,23 @@ interface PortfolioInterface {
   currency: string;
   type: string;
   favorite: boolean;
-  lastUsed: string;
   deleted: boolean;
+  color: string;
+}
+
+interface PortfolioDetailsInterface {
+  _id: string;
+  lastUsed: string;
+  currency: string;
   avgAmountSpent: number;
   avgAmountEarned: number;
   transactionCount: number;
-  color: string;
-
   cvc?: string;
   bank?: string;
   cardNo?: string;
   validity?: string;
   cardHolder?: string;
+  transactions: Array<TransactionInterface>;
 }
 
 interface PortfolioColors {
@@ -26,4 +33,4 @@ interface PortfolioColors {
   fourth: string;
 }
 
-export type { PortfolioInterface, PortfolioColors };
+export type { PortfolioInterface, PortfolioColors, PortfolioDetailsInterface };

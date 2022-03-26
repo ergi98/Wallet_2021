@@ -1,9 +1,10 @@
+import { useState } from "react";
+
 // MUI
 import { Button, Stack, Typography } from "@mui/material";
 
 // Icons
 import { RiAddFill } from "react-icons/ri";
-import { useNavigate } from "react-router-dom";
 
 // Interfaces
 import { PortfolioInterface } from "../../../interfaces/portfolios-interface";
@@ -21,6 +22,7 @@ import "swiper/css/effect-cards";
 
 // Components
 import AmountDisplay from "../../../components/general/AmountDisplay";
+import PortfolioDetails from "../../../components/mobile/portfolios/PortfolioDetails";
 
 const portfolios: Array<PortfolioInterface> = [
   {
@@ -29,38 +31,57 @@ const portfolios: Array<PortfolioInterface> = [
     amount: 24350.0,
     currency: "ALL",
     type: "wallet",
-    lastUsed: new Date().toISOString(),
+    // lastUsed: new Date().toISOString(),
     favorite: false,
     deleted: false,
-    avgAmountEarned: 250,
-    avgAmountSpent: 23412.12,
-    transactionCount: 10,
-    color: "green",
+    // avgAmountEarned: 250,
+    // avgAmountSpent: 23412.12,
+    // transactionCount: 10,
+    color: "gray",
   },
   {
-    _id: "6023423j4kl32j4kl32j4",
+    _id: "6023423j4kl32j4kl32j5",
     name: "Portofoli nr.2",
     amount: 24350.0,
     currency: "ALL",
     type: "wallet",
-    lastUsed: new Date().toISOString(),
+    // lastUsed: new Date().toISOString(),
     favorite: false,
     deleted: false,
-    avgAmountEarned: 250,
-    avgAmountSpent: 23412.12,
-    transactionCount: 10,
-    cvc: "123",
-    bank: "Raiffeisen Bank",
-    cardNo: "5674364736271623",
-    validity: "12/22",
+    // avgAmountEarned: 250,
+    // avgAmountSpent: 23412.12,
+    // transactionCount: 10,
+    // cvc: "123",
+    // bank: "Raiffeisen Bank",
+    // cardNo: "5674364736271623",
+    // validity: "12/22",
     color: "yellow",
   },
 ];
 
-function MobilePortfolios() {
-  const navigate = useNavigate();
+interface ActiveElement {
+  id: string;
+  index: number;
+}
 
-  function handlePortfolioClick(portfolioId: string) {}
+function MobilePortfolios() {
+  const [swiperInstance, setSwiperInstance] = useState<any>();
+  const [activeElement, setActiveElement] = useState<ActiveElement>({
+    id: "",
+    index: 0,
+  });
+
+  function handleSwiper(swiper: any) {
+    setSwiperInstance(swiper);
+  }
+
+  function navigateToSlide(event: any) {
+    let index = event.realIndex ?? 0;
+    setActiveElement({
+      index,
+      id: portfolios[index]._id,
+    });
+  }
 
   return (
     <div className="app-height relative overflow-y-auto pt-3">
@@ -93,10 +114,11 @@ function MobilePortfolios() {
         </Stack>
       </div>
       <Swiper
-        className="mt-6 -mx-3"
-        modules={[Virtual, EffectCreative]}
+        onSwiper={handleSwiper}
+        onTransitionEnd={navigateToSlide}
         slidesPerView={1}
         effect={"creative"}
+        modules={[Virtual, EffectCreative]}
         creativeEffect={{
           prev: {
             scale: 0.75,
@@ -109,15 +131,21 @@ function MobilePortfolios() {
             translate: ["75%", 0, -400],
           },
         }}
+        className="mt-6 -mx-3"
         centeredSlides
         virtual
+        // runCallbacksOnInit
+        // rewind
       >
         {portfolios.map((portfolio, index) => (
           <SwiperSlide data-history={`${portfolio._id}-${index}`} key={index}>
-            <Portfolio portfolio={portfolio} onClick={handlePortfolioClick} />
+            <Portfolio portfolio={portfolio} />
           </SwiperSlide>
         ))}
       </Swiper>
+      <div className="mt-6 px-3">
+        <PortfolioDetails id={activeElement.id} />
+      </div>
     </div>
   );
 }
