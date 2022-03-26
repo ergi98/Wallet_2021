@@ -149,12 +149,6 @@ const mobileRoutes = [
     element: <MobilePortfolios />,
     private: true,
     index: false,
-    children: [
-      // {
-      //   path: ":id",
-      //   element
-      // }
-    ]
   },
 ];
 
