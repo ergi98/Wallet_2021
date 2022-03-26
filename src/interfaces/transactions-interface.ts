@@ -17,6 +17,8 @@ interface TransactionInterface {
   location?: Location;
   description: string;
   currencyRate: number;
+  deleted: boolean;
+  correctedBy?: string;
 }
 
 interface Location {
