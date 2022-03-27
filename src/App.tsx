@@ -20,6 +20,9 @@ import { ReactComponent as BottomRightBlob } from "./assets/blobs/bottom_right_b
 // Components
 import AppRoutes from "./routes/AppRoutes";
 
+// Slider
+import "swiper/css";
+
 declare module "@mui/material/styles" {
   interface BreakpointOverrides {
     xs: true;

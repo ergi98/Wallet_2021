@@ -13,17 +13,29 @@ interface PortfolioInterface {
 
 interface PortfolioDetailsInterface {
   _id: string;
-  lastUsed: string;
+  last: ForTypesDateInterface;
   currency: string;
-  avgAmountSpent: number;
-  avgAmountEarned: number;
-  transactionCount: number;
+  averages: ForTypesInterface;
+  counts: ForTypesInterface;
   cvc?: string;
   bank?: string;
   cardNo?: string;
   validity?: string;
   cardHolder?: string;
+  // TODO: Replace any
+  topSources: Array<any>;
+  topCategories: Array<any>;
   transactions: Array<TransactionInterface>;
+}
+
+interface ForTypesInterface {
+  earnings: number;
+  expenses: number;
+}
+
+interface ForTypesDateInterface {
+  earnings: string;
+  expenses: string;
 }
 
 interface PortfolioColors {
@@ -33,4 +45,10 @@ interface PortfolioColors {
   fourth: string;
 }
 
-export type { PortfolioInterface, PortfolioColors, PortfolioDetailsInterface };
+export type {
+  PortfolioInterface,
+  PortfolioColors,
+  PortfolioDetailsInterface,
+  ForTypesDateInterface,
+  ForTypesInterface,
+};

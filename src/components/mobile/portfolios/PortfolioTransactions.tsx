@@ -1,9 +1,17 @@
-import React from 'react'
+// Interfaces
+import { Typography } from "@mui/material";
+import { TransactionInterface } from "../../../interfaces/transactions-interface";
 
-function PortfolioTransactions() {
-  return (
-    <div>PortfolioTransactions</div>
-  )
+interface PropsInterface {
+  transactions: Array<TransactionInterface>;
 }
 
-export default PortfolioTransactions
+function PortfolioTransactions(props: PropsInterface) {
+  return (
+    <div className="bg-neutral-50 p-3 rounded-lg text-slate-900 h-full">
+      <Typography variant="h6">Transactions</Typography>
+    </div>
+  );
+}
+
+export default PortfolioTransactions;

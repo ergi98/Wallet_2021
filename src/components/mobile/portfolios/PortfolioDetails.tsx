@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 
 // MUI
-import { Stack, Grid, Divider, Typography } from "@mui/material";
+import { Button, Stack } from "@mui/material";
+
+// Icons
+import { RiEqualizerLine } from "react-icons/ri";
 
 // Interfaces
 import { PortfolioDetailsInterface } from "../../../interfaces/portfolios-interface";
 
-// Utilities
-import { formatDate } from "../../../utilities/date-utilities";
-
 // Components
-import AmountDisplay from "../../general/AmountDisplay";
+import PortfolioActivity from "./PortfolioActivity";
+import PortfolioStatistics from "./PortfolioStatistics";
+import PortfolioTransactions from "./PortfolioTransactions";
 
 interface PropsInterface {
   id: string;
@@ -20,24 +22,44 @@ const portfolios: Array<PortfolioDetailsInterface> = [
   {
     _id: "6023423j4kl32j4kl32j4",
     currency: "ALL",
-    lastUsed: new Date().toISOString(),
-    avgAmountEarned: 250,
-    avgAmountSpent: 23412.12,
-    transactionCount: 10,
+    last: {
+      earnings: new Date().toISOString(),
+      expenses: new Date().toDateString(),
+    },
+    averages: {
+      earnings: 250000,
+      expenses: 212.12,
+    },
+    counts: {
+      earnings: 10,
+      expenses: 2,
+    },
     transactions: [],
+    topSources: [],
+    topCategories: [],
   },
   {
     _id: "6023423j4kl32j4kl32j5",
     currency: "ALL",
-    lastUsed: new Date().toISOString(),
-    avgAmountEarned: 20,
-    avgAmountSpent: 232.12,
-    transactionCount: 1,
+    last: {
+      earnings: new Date().toISOString(),
+      expenses: new Date().toDateString(),
+    },
+    averages: {
+      earnings: 250,
+      expenses: 23412.0,
+    },
+    counts: {
+      earnings: 5,
+      expenses: 15,
+    },
+    transactions: [],
+    topSources: [],
+    topCategories: [],
     cvc: "123",
     bank: "Raiffeisen Bank",
     cardNo: "5674364736271623",
     validity: "12/22",
-    transactions: [],
   },
 ];
 
@@ -50,53 +72,22 @@ function PortfolioDetails(props: PropsInterface) {
   }, [props.id]);
 
   return (
-    <div className="bg-red-50 p-3 rounded-lg text-slate-900">
-      {details && (
-        <Grid className="text-sm" container>
-          <Grid className=" text-slate-500" xs={12} item>
-            <Typography variant="h6" gutterBottom>
-              Statistics
-            </Typography>
-          </Grid>
-          <Grid className=" text-slate-500" xs={7} item>
-            No. of Transaction
-          </Grid>
-          <Grid className="text-right" xs={5} item>
-            {details.transactionCount}
-          </Grid>
-          <Grid className=" text-slate-500" xs={7} item>
-            Last Transaction
-          </Grid>
-          <Grid className="text-right" xs={5} item>
-            {formatDate(details.lastUsed, "long")}
-          </Grid>
-          <Grid className="py-2" xs={12} item>
-            <Divider></Divider>
-          </Grid>
-          <Grid className=" text-slate-500" xs={7} item>
-            Avg. Income Transaction
-          </Grid>
-          <Grid className="text-right" xs={5} item>
-            <AmountDisplay
-              amount={details.avgAmountEarned}
-              currency={details.currency}
-              wholeClass="text-sm"
-              decimalClass="text-xs"
-            />
-          </Grid>
-          <Grid className=" text-slate-500" xs={7} item>
-            Avg. Expense Transaction
-          </Grid>
-          <Grid className="text-right" xs={5} item>
-            <AmountDisplay
-              amount={-1 * details.avgAmountSpent}
-              currency={details.currency}
-              wholeClass="text-sm"
-              decimalClass="text-xs"
-            />
-          </Grid>
-        </Grid>
-      )}
+    <div className="pb-6">
+      {details ? (
+        <Stack rowGap={3}>
+          <Button
+            endIcon={<RiEqualizerLine className=" scale-75" />}
+            className="mb-3 flex-grow-0 w-fit ml-auto"
+            variant="contained"
+            size="small"
+          >
+            Filter
+          </Button>
+          <PortfolioStatistics details={details} />
+          <PortfolioActivity />
+          <PortfolioTransactions transactions={details.transactions} />
+        </Stack>
+      ) : null}
     </div>
   );
 }

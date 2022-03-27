@@ -16,10 +16,6 @@ import Portfolio from "../../../components/mobile/portfolios/Portfolio";
 import { Virtual, EffectCreative } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-// Swiper Styles
-import "swiper/css";
-import "swiper/css/effect-cards";
-
 // Components
 import AmountDisplay from "../../../components/general/AmountDisplay";
 import PortfolioDetails from "../../../components/mobile/portfolios/PortfolioDetails";
@@ -31,12 +27,8 @@ const portfolios: Array<PortfolioInterface> = [
     amount: 24350.0,
     currency: "ALL",
     type: "wallet",
-    // lastUsed: new Date().toISOString(),
     favorite: false,
     deleted: false,
-    // avgAmountEarned: 250,
-    // avgAmountSpent: 23412.12,
-    // transactionCount: 10,
     color: "gray",
   },
   {
@@ -45,16 +37,8 @@ const portfolios: Array<PortfolioInterface> = [
     amount: 24350.0,
     currency: "ALL",
     type: "wallet",
-    // lastUsed: new Date().toISOString(),
     favorite: false,
     deleted: false,
-    // avgAmountEarned: 250,
-    // avgAmountSpent: 23412.12,
-    // transactionCount: 10,
-    // cvc: "123",
-    // bank: "Raiffeisen Bank",
-    // cardNo: "5674364736271623",
-    // validity: "12/22",
     color: "yellow",
   },
 ];
@@ -67,7 +51,7 @@ interface ActiveElement {
 function MobilePortfolios() {
   const [swiperInstance, setSwiperInstance] = useState<any>();
   const [activeElement, setActiveElement] = useState<ActiveElement>({
-    id: "",
+    id: "6023423j4kl32j4kl32j4",
     index: 0,
   });
 
@@ -75,7 +59,7 @@ function MobilePortfolios() {
     setSwiperInstance(swiper);
   }
 
-  function navigateToSlide(event: any) {
+  function handleSlideChange(event: any) {
     let index = event.realIndex ?? 0;
     setActiveElement({
       index,
@@ -115,7 +99,7 @@ function MobilePortfolios() {
       </div>
       <Swiper
         onSwiper={handleSwiper}
-        onTransitionEnd={navigateToSlide}
+        onTransitionEnd={handleSlideChange}
         slidesPerView={1}
         effect={"creative"}
         modules={[Virtual, EffectCreative]}
@@ -134,11 +118,10 @@ function MobilePortfolios() {
         className="mt-6 -mx-3"
         centeredSlides
         virtual
-        // runCallbacksOnInit
-        // rewind
+        rewind
       >
         {portfolios.map((portfolio, index) => (
-          <SwiperSlide data-history={`${portfolio._id}-${index}`} key={index}>
+          <SwiperSlide key={index}>
             <Portfolio portfolio={portfolio} />
           </SwiperSlide>
         ))}
