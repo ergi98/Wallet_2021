@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Formik
 import { useFormikContext } from "formik";
@@ -12,6 +12,7 @@ import { isMobile } from "../../utilities/mobile-utilities";
 import { isValidDate } from "../../utilities/date-utilities";
 
 // Components
+import BottomDialog from "./BottomDialog";
 import MobileDatePicker from "../mobile/date-picker/MobileDatePicker";
 
 interface PropsInterface {
@@ -23,6 +24,8 @@ interface PropsInterface {
 function CustomDatePicker({ fieldName, label, required }: PropsInterface) {
 	const formik: any = useFormikContext();
 
+	const dateField = useRef<HTMLInputElement>(null);
+
 	const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
 
 	function handleChange(inputValue: any) {
@@ -33,16 +36,22 @@ function CustomDatePicker({ fieldName, label, required }: PropsInterface) {
 		formik.setFieldValue(fieldName, fieldValue);
 	}
 
-	const toggleDatePicker = (value: boolean) => setShowDatePicker(value);
+	useEffect(() => {
+		if (showDatePicker === false && dateField.current) dateField.current.blur();
+	}, [showDatePicker]);
+
+	const toggleDatePicker = (value: boolean) => {
+		setShowDatePicker(value);
+	};
 
 	return (
 		<>
 			<DesktopDatePicker
-				label={label}
-				inputFormat="dd/MM/yyyy"
 				value={formik.values[fieldName]}
 				onChange={handleChange}
+				inputRef={dateField}
 				readOnly={isMobile}
+				label={label}
 				renderInput={(params) => (
 					<TextField
 						{...params}
@@ -55,22 +64,26 @@ function CustomDatePicker({ fieldName, label, required }: PropsInterface) {
 								? formik.errors[fieldName]
 								: " "
 						}
-						autoComplete="off"
+						sx={{ ".Mui-disabled": { color: "gray" } }}
 						required={required}
 						spellCheck={false}
 						autoCapitalize="none"
+						autoComplete="off"
 						autoCorrect="off"
 						type="number"
 						size="small"
 						fullWidth
 					/>
 				)}
+				inputFormat="dd/MM/yyyy"
 			/>
 			{showDatePicker && (
-				<MobileDatePicker
-					value={formik.values[fieldName]}
-					onChange={handleChange}
-				/>
+				<BottomDialog open={showDatePicker} onClose={toggleDatePicker}>
+					<MobileDatePicker
+						value={formik.values[fieldName]}
+						onChange={handleChange}
+					/>
+				</BottomDialog>
 			)}
 		</>
 	);
