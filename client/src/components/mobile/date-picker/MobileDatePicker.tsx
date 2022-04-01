@@ -37,20 +37,8 @@ function MobileDatePicker(props: PropsInterface) {
 	const submitDate = () =>
 		isDate(localValue) && props.onChange(localValue, true);
 
-	function handleTouchStart(event: TouchEvent<HTMLDivElement>) {}
-
-	function handleTouchMove(event: TouchEvent<HTMLDivElement>) {}
-
-	function handleTouchEnd(event: TouchEvent<HTMLDivElement>) {}
-
 	return (
 		<div className="pb-env">
-			<TouchArea
-				className="h-7 rounded-t-3xl"
-				onTouchStart={handleTouchStart}
-				onTouchMove={handleTouchMove}
-				onTouchEnd={handleTouchEnd}
-			/>
 			<div className="pb-4 px-3">
 				<CalendarPicker
 					onViewChange={handleViewChange}
