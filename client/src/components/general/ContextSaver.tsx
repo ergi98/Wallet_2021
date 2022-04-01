@@ -7,27 +7,22 @@ import { useFormikContext } from "formik";
 import useLocalContext from "../../custom_hooks/useLocalContext";
 
 interface PropsInterface {
-  children: JSX.Element;
-  contextKey: string;
+	children: JSX.Element;
+	contextKey: string;
 }
 
 function ContextSaver(props: PropsInterface) {
-  const formik: any = useFormikContext();
+	const formik: any = useFormikContext();
 
-  const [, persistContext] = useLocalContext(props.contextKey, formik.values);
+	const [, persistContext] = useLocalContext(props.contextKey, formik.values);
 
-  useEffect(() => {
-    return () => {
-      console.log(formik.values);
-      persistContext(props.contextKey, formik.values);
-    };
-  }, []);
+	useEffect(() => {
+		return () => {
+			persistContext(props.contextKey, formik.values);
+		};
+	}, []);
 
-  useEffect(() => {
-    console.log(formik.values);
-  });
-
-  return props.children;
+	return props.children;
 }
 
 export default ContextSaver;

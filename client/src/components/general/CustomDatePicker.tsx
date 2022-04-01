@@ -81,7 +81,11 @@ function CustomDatePicker({ fieldName, label, required }: PropsInterface) {
 				inputFormat="dd/MM/yyyy"
 			/>
 			{showDatePicker && isMobile && (
-				<BottomDialog open={showDatePicker} onClose={toggleDatePicker}>
+				<BottomDialog
+					open={showDatePicker}
+					onClose={toggleDatePicker}
+					closeOnSwipe={true}
+				>
 					<MobileDatePicker
 						value={formik.values[fieldName]}
 						onChange={handleChange}
