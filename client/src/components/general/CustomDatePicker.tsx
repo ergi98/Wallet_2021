@@ -9,7 +9,9 @@ import { TextField } from "@mui/material";
 
 // Utilities
 import { isMobile } from "../../utilities/mobile-utilities";
-import { isValidDate } from "../../utilities/date-utilities";
+
+// Date fns
+import { isDate } from "date-fns";
 
 // Components
 import BottomDialog from "./BottomDialog";
@@ -28,12 +30,13 @@ function CustomDatePicker({ fieldName, label, required }: PropsInterface) {
 
 	const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
 
-	function handleChange(inputValue: any) {
-		let fieldValue: any = "";
-		if (isValidDate(inputValue)) {
-			fieldValue = inputValue;
+	function handleChange(inputValue: any, closeDatePicker: boolean) {
+		let fieldValue: Date | null = null;
+		if (isDate(inputValue)) {
+			fieldValue = new Date(inputValue);
 		}
 		formik.setFieldValue(fieldName, fieldValue);
+		closeDatePicker && toggleDatePicker(false);
 	}
 
 	useEffect(() => {
@@ -41,14 +44,14 @@ function CustomDatePicker({ fieldName, label, required }: PropsInterface) {
 	}, [showDatePicker]);
 
 	const toggleDatePicker = (value: boolean) => {
-		setShowDatePicker(value);
+		isMobile && setShowDatePicker(value);
 	};
 
 	return (
 		<>
 			<DesktopDatePicker
 				value={formik.values[fieldName]}
-				onChange={handleChange}
+				onChange={(event) => handleChange(event, false)}
 				inputRef={dateField}
 				readOnly={isMobile}
 				label={label}
@@ -64,7 +67,7 @@ function CustomDatePicker({ fieldName, label, required }: PropsInterface) {
 								? formik.errors[fieldName]
 								: " "
 						}
-						sx={{ ".Mui-disabled": { color: "gray" } }}
+						sx={{ ".Mui-disabled": { color: "#757575" } }}
 						required={required}
 						spellCheck={false}
 						autoCapitalize="none"
@@ -77,7 +80,7 @@ function CustomDatePicker({ fieldName, label, required }: PropsInterface) {
 				)}
 				inputFormat="dd/MM/yyyy"
 			/>
-			{showDatePicker && (
+			{showDatePicker && isMobile && (
 				<BottomDialog open={showDatePicker} onClose={toggleDatePicker}>
 					<MobileDatePicker
 						value={formik.values[fieldName]}
