@@ -41,6 +41,8 @@ function SignUpForm() {
     }
   }
 
+  console.log(localContext)
+
   return (
     <Formik
       initialValues={localContext}
