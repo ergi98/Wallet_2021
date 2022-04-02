@@ -21,7 +21,6 @@ function BottomDialog(props: PropsInterface) {
 
 	useEffect(() => {
 		function initialSetup() {
-			console.dir(dialogArea.current);
 			if (dialogArea.current) {
 				let paperHeight =
 					dialogArea.current.children[2].children[0].clientHeight;
@@ -56,7 +55,7 @@ function BottomDialog(props: PropsInterface) {
 		let position = "";
 		let delta = userTouchYPosition - event.changedTouches[0].clientY;
 		dialogArea.current!.classList.add("transition-all");
-		if (delta < userTouchYPosition * -1.5) {
+		if (delta < dialogHeight * -0.5) {
 			position = `-${dialogHeight}px`;
 			setTimeout(() => {
 				props.onClose(false);
@@ -83,9 +82,9 @@ function BottomDialog(props: PropsInterface) {
 				},
 			}}
 			ref={dialogArea}
-			onBackdropClick={() => props.onClose(false)}
-			onClose={() => props.onClose(false)}
 			open={props.open}
+			onClose={() => props.onClose(false)}
+			onBackdropClick={() => props.onClose(false)}
 		>
 			{props.closeOnSwipe && (
 				<TouchArea
