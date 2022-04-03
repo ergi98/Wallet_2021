@@ -1,17 +1,15 @@
-import { TouchEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 // MUI
-import { Button } from "@mui/material";
+import { Button, Divider, Stack, Typography } from "@mui/material";
 import { CalendarPicker, CalendarPickerView } from "@mui/lab";
 
 // Date fns
 import { isDate } from "date-fns/esm";
 
-// Components
-import TouchArea from "../../general/TouchArea";
-
 interface PropsInterface {
 	value: string;
+	label: string;
 	onChange: (a: any, b: boolean) => void;
 }
 
@@ -34,12 +32,17 @@ function MobileDatePicker(props: PropsInterface) {
 
 	const handleViewChange = (event: CalendarPickerView) => setCurrentView(event);
 
-	const submitDate = () =>
-		isDate(localValue) && props.onChange(localValue, true);
+	const submitDate = () => props.onChange(localValue, true);
+
+	const clearDate = () => setLocalValue(null);
 
 	return (
 		<div className="pb-env">
 			<div className="pb-4 px-3">
+				<div className="py-3">
+					<Typography>{props.label}</Typography>
+					<Divider />
+				</div>
 				<CalendarPicker
 					onViewChange={handleViewChange}
 					onChange={handleChange}
@@ -47,14 +50,15 @@ function MobileDatePicker(props: PropsInterface) {
 					date={localValue}
 					openTo="year"
 				/>
-				<Button
-					onClick={submitDate}
-					sx={{ marginTop: 4 }}
-					variant="contained"
-					fullWidth
-				>
-					Select Date
-				</Button>
+				<Divider className="pt-3" />
+				<Stack className="pt-3" direction="row">
+					<Button onClick={clearDate} variant="text" fullWidth>
+						Clear
+					</Button>
+					<Button onClick={submitDate} variant="contained" fullWidth>
+						Done
+					</Button>
+				</Stack>
 			</div>
 		</div>
 	);
