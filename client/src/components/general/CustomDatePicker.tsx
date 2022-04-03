@@ -93,8 +93,9 @@ function CustomDatePicker({ fieldName, label, required }: PropsInterface) {
 					closeOnSwipe={true}
 				>
 					<MobileDatePicker
-						value={formik.values[fieldName]}
+						label={label}
 						onChange={handleChange}
+						value={formik.values[fieldName]}
 					/>
 				</BottomDialog>
 			)}

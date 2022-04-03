@@ -76,10 +76,12 @@ function MobileSelect(props: PropsInterface) {
 	return (
 		<div className="pb-env">
 			<div className="px-3">
-				<FormLabel id="custom-select-label">
-					<span className=" text-slate-900">{props.label}</span>
-				</FormLabel>
-				<Divider />
+				<div className="py-3">
+					<FormLabel id="custom-select-label">
+						<span className=" text-slate-900">{props.label}</span>
+					</FormLabel>
+					<Divider />
+				</div>
 				<div className="py-4">
 					{props.search && (
 						<TextField
