@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useFormikContext } from "formik";
 
 // MUI
-import { DesktopDatePicker } from "@mui/lab";
 import { TextField } from "@mui/material";
+import { DesktopDatePicker } from "@mui/lab";
 
 // Utilities
 import { isMobile } from "../../utilities/mobile-utilities";
@@ -40,7 +40,13 @@ function CustomDatePicker({ fieldName, label, required }: PropsInterface) {
 	}
 
 	useEffect(() => {
-		if (showDatePicker === false && dateField.current) dateField.current.blur();
+		function removeFocusOnClose(show: boolean) {
+			if (!show) {
+				let activeElement = document.activeElement as HTMLElement;
+				activeElement.blur();
+			}
+		}
+		removeFocusOnClose(showDatePicker);
 	}, [showDatePicker]);
 
 	const toggleDatePicker = (value: boolean) => {
