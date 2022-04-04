@@ -1,15 +1,16 @@
 // BCrypt
 import bcrypt from "bcrypt";
 
-// JWT
-import jwt from "jsonwebtoken";
-
 // Validation
 import { loginSchema } from "../validators/auth-validators.js";
 
 // Schema
 import UserSchema from "../schemas/user-schema.js";
 import CurrencySchema from "../schemas/currency.schema.js";
+import {
+	generateRefreshToken,
+	generateToken,
+} from "../utilities/token-utilities.js";
 
 const hashPassword = async (password) => await bcrypt.hash(password, 10);
 
@@ -51,10 +52,14 @@ async function logIn(req, res) {
 
 		await user.populate("defaultCurrency");
 
-		// Return token and user
+		// User Info
 		let userFields = getUserFields(user);
-		let token = generateToken(userFields);
-		res.status(200).send({ user: userFields, token });
+
+		// Tokens
+		let token = await generateToken(userFields._id);
+		let refresh = await generateRefreshToken(userFields._id);
+
+		res.status(200).send({ user: userFields, token, refresh });
 	} catch (err) {
 		res.status(400).send({
 			message:
@@ -86,15 +91,6 @@ function getUserFields(userDoc) {
 		userData.defaultCurrency = userData.defaultCurrency[0];
 	}
 	return userData;
-}
-function generateToken(userFields) {
-	return jwt.sign(
-		{
-			exp: Math.floor(Date.now() / 1000) + 60 * 60 * 4,
-			userFields,
-		},
-		process.env.SECRET_KEY
-	);
 }
 
 export { logIn, signUp, logOut, validateUsername };
