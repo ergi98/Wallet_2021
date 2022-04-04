@@ -1,28 +1,34 @@
-// import { decodeToken, validateToken } from "../services/token.service.js";
+import {
+	verifyToken,
+	generateToken,
+	verifyRefreshToken,
+} from "../utilities/token-utilities.js";
 
 export default async function tokenMiddleware(req, res, next) {
-	console.log("Here in middleware");
-	next();
-	// try {
-	// 	let { isValid, error } = await validateToken(req.headers.authorization);
-	// 	if (isValid) {
-	// 		let decodedToken = decodeToken(req.headers.authorization);
-	// 		req.headers.user = decodedToken._id;
-	// 		req.headers.room = decodedToken.roomId;
-	// 		next();
-	// 	} else {
-	// 		if (error && error.name === "TokenExpiredError") {
-	// 			res.status(400).send({
-	// 				type: "token_refresh",
-	// 				message: "Current token has expired",
-	// 			});
-	// 		} else
-	// 			res
-	// 				.status(403)
-	// 				.send({ message: "You do not have permissions for this action " });
-	// 	}
-	// } catch (err) {
-	// 	console.log(err);
-	// 	res.status(500).send(err);
-	// }
+	try {
+		let decodedToken = await verifyToken(req.headers.authorization);
+		req.headers.userId = decodedToken.payload.userId;
+		next();
+	} catch (err) {
+		switch (err.name) {
+			case "TokenExpiredError":
+				await reIssueToken(req, res, next);
+				break;
+			default:
+				res.status(500).send(err);
+		}
+	}
+}
+
+async function reIssueToken(req, res, next) {
+	try {
+		let decodedToken = await verifyRefreshToken(req.headers.refresh);
+		let newToken = await generateToken(decodedToken.payload);
+		res.setHeader("token", newToken);
+		req.headers.userId = decodedToken.payload.userId;
+		next();
+	} catch (err) {
+		console.log(err);
+		res.status(500).send(err);
+	}
 }

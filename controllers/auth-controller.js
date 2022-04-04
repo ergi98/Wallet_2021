@@ -7,6 +7,8 @@ import { loginSchema } from "../validators/auth-validators.js";
 // Schema
 import UserSchema from "../schemas/user-schema.js";
 import CurrencySchema from "../schemas/currency.schema.js";
+
+// Utilities
 import {
 	generateRefreshToken,
 	generateToken,
@@ -14,14 +16,12 @@ import {
 
 const hashPassword = async (password) => await bcrypt.hash(password, 10);
 
-console.log(await hashPassword("DevPassword1"));
-
 async function signUp(req, res) {
 	try {
 	} catch (err) {}
 }
 
-async function validateUsername() {
+async function validateUsername(req, res) {
 	try {
 	} catch (err) {}
 }
@@ -56,8 +56,15 @@ async function logIn(req, res) {
 		let userFields = getUserFields(user);
 
 		// Tokens
-		let token = await generateToken(userFields._id);
-		let refresh = await generateRefreshToken(userFields._id);
+		let token = await generateToken({ userId: userFields._id });
+		let refresh = await generateRefreshToken({ userId: userFields._id });
+
+		await UserSchema.findByIdAndUpdate(user._doc._id, {
+			$set: {
+				lastLogIn: new Date(),
+				refresh: refresh,
+			},
+		});
 
 		res.status(200).send({ user: userFields, token, refresh });
 	} catch (err) {
@@ -73,7 +80,16 @@ async function logIn(req, res) {
 
 async function logOut(req, res) {
 	try {
-	} catch (err) {}
+		await UserSchema.findByIdAndUpdate(req.headers.userId, {
+			$set: {
+				refresh: null,
+				lastLogOut: new Date(),
+			},
+		});
+		res.status(200).send();
+	} catch (err) {
+		res.status(400).send(err);
+	}
 }
 
 function getUserFields(userDoc) {
@@ -85,6 +101,7 @@ function getUserFields(userDoc) {
 		deletedAt,
 		createdAt,
 		password,
+		refresh,
 		...userData
 	} = user;
 	if (Array.isArray(userData.defaultCurrency)) {

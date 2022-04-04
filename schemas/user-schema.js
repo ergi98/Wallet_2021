@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema({
 		required: true,
 		default: Date.now,
 	},
+	refresh: { type: String },
 	deletedAt: { type: Date },
 	lastLogIn: { type: Date },
 	lastLogOut: { type: Date },
