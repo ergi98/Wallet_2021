@@ -2,15 +2,17 @@ import * as Yup from "yup";
 import { parseDateString } from "../utilities/date-utilities.ts";
 
 // Constants
-import {
-	usernameMinLength,
-	usernameMaxLength,
-	usernameRegex,
-	passwordMinLength,
-	passwordMaxLength,
-	passwordRegex,
-	nameMaxLength,
-} from "../../../shared/auth-constants.js";
+const usernameMinLength = 3;
+const usernameMaxLength = 30;
+
+const usernameRegex = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]*$/;
+
+const passwordMinLength = 8;
+const passwordMaxLength = 30;
+
+const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).*$/;
+
+const nameMaxLength = 100;
 
 const usernameRules = [
 	"Can contain alphanumerical characters",

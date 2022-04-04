@@ -1,15 +1,17 @@
 import Joi from "joi";
 
 // Constants
-import {
-	usernameMinLength,
-	usernameMaxLength,
-	usernameRegex,
-	passwordMinLength,
-	passwordMaxLength,
-	passwordRegex,
-	nameMaxLength,
-} from "../shared/auth-constants.js";
+const usernameMinLength = 3;
+const usernameMaxLength = 30;
+
+const usernameRegex = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]*$/;
+
+const passwordMinLength = 8;
+const passwordMaxLength = 30;
+
+const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).*$/;
+
+const nameMaxLength = 100;
 
 const loginSchema = Joi.object({
 	username: Joi.string()

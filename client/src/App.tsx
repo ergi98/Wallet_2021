@@ -54,7 +54,9 @@ const theme = createTheme({
 });
 
 function App() {
-	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+		() => JSON.parse(localStorage.getItem("token") ?? "") ?? false
+	);
 
 	// Global View Height (Mobile 100vh Fix)
 	useEffect(() => {
