@@ -1,12 +1,15 @@
 import * as Yup from "yup";
 import { parseDateString } from "../utilities/date-utilities.ts";
 
-const usernameMaxLength = 30;
-const usernameRegex = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]*$/;
-
-const passwordMinLength = 8;
-const passwordMaxLength = 30;
-const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).*$/;
+// Constants
+import {
+	usernameMinLength,
+	usernameMaxLength,
+	usernameRegex,
+	passwordMinLength,
+	passwordMaxLength,
+	passwordRegex,
+} from "../../../shared/auth-constants.js";
 
 const usernameRules = [
 	"Can contain alphanumerical characters",
@@ -27,6 +30,7 @@ const passwordRules = [
 const loginSchema = Yup.object({
 	username: Yup.string()
 		.required("Username is required")
+		.min(usernameMinLength, `Must be ${usernameMinLength} characters or more`)
 		.max(usernameMaxLength, `Must be ${usernameMaxLength} characters or less`)
 		.matches(usernameRegex, "Invalid username format"),
 	password: Yup.string()
