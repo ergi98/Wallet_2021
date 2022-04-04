@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
 		employer: { type: String },
 	},
 	defaultCurrency: {
-		type: ["ObjectId"],
+		type: "ObjectId",
 		ref: "currencies",
 		required: true,
 	},

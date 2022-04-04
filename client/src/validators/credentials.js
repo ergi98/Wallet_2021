@@ -9,6 +9,7 @@ import {
 	passwordMinLength,
 	passwordMaxLength,
 	passwordRegex,
+	nameMaxLength,
 } from "../../../shared/auth-constants.js";
 
 const usernameRules = [
@@ -40,7 +41,6 @@ const loginSchema = Yup.object({
 		.matches(passwordRegex, "Invalid password format"),
 });
 
-const nameMaxLength = 100;
 const introductionSchema = Yup.object({
 	name: Yup.string()
 		.required("First name is required")
@@ -78,8 +78,8 @@ const signUpSchema = Yup.object({})
 export {
 	loginSchema,
 	signUpSchema,
-	introductionSchema,
-	personalInfoSchema,
 	usernameRules,
 	passwordRules,
+	introductionSchema,
+	personalInfoSchema,
 };

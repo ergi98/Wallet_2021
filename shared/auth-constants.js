@@ -8,6 +8,9 @@ const passwordMaxLength = 30;
 
 const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).*$/;
 
+
+const nameMaxLength = 100;
+
 export {
 	usernameMinLength,
 	usernameMaxLength,
@@ -15,4 +18,5 @@ export {
 	passwordMinLength,
 	passwordMaxLength,
 	passwordRegex,
+  nameMaxLength,
 };

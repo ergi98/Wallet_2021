@@ -2,7 +2,11 @@
 import bcrypt from "bcrypt";
 
 // Validation
-import { loginSchema } from "../validators/auth-validators.js";
+import {
+	loginSchema,
+	usernameSchema,
+	signUpSchema,
+} from "../validators/auth-validators.js";
 
 // Schema
 import UserSchema from "../schemas/user-schema.js";
@@ -18,12 +22,62 @@ const hashPassword = async (password) => await bcrypt.hash(password, 10);
 
 async function signUp(req, res) {
 	try {
-	} catch (err) {}
+		let userData = req.body;
+		await signUpSchema.validateAsync(userData);
+
+		let count = await UserSchema.count({
+			username: userData.username,
+		});
+
+		if (count > 0) throw new Error("Username is taken 😔");
+
+		userData.password = await hashPassword(userData.password);
+		userData.lastLogIn = new Date().toISOString();
+
+		let newUser = await UserSchema.create(userData);
+
+		// User Info
+		let userFields = getUserFields(newUser);
+
+		// Tokens
+		let token = await generateToken({ userId: userFields._id });
+		let refresh = await generateRefreshToken({ userId: userFields._id });
+
+		await UserSchema.findByIdAndUpdate(newUser._doc._id, {
+			$set: {
+				refresh: refresh,
+			},
+		});
+
+		res.status(200).send({ user: userFields, token, refresh });
+	} catch (err) {
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+			err: err,
+		});
+	}
 }
 
 async function validateUsername(req, res) {
 	try {
-	} catch (err) {}
+		await usernameSchema.validateAsync(req.query.username);
+		let count = await UserSchema.count({
+			username: req.query.username,
+		});
+		if (count > 0) throw new Error("Username is taken 😔");
+		res.status(200).send();
+	} catch (err) {
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+			err: err,
+		});
+	}
 }
 
 async function logIn(req, res) {
@@ -34,18 +88,17 @@ async function logIn(req, res) {
 			username: req.body.username,
 		});
 
-		let isPwdCorrect = await bcrypt.compare(
-			req.body.password,
-			user._doc.password
-		);
+		let isPwdCorrect = user
+			? await bcrypt.compare(req.body.password, user._doc.password)
+			: false;
 
 		if (user === null || isPwdCorrect === false)
 			throw new Error("Invalid username or password");
 		// Revert the delete flag
 		else if (user.deletedAt !== null) {
 			await UserSchema.findByIdAndUpdate(user._doc._id, {
-				$set: {
-					deletedAt: null,
+				$unset: {
+					deletedAt: "",
 				},
 			});
 		}
@@ -82,8 +135,10 @@ async function logOut(req, res) {
 	try {
 		await UserSchema.findByIdAndUpdate(req.headers.userId, {
 			$set: {
-				refresh: null,
 				lastLogOut: new Date(),
+			},
+			$unset: {
+				refresh: "",
 			},
 		});
 		res.status(200).send();
@@ -104,9 +159,6 @@ function getUserFields(userDoc) {
 		refresh,
 		...userData
 	} = user;
-	if (Array.isArray(userData.defaultCurrency)) {
-		userData.defaultCurrency = userData.defaultCurrency[0];
-	}
 	return userData;
 }
 
