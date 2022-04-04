@@ -36,8 +36,6 @@ const loginSchema = Yup.object({
 		.matches(passwordRegex, "Invalid password format"),
 });
 
-// TODO: Determine signup joi
-
 const nameMaxLength = 100;
 const introductionSchema = Yup.object({
 	name: Yup.string()
