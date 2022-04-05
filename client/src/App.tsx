@@ -23,6 +23,7 @@ import AppRoutes from "./routes/AppRoutes";
 
 // Slider
 import "swiper/css";
+import useLocalContext from "./custom_hooks/useLocalContext";
 
 declare module "@mui/material/styles" {
 	interface BreakpointOverrides {
@@ -54,9 +55,7 @@ const theme = createTheme({
 });
 
 function App() {
-	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
-		() => JSON.parse(localStorage.getItem("token") ?? "") ?? false
-	);
+	const [isAuthenticated] = useLocalContext("token", false);
 
 	// Global View Height (Mobile 100vh Fix)
 	useEffect(() => {
