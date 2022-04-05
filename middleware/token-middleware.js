@@ -12,13 +12,9 @@ export default async function tokenMiddleware(req, res, next) {
 		req.headers.userId = decodedToken.payload.userId;
 		next();
 	} catch (err) {
-		switch (err.name) {
-			case "TokenExpiredError":
-				await reIssueToken(req, res, next);
-				break;
-			default:
-				res.status(500).send(err);
-		}
+		err.name === "TokenExpiredError"
+			? await reIssueToken(req, res, next)
+			: res.status(500).send({ message: "Invalid Token", err });
 	}
 }
 
@@ -37,6 +33,6 @@ async function reIssueToken(req, res, next) {
 		req.headers.userId = decodedToken.payload.userId;
 		next();
 	} catch (err) {
-		res.status(500).send(err);
+		res.status(500).send({ message: "Invalid Token", err });
 	}
 }
