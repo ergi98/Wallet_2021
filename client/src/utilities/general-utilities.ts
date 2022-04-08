@@ -22,4 +22,25 @@ function isStringEmpty(str: string): boolean {
 	return isEmpty;
 }
 
-export { genderList, isObjectEmpty, isStringEmpty };
+interface ResolvedValues {
+	data: any;
+	error: any;
+}
+
+async function withTryCatch(promiseFn: Promise<any>): Promise<ResolvedValues> {
+	let res = {
+		data: null,
+		error: null,
+	};
+	try {
+		let result = await promiseFn;
+		res.data = result;
+	} catch (err: any) {
+		console.log(err);
+		res.error = err?.response?.data?.message ?? "An error occurred!";
+	} finally {
+		return res;
+	}
+}
+
+export { genderList, isObjectEmpty, isStringEmpty, withTryCatch };

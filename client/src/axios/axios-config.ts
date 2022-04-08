@@ -1,21 +1,31 @@
 // Axios
 import axios from "axios";
 
-const AxiosInstance = axios.create();
+let headers: any = {};
 
-// eslint-disable-next-line no-undef
-AxiosInstance.defaults.baseURL = process.env.REACT_APP_PROXY;
+let token = localStorage.getItem("token");
+let refresh = localStorage.getItem("refresh");
+
+token && (headers.Authorization = `Bearer ${JSON.parse(token)}`);
+refresh && (headers.Authorization = `Bearer ${JSON.parse(refresh)}`);
+
+const AxiosInstance = axios.create({
+	baseURL: process.env.REACT_APP_PROXY,
+	headers,
+});
 
 AxiosInstance.interceptors.response.use(successCallback, errorCallback);
 
 function successCallback(success: any) {
 	console.dir(success);
-	// If success response includes token => setTokenInterceptor
+  return success;
 }
 
 function errorCallback(error: any) {
-	console.dir(error);
-	// If error code === 500 logout (local)
+	if (error.response.status === 500) {
+		localStorage.clear();
+		clearAxiosInstance();
+	} else throw error;
 }
 
 function setTokenInterceptor(token: string, refreshToken: string | undefined) {

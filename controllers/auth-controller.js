@@ -34,22 +34,19 @@ async function signUp(req, res) {
 		userData.password = await hashPassword(userData.password);
 		userData.lastLogIn = new Date().toISOString();
 
-		let newUser = await UserSchema.create(userData);
-
-		// User Info
-		let userFields = getUserFields(newUser);
+		const user = await UserSchema.create(userData);
 
 		// Tokens
-		let token = await generateToken({ userId: userFields._id });
-		let refresh = await generateRefreshToken({ userId: userFields._id });
+		let token = await generateToken({ userId: user._doc._id });
+		let refresh = await generateRefreshToken({ userId: user._doc._id });
 
-		await UserSchema.findByIdAndUpdate(newUser._doc._id, {
+		await UserSchema.findByIdAndUpdate(user._doc._id, {
 			$set: {
 				refresh: refresh,
 			},
 		});
 
-		res.status(200).send({ user: userFields, token, refresh });
+		res.status(200).send({ token, refresh });
 	} catch (err) {
 		res.status(400).send({
 			message:
@@ -105,12 +102,9 @@ async function logIn(req, res) {
 
 		await user.populate("defaultCurrency");
 
-		// User Info
-		let userFields = getUserFields(user);
-
 		// Tokens
-		let token = await generateToken({ userId: userFields._id });
-		let refresh = await generateRefreshToken({ userId: userFields._id });
+		let token = await generateToken({ userId: user._doc._id });
+		let refresh = await generateRefreshToken({ userId: user._doc._id });
 
 		await UserSchema.findByIdAndUpdate(user._doc._id, {
 			$set: {
@@ -119,7 +113,7 @@ async function logIn(req, res) {
 			},
 		});
 
-		res.status(200).send({ user: userFields, token, refresh });
+		res.status(200).send({ token, refresh });
 	} catch (err) {
 		res.status(400).send({
 			message:

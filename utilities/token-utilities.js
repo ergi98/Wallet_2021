@@ -27,7 +27,14 @@ async function generateRefreshToken(payload) {
 	});
 }
 
-async function verifyToken(token) {
+function getToken(token) {
+	if (!token) return "";
+	let result = token.replace("Bearer", "").trim();
+	return result;
+}
+
+async function verifyToken(bearerToken) {
+	let token = getToken(bearerToken);
 	return new Promise((resolve, reject) => {
 		jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
 			err ? reject(err) : resolve(decoded);
@@ -35,7 +42,8 @@ async function verifyToken(token) {
 	});
 }
 
-async function verifyRefreshToken(token) {
+async function verifyRefreshToken(bearerToken) {
+	let token = getToken(bearerToken);
 	return new Promise((resolve, reject) => {
 		jwt.verify(token, process.env.REFRESH_SECRET_KEY, (err, decoded) => {
 			err ? reject(err) : resolve(decoded);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 
 // MUI
 import Container from "@mui/material/Container";
@@ -23,7 +23,9 @@ import AppRoutes from "./routes/AppRoutes";
 
 // Slider
 import "swiper/css";
-import useLocalContext from "./custom_hooks/useLocalContext";
+
+// Context
+import { ContextProvider } from "./context/AuthContext";
 
 declare module "@mui/material/styles" {
 	interface BreakpointOverrides {
@@ -55,8 +57,6 @@ const theme = createTheme({
 });
 
 function App() {
-	const [isAuthenticated] = useLocalContext("token", false);
-
 	// Global View Height (Mobile 100vh Fix)
 	useEffect(() => {
 		function setGlobalVh() {
@@ -74,26 +74,28 @@ function App() {
 	}, []);
 
 	return (
-		<LocalizationProvider dateAdapter={DateAdapter}>
-			<CssBaseline>
-				<Container
-					disableGutters
-					maxWidth={false}
-					className="z-10 h-full overflow-x-hidden overflow-y-auto relative px-env pt-env"
-				>
-					<React.StrictMode>
-						<ThemeProvider theme={theme}>
-							<BrowserRouter>
-								<AppRoutes isAuthenticated={isAuthenticated} />
-							</BrowserRouter>
-						</ThemeProvider>
-					</React.StrictMode>
-				</Container>
-				<TopRightBlob className="top-0 right-0 absolute rotate-50 select-none translate-x-1/2 -translate-y-1/2 opacity-50" />
-				<MiddleLeftBlob className="left-0 top-1/4 absolute select-none -translate-y-1/5 -translate-x-1/3 opacity-50" />
-				<BottomRightBlob className="right-0 bottom-0 absolute select-none translate-y-1/2 translate-x-1/2 opacity-50" />
-			</CssBaseline>
-		</LocalizationProvider>
+		<ContextProvider>
+			<LocalizationProvider dateAdapter={DateAdapter}>
+				<CssBaseline>
+					<Container
+						disableGutters
+						maxWidth={false}
+						className="z-10 h-full overflow-x-hidden overflow-y-auto relative px-env pt-env"
+					>
+						<React.StrictMode>
+							<ThemeProvider theme={theme}>
+								<BrowserRouter>
+									<AppRoutes />
+								</BrowserRouter>
+							</ThemeProvider>
+						</React.StrictMode>
+					</Container>
+					<TopRightBlob className="top-0 right-0 absolute rotate-50 select-none translate-x-1/2 -translate-y-1/2 opacity-50" />
+					<MiddleLeftBlob className="left-0 top-1/4 absolute select-none -translate-y-1/5 -translate-x-1/3 opacity-50" />
+					<BottomRightBlob className="right-0 bottom-0 absolute select-none translate-y-1/2 translate-x-1/2 opacity-50" />
+				</CssBaseline>
+			</LocalizationProvider>
+		</ContextProvider>
 	);
 }
 

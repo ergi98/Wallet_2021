@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useMemo } from "react";
 
 // Router
 import { Route, Routes, useLocation } from "react-router-dom";
@@ -8,6 +8,9 @@ import { AnimatePresence } from "framer-motion";
 
 // Utilities
 import { isMobile } from "../utilities/mobile-utilities";
+
+// Auth
+import { useAuth } from "../context/AuthContext";
 
 // General
 import PublicRoute from "./PublicRoute";
@@ -155,14 +158,18 @@ const mobileRoutes = [
 	},
 ];
 
-interface PropsInterface {
-	isAuthenticated: Boolean;
-}
-
 const appRoutes = isMobile ? mobileRoutes : desktopRoutes;
 
-function AppRoutes(props: PropsInterface) {
+function AppRoutes() {
 	const location = useLocation();
+
+	const auth = useAuth();
+
+	const showMobileNavigation = useMemo(() => {
+		let isAuth = auth ? auth.isAuthenticated : false;
+		return isAuth && isMobile;
+	}, [auth, isMobile]);
+
 	return (
 		<>
 			{/* Condition to check wether the initial setup has finished */}
@@ -177,7 +184,9 @@ function AppRoutes(props: PropsInterface) {
 										path={route.path}
 										index={route.index}
 										element={
-											<ProtectedRoute authenticated={props.isAuthenticated}>
+											<ProtectedRoute
+												authenticated={auth ? auth.isAuthenticated : false}
+											>
 												{route.element}
 											</ProtectedRoute>
 										}
@@ -198,7 +207,9 @@ function AppRoutes(props: PropsInterface) {
 										path={route.path}
 										index={route.index}
 										element={
-											<PublicRoute authenticated={props.isAuthenticated}>
+											<PublicRoute
+												authenticated={auth ? auth.isAuthenticated : false}
+											>
 												{route.element}
 											</PublicRoute>
 										}
@@ -217,7 +228,7 @@ function AppRoutes(props: PropsInterface) {
 							)}
 						</Routes>
 					</AnimatePresence>
-					{props.isAuthenticated && isMobile ? <AppNavigation /> : null}
+					{showMobileNavigation ? <AppNavigation /> : null}
 				</Suspense>
 			) : (
 				<PageLoading />

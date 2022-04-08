@@ -12,6 +12,7 @@ export default async function tokenMiddleware(req, res, next) {
 		req.headers.userId = decodedToken.payload.userId;
 		next();
 	} catch (err) {
+    console.log(err)
 		err.name === "TokenExpiredError"
 			? await reIssueToken(req, res, next)
 			: res.status(500).send({ message: "Invalid Token", err });
