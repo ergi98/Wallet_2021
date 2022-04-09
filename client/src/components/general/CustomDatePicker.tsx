@@ -73,7 +73,7 @@ function CustomDatePicker({ fieldName, label, required }: PropsInterface) {
 								? formik.errors[fieldName]
 								: " "
 						}
-						sx={{ ".Mui-disabled": { color: "#757575" } }}
+						sx={{ ".Mui-disabled": { color: "#757575 !important" } }}
 						required={required}
 						spellCheck={false}
 						autoCapitalize="none"

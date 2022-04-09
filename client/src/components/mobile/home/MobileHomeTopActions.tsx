@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 // MUI
 import { IconButton, Stack } from "@mui/material";
 
@@ -10,16 +12,21 @@ interface PropsInterface {
 	changeDate: (a: string) => void;
 }
 function HomeTopActions(props: PropsInterface) {
-	function openDateFilter() {}
+	const [showDateFilter, setShowDateFilter] = useState<boolean>(false);
+
+	const openDateFilter = () => setShowDateFilter(true);
+
 	return (
-		<Stack direction="row" className="p-3" justifyContent="space-between">
-			<IconButton onClick={openDateFilter} sx={{ fontSize: "16px" }}>
-				<RiEqualizerLine className="text-neutral-50" />
-			</IconButton>
-			<IconButton onClick={() => props.swapClick()} sx={{ fontSize: "16px" }}>
-				<RiArrowLeftRightLine className="text-neutral-50" />
-			</IconButton>
-		</Stack>
+		<>
+			<Stack direction="row" className="p-3" justifyContent="space-between">
+				<IconButton onClick={openDateFilter} sx={{ fontSize: "16px" }}>
+					<RiEqualizerLine className="text-neutral-50" />
+				</IconButton>
+				<IconButton onClick={() => props.swapClick()} sx={{ fontSize: "16px" }}>
+					<RiArrowLeftRightLine className="text-neutral-50" />
+				</IconButton>
+			</Stack>
+		</>
 	);
 }
 

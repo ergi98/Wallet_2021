@@ -1,4 +1,9 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, {
+	createContext,
+	useEffect,
+	useLayoutEffect,
+	useState,
+} from "react";
 
 // MUI
 import Container from "@mui/material/Container";
@@ -58,9 +63,9 @@ const theme = createTheme({
 
 function App() {
 	// Global View Height (Mobile 100vh Fix)
-	useEffect(() => {
+	useLayoutEffect(() => {
 		function setGlobalVh() {
-			let vh = window.innerHeight * 0.01;
+			let vh = window.outerHeight * 0.01;
 			let root = document.querySelector<HTMLElement>(":root");
 			root!.style.setProperty("--vh", `${vh}px`);
 			window.addEventListener("resize", setGlobalVh);
@@ -70,6 +75,7 @@ function App() {
 		return () => {
 			window.removeEventListener("resize", setGlobalVh);
 			window.removeEventListener("orientationchange", setGlobalVh);
+
 		};
 	}, []);
 
