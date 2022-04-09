@@ -12,31 +12,31 @@ import HomeTitle from "../../../components/mobile/home/MobileHomeTitle";
 import HomeTopActions from "../../../components/mobile/home/MobileHomeTopActions";
 
 function HomeEarnings() {
-  const [selectedDate, setSelectedDate] = useState<string>(() =>
-    new Date().toISOString()
-  );
+	const [selectedDate, setSelectedDate] = useState<string>(() =>
+		new Date().toISOString()
+	);
 
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 
-  const goToExpenses = () => navigate("/home/expenses");
+	const goToExpenses = () => navigate("/home/expenses");
 
-  return (
-    <Home>
-      <Stack>
-        <HomeTopActions
-          date={selectedDate}
-          swapClick={goToExpenses}
-          changeDate={(event) => setSelectedDate(event)}
-        />
-        <HomeTitle
-          label="Earnings"
-          date={selectedDate}
-          amount={18023.23}
-          percent={2.34}
-        />
-      </Stack>
-    </Home>
-  );
+	return (
+		<Home>
+			<Stack>
+				<HomeTopActions
+					date={selectedDate}
+					swapClick={goToExpenses}
+					changeDate={(event) => setSelectedDate(event)}
+				/>
+				<HomeTitle
+					label="Earnings"
+					date={selectedDate}
+					amount={18023.23}
+					percent={2.34}
+				/>
+			</Stack>
+		</Home>
+	);
 }
 
 export default HomeEarnings;

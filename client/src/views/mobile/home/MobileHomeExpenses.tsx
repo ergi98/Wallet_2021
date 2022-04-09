@@ -8,35 +8,37 @@ import { useNavigate } from "react-router-dom";
 
 // Components
 import Home from "../../../components/mobile/home/MobileHome";
+import SparkLine from "../../../components/mobile/charts/SparkLine";
 import HomeTitle from "../../../components/mobile/home/MobileHomeTitle";
 import HomeTopActions from "../../../components/mobile/home/MobileHomeTopActions";
 
 function HomeExpenses() {
-  const [selectedDate, setSelectedDate] = useState<string>(() =>
-    new Date().toISOString()
-  );
+	const [selectedDate, setSelectedDate] = useState<string>(() =>
+		new Date().toISOString()
+	);
 
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 
-  const goToEarnings = () => navigate("/home/earnings");
+	const goToEarnings = () => navigate("/home/earnings");
 
-  return (
-    <Home>
-      <Stack>
-        <HomeTopActions
-          date={selectedDate}
-          swapClick={goToEarnings}
-          changeDate={(event) => setSelectedDate(event)}
-        />
-        <HomeTitle
-          label="Expenses"
-          date={selectedDate}
-          amount={18023.23}
-          percent={2.34}
-        />
-      </Stack>
-    </Home>
-  );
+	return (
+		<Home>
+			<Stack>
+				<HomeTopActions
+					date={selectedDate}
+					swapClick={goToEarnings}
+					changeDate={(event) => setSelectedDate(event)}
+				/>
+				<HomeTitle
+					label="Expenses"
+					date={selectedDate}
+					amount={18023.23}
+					percent={2.34}
+				/>
+				<SparkLine data={[]} />
+			</Stack>
+		</Home>
+	);
 }
 
 export default HomeExpenses;

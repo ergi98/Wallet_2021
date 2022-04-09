@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { RiAddFill } from "react-icons/ri";
 
 // MUI
-import { Button, Card, Paper, Stack, Typography } from "@mui/material";
+import { IconButton, Stack, Typography } from "@mui/material";
 
 // Navigation
 import { useNavigate } from "react-router-dom";
@@ -126,26 +126,20 @@ function Home(props: PropsInterface) {
 	return (
 		<div className="app-height relative overflow-x-hidden overflow-y-auto">
 			{props.children}
-			<div className="px-3">
-				<div className="bg-neutral-50 rounded-xl px-3 pt-2 shadow-md">
+			<div className="py-3">
+				<div className="px-3 pb-6">
 					<Stack
 						direction="row"
 						alignItems="center"
 						justifyContent="space-between"
-						className=" text-blue-900 pb-3"
 					>
-						<Typography variant="subtitle1">Today's Transactions</Typography>
-						<Button
-							endIcon={<RiAddFill className=" scale-90" />}
-							variant="contained"
-							disableElevation
-							size="small"
-						>
-							New
-						</Button>
+						<Typography variant="h6">Today's Transactions</Typography>
+						<IconButton onClick={() => goTo("test")} sx={{ fontSize: "16px" }}>
+							<RiAddFill className="text-neutral-50" />
+						</IconButton>
 					</Stack>
-					<TransactionsList transactions={transaction} />
 				</div>
+				<TransactionsList transactions={transaction} flow="horizontal" />
 			</div>
 		</div>
 	);

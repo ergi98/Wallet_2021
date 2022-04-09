@@ -12,13 +12,13 @@ function HomeTopActions(props: PropsInterface) {
   return (
     <Stack
       direction="row"
-      className="px-1 pt-3 pb-6"
+      className="px-1 py-3"
       justifyContent="space-between"
     >
-      <IconButton onClick={openDateFilter} sx={{ fontSize: "20px" }}>
+      <IconButton onClick={openDateFilter} sx={{ fontSize: "16px" }}>
         <RiEqualizerLine className="text-neutral-50" />
       </IconButton>
-      <IconButton onClick={() => props.swapClick()} sx={{ fontSize: "20px" }}>
+      <IconButton onClick={() => props.swapClick()} sx={{ fontSize: "16px" }}>
         <RiArrowLeftRightLine className="text-neutral-50" />
       </IconButton>
     </Stack>

@@ -18,7 +18,7 @@ interface PropsInterface {
 }
 
 function Transaction(props: PropsInterface) {
-  const [time, setTime] = useState(() =>
+  const [time] = useState(() =>
     getTimeFromDateString(props.transaction.date)
   );
 
