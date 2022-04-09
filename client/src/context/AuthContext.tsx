@@ -40,7 +40,7 @@ export function ContextProvider({ children }: PropsInterface) {
 			let token = localStorage.getItem("token");
 			let refresh = localStorage.getItem("refresh");
 			if (token && refresh) status = true;
-			updateRootContext({ isAuthenticated: status });
+			updateRootContext({ isAuthenticated: true });
 		}
 		checkIfAuthenticated();
 	}, []);

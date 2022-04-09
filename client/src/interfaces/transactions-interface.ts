@@ -1,9 +1,3 @@
-// enum TransactionTypes {
-//   INCOME = "income",
-//   EXPENSE = "expense",
-//   INVESTMENT = "investment",
-// }
-
 interface TransactionInterface {
   _id: string;
   date: string;

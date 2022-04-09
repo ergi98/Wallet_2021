@@ -79,9 +79,11 @@ function MobilePortfolios() {
 						Portfolios
 					</Typography>
 					<Button
-						endIcon={<RiAddFill className=" scale-90" />}
+						sx={{ color: "inherit", borderColor: "inherit !important" }}
+						endIcon={<RiAddFill className=" scale-75" />}
+            className="border-neutral-50"
+						variant="outlined"
 						size="small"
-						variant="contained"
 					>
 						New
 					</Button>
@@ -99,10 +101,10 @@ function MobilePortfolios() {
 				</Stack>
 			</div>
 			<Swiper
-				onSwiper={handleSwiper}
-				onTransitionEnd={handleSlideChange}
 				slidesPerView={1}
 				effect={"creative"}
+				onSwiper={handleSwiper}
+				onTransitionEnd={handleSlideChange}
 				modules={[Virtual, EffectCreative]}
 				creativeEffect={{
 					prev: {

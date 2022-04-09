@@ -1,19 +1,17 @@
 import { ReactNode } from "react";
 
-// Icons
-import { RiAddFill } from "react-icons/ri";
-
 // MUI
-import { IconButton, Stack, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 
 // Navigation
-import { useNavigate } from "react-router-dom";
-
-// Components
-import TransactionsList from "../transactions/TransactionsList";
+import { Link, useNavigate } from "react-router-dom";
 
 // Interfaces
 import { TransactionInterface } from "../../../interfaces/transactions-interface";
+
+// Components
+import TransactionsList from "../transactions/TransactionsList";
+import SelectTransactionTypeMenu from "./SelectTransactionTypeMenu";
 
 interface PropsInterface {
 	children: ReactNode;
@@ -38,13 +36,12 @@ const transaction: Array<TransactionInterface> = [
 		description: "Ika per kafe te moncheria te shtunen ne mgjes.",
 		deleted: false,
 	},
-	// Income
 	{
 		_id: "5f7f2fd6323a3b0017e1ec1e",
 		date: new Date().toISOString(),
-		type: "income",
+		type: "earning",
 		title: "Rroga ESDP",
-		amount: 1563000,
+		amount: 123456789,
 		currency: "ALL",
 		portfolio: "5f8351f9d4d24d00172cd7bd",
 		description: "Kalimi i rroges nga ESDP",
@@ -103,11 +100,10 @@ const transaction: Array<TransactionInterface> = [
 		description: "Ika per kafe te moncheria te shtunen ne mgjes.",
 		deleted: false,
 	},
-	// Income
 	{
 		_id: "5f7f2fd6323a3b0017e1ecze",
 		date: new Date().toISOString(),
-		type: "income",
+		type: "earning",
 		title: "Lek nga te shpis",
 		amount: 13000,
 		currency: "ALL",
@@ -133,10 +129,16 @@ function Home(props: PropsInterface) {
 						alignItems="center"
 						justifyContent="space-between"
 					>
-						<Typography variant="h6">Today's Transactions</Typography>
-						<IconButton onClick={() => goTo("test")} sx={{ fontSize: "16px" }}>
-							<RiAddFill className="text-neutral-50" />
-						</IconButton>
+						<div>
+							<Typography variant="h6">Today's Transactions</Typography>
+							<Link
+								className="text-sm underline underline-offset-2"
+								to="/transactions"
+							>
+								View all transactions
+							</Link>
+						</div>
+						<SelectTransactionTypeMenu />
 					</Stack>
 				</div>
 				<TransactionsList transactions={transaction} flow="horizontal" />

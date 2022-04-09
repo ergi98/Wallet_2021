@@ -15,81 +15,82 @@ import PortfolioStatistics from "./PortfolioStatistics";
 import PortfolioTransactions from "./PortfolioTransactions";
 
 interface PropsInterface {
-  id: string;
+	id: string;
 }
 
 const portfolios: Array<PortfolioDetailsInterface> = [
-  {
-    _id: "6023423j4kl32j4kl32j4",
-    currency: "ALL",
-    last: {
-      earnings: new Date().toISOString(),
-      expenses: new Date().toDateString(),
-    },
-    averages: {
-      earnings: 250000,
-      expenses: 212.12,
-    },
-    counts: {
-      earnings: 10,
-      expenses: 2,
-    },
-    transactions: [],
-    topSources: [],
-    topCategories: [],
-  },
-  {
-    _id: "6023423j4kl32j4kl32j5",
-    currency: "ALL",
-    last: {
-      earnings: new Date().toISOString(),
-      expenses: new Date().toDateString(),
-    },
-    averages: {
-      earnings: 250,
-      expenses: 23412.0,
-    },
-    counts: {
-      earnings: 5,
-      expenses: 15,
-    },
-    transactions: [],
-    topSources: [],
-    topCategories: [],
-    cvc: "123",
-    bank: "Raiffeisen Bank",
-    cardNo: "5674364736271623",
-    validity: "12/22",
-  },
+	{
+		_id: "6023423j4kl32j4kl32j4",
+		currency: "ALL",
+		last: {
+			earnings: new Date().toISOString(),
+			expenses: new Date().toDateString(),
+		},
+		averages: {
+			earnings: 250000,
+			expenses: 212.12,
+		},
+		counts: {
+			earnings: 10,
+			expenses: 2,
+		},
+		transactions: [],
+		topSources: [],
+		topCategories: [],
+	},
+	{
+		_id: "6023423j4kl32j4kl32j5",
+		currency: "ALL",
+		last: {
+			earnings: new Date().toISOString(),
+			expenses: new Date().toDateString(),
+		},
+		averages: {
+			earnings: 250,
+			expenses: 23412.0,
+		},
+		counts: {
+			earnings: 5,
+			expenses: 15,
+		},
+		transactions: [],
+		topSources: [],
+		topCategories: [],
+		cvc: "123",
+		bank: "Raiffeisen Bank",
+		cardNo: "5674364736271623",
+		validity: "12/22",
+	},
 ];
 
 function PortfolioDetails(props: PropsInterface) {
-  const [details, setDetails] = useState<PortfolioDetailsInterface>();
+	const [details, setDetails] = useState<PortfolioDetailsInterface>();
 
-  useEffect(() => {
-    let portfolio = portfolios.find((portfolio) => portfolio._id === props.id);
-    setDetails(portfolio);
-  }, [props.id]);
+	useEffect(() => {
+		let portfolio = portfolios.find((portfolio) => portfolio._id === props.id);
+		setDetails(portfolio);
+	}, [props.id]);
 
-  return (
-    <div className="pb-6">
-      {details ? (
-        <Stack rowGap={3}>
-          <Button
-            endIcon={<RiEqualizerLine className=" scale-75" />}
-            className="mb-3 flex-grow-0 w-fit ml-auto"
-            variant="contained"
-            size="small"
-          >
-            Filter
-          </Button>
-          <PortfolioStatistics details={details} />
-          <PortfolioActivity />
-          <PortfolioTransactions transactions={details.transactions} />
-        </Stack>
-      ) : null}
-    </div>
-  );
+	return (
+		<div className="pb-6">
+			{details ? (
+				<Stack rowGap={3}>
+					<Button
+						sx={{ color: "inherit", borderColor: "inherit !important" }}
+						endIcon={<RiEqualizerLine className="scale-75" />}
+						className="mb-3 flex-grow-0 w-fit ml-auto border-neutral-50"
+						variant="outlined"
+						size="small"
+					>
+						Filter
+					</Button>
+					<PortfolioStatistics details={details} />
+					<PortfolioActivity />
+					<PortfolioTransactions transactions={details.transactions} />
+				</Stack>
+			) : null}
+		</div>
+	);
 }
 
 export default PortfolioDetails;

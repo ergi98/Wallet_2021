@@ -80,9 +80,9 @@ body {
   }
 }
 
-.income {
-  border: 1px solid theme("colors.green.400");
-  color: theme("colors.green.400");
+.earning {
+  border: 1px solid theme("colors.green.500");
+  color: theme("colors.green.500");
 }
 
 .expense {

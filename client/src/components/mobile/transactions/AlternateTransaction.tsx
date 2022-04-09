@@ -34,7 +34,7 @@ function AlternateTransaction(props: PropsInterface) {
 			{/** Title */}
 			<Typography
 				component="span"
-				variant="caption"
+				variant="subtitle1"
 				className="text-ellipsis overflow-hidden whitespace-nowrap"
 			>
 				{props.transaction.title}
@@ -42,8 +42,8 @@ function AlternateTransaction(props: PropsInterface) {
 			{/** Price */}
 			<AmountDisplay
 				amount={props.transaction.amount}
-				wholeClass="text-icon"
-				decimalClass="text-icon text-xs"
+				wholeClass="text-icon text-lg"
+				decimalClass="text-icon text-sm"
 				className="truncate text-center w-full py-3"
 			/>
 			<Stack direction="row" gap={0.75}>
