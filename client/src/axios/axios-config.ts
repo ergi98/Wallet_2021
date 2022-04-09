@@ -7,7 +7,7 @@ let token = localStorage.getItem("token");
 let refresh = localStorage.getItem("refresh");
 
 token && (headers.Authorization = `Bearer ${JSON.parse(token)}`);
-refresh && (headers.Authorization = `Bearer ${JSON.parse(refresh)}`);
+refresh && (headers.Refresh = `Bearer ${JSON.parse(refresh)}`);
 
 const AxiosInstance = axios.create({
 	baseURL: process.env.REACT_APP_PROXY,
