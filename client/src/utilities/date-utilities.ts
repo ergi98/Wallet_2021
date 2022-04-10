@@ -15,18 +15,6 @@ const months = [
 	"Dec",
 ];
 
-function convertToUTC(date: Date): Date {
-	var utcDate = Date.UTC(
-		date.getUTCFullYear(),
-		date.getUTCMonth(),
-		date.getUTCDate(),
-		date.getUTCHours(),
-		date.getUTCMinutes(),
-		date.getUTCSeconds()
-	);
-	return new Date(utcDate);
-}
-
 function isTodayDate(date: string): Boolean {
 	let dateObject = new Date(date);
 	if (isDate(dateObject)) {
@@ -81,10 +69,9 @@ function getStartOfDay(date: string, type: string) {
 }
 
 export {
+	isDate,
 	formatDate,
 	isTodayDate,
-	isDate,
-	convertToUTC,
 	getStartOfDay,
 	parseDateString,
 	getTimeFromDateString,

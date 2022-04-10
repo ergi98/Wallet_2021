@@ -10,7 +10,6 @@ import {
 
 // Schema
 import UserSchema from "../schemas/user-schema.js";
-import CurrencySchema from "../schemas/currency.schema.js";
 
 // Utilities
 import {
@@ -101,8 +100,6 @@ async function logIn(req, res) {
 			});
 		}
 
-		await user.populate("defaultCurrency");
-
 		// Tokens
 		let token = await generateToken({ userId: user._doc._id });
 		let refresh = await generateRefreshToken({ userId: user._doc._id });
@@ -155,10 +152,11 @@ async function refreshToken(req, res) {
 		const user = await UserSchema.findById(decodedToken.payload.userId);
 		if (user === null || user?.refresh !== req.cookies.refresh)
 			throw new Error("Invalid token");
+
+    console.log(user)
 		// Generating a new token
 		const newToken = await generateToken(decodedToken.payload);
 		res.status(200).send({ token: newToken });
-		next();
 	} catch (err) {
 		res.status(400).send(err);
 	}
