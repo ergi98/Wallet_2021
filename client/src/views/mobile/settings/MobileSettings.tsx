@@ -7,41 +7,22 @@ import { Stack, Typography } from "@mui/material";
 // Icons
 import { LogoutOutlined } from "@mui/icons-material";
 
-// Axios
-import { AxiosInstance, clearAxiosInstance } from "../../../axios/axios-config";
-
-// Utilities
-import { withTryCatch } from "../../../utilities/general-utilities";
-
-// Navigate
-import { useNavigate } from "react-router-dom";
-
-// Auth
-import { useAuthUpdate } from "../../../context/AuthContext";
+// Hooks
+import useLogout from "../../../hooks/useLogout";
 
 // Components
 import TransactionsSettings from "../../../components/shared/settings/TransactionsSettings";
 import CategoryAndSourcesSettings from "../../../components/shared/settings/CategoryAndSourcesSettings";
 
 function MobileSettings() {
-	const navigate = useNavigate();
-	const updateAuth = useAuthUpdate();
+	const logout = useLogout();
 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	async function logOut() {
 		setIsLoading(true);
-		let { data } = await withTryCatch(AxiosInstance.post("/auth/log-out"));
+		await logout();
 		setIsLoading(false);
-		if (data) {
-			localStorage.clear();
-			clearAxiosInstance();
-			updateAuth &&
-				updateAuth({
-					isAuthenticated: false,
-				});
-			navigate("/", { replace: true });
-		}
 	}
 
 	return (

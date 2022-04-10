@@ -3,9 +3,13 @@ import "dotenv/config";
 
 // CORS
 import cors from "cors";
+import corsOptions from "./config/cors-config.js";
 
 // Express
 import express from "express";
+
+// Cookie Parser
+import cookieParser from "cookie-parser";
 
 // Mongoose
 import mongoose from "mongoose";
@@ -29,7 +33,8 @@ import tokenMiddleware from "./middleware/token-middleware.js";
 
 const app = express();
 
-app.use(cors());
+app.use(cors(corsOptions));
+app.use(cookieParser());
 app.use(express.json());
 
 // Routes

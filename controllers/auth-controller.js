@@ -14,8 +14,8 @@ import CurrencySchema from "../schemas/currency.schema.js";
 
 // Utilities
 import {
-	generateRefreshToken,
 	generateToken,
+	generateRefreshToken,
 } from "../utilities/token-utilities.js";
 
 const hashPassword = async (password) => await bcrypt.hash(password, 10);
@@ -113,7 +113,12 @@ async function logIn(req, res) {
 			},
 		});
 
-		res.status(200).send({ token, refresh });
+		res.cookie("refresh", refresh, {
+			httpOnly: true,
+			// 1 day
+			maxAge: 24 * 60 * 60 * 1000,
+		});
+		res.status(200).send({ token });
 	} catch (err) {
 		res.status(400).send({
 			message:

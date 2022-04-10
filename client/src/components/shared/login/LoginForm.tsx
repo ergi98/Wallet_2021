@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 
 // Formik
 import { useFormik } from "formik";
@@ -27,20 +27,13 @@ import { LoadingButton } from "@mui/lab";
 import { useNavigate } from "react-router-dom";
 
 // Components
-import ToggleVisibility from "../../general/ToggleVisibility";
 import ValidationHint from "../../general/ValidationHint";
+import ToggleVisibility from "../../general/ToggleVisibility";
 
-// Axios
-import {
-	AxiosInstance,
-	setTokenInterceptor,
-} from "../../../axios/axios-config";
-
-// Auth
-import { useAuthUpdate } from "../../../context/AuthContext";
-
-// Utilities
-import { withTryCatch } from "../../../utilities/general-utilities";
+// Hooks
+import useAuth from "../../../hooks/useAuth";
+import useTryCatch from "../../../hooks/useTryCatch";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 interface LogInData {
 	username: string;
@@ -49,7 +42,9 @@ interface LogInData {
 
 function LoginForm() {
 	const navigate = useNavigate();
-	const updateAuth = useAuthUpdate();
+	const tryCatch = useTryCatch();
+	const axios = useAxiosPrivate();
+	const { setAuthState } = useAuth();
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 
 	const navigateToSignUp = () => navigate("/sign-up/introduction");
@@ -62,18 +57,13 @@ function LoginForm() {
 	});
 
 	async function handleUserLogin(values: LogInData, setSubmitting: Function) {
-		// TODO: User login
 		setSubmitting(true);
-		let { data } = await withTryCatch(
-			AxiosInstance.post("/auth/log-in", values)
-		);
+		let { data } = await tryCatch(axios.post("/auth/log-in", values));
 		setSubmitting(false);
 		if (data) {
-			localStorage.setItem("token", JSON.stringify(data.data.token));
-			localStorage.setItem("refresh", JSON.stringify(data.data.token));
-			setTokenInterceptor(data.data.token, data.data.refresh);
-			updateAuth &&
-				updateAuth({
+			setAuthState &&
+				setAuthState({
+					token: data.data.token,
 					isAuthenticated: true,
 				});
 			navigate("/home/expenses", { replace: true });

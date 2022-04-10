@@ -7,6 +7,7 @@ import {
 import UserSchema from "../schemas/user-schema.js";
 
 export default async function tokenMiddleware(req, res, next) {
+	console.log(req.headers.authorization);
 	try {
 		let decodedToken = await verifyToken(req.headers.authorization);
 		req.headers.userId = decodedToken.payload.userId;

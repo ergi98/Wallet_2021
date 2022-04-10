@@ -7,7 +7,7 @@ import {
 } from "react";
 
 // Custom Hooks
-import useLocalContext from "../../custom_hooks/useLocalContext";
+import useLocalContext from "../../hooks/useLocalContext";
 
 // Components
 import TouchArea from "./TouchArea";

@@ -10,7 +10,6 @@ import { AnimatePresence } from "framer-motion";
 import { isMobile } from "../utilities/mobile-utilities";
 
 // Auth
-import { useAuth } from "../context/AuthContext";
 
 // General
 import PublicRoute from "./PublicRoute";
@@ -55,6 +54,7 @@ import MobileHomeEarnings from "../views/mobile/home/MobileHomeEarnings";
 import MobileSettings from "../views/mobile/settings/MobileSettings";
 
 import MobilePortfolios from "../views/mobile/portfolios/MobilePortfolios";
+import useAuth from "../hooks/useAuth";
 
 const desktopRoutes = [
 	{
@@ -163,12 +163,12 @@ const appRoutes = isMobile ? mobileRoutes : desktopRoutes;
 function AppRoutes() {
 	const location = useLocation();
 
-	const auth = useAuth();
+	const { isAuthenticated } = useAuth();
 
-	const showMobileNavigation = useMemo(() => {
-		let isAuth = auth ? auth.isAuthenticated : false;
-		return isAuth && isMobile;
-	}, [auth, isMobile]);
+	const showMobileNavigation = useMemo(
+		() => isAuthenticated && isMobile,
+		[isAuthenticated, isMobile]
+	);
 
 	return (
 		<>
@@ -184,9 +184,7 @@ function AppRoutes() {
 										path={route.path}
 										index={route.index}
 										element={
-											<ProtectedRoute
-												authenticated={auth ? auth.isAuthenticated : false}
-											>
+											<ProtectedRoute authenticated={isAuthenticated}>
 												{route.element}
 											</ProtectedRoute>
 										}
@@ -207,9 +205,7 @@ function AppRoutes() {
 										path={route.path}
 										index={route.index}
 										element={
-											<PublicRoute
-												authenticated={auth ? auth.isAuthenticated : false}
-											>
+											<PublicRoute authenticated={isAuthenticated}>
 												{route.element}
 											</PublicRoute>
 										}

@@ -8,7 +8,7 @@ import { signUpSchema } from "../../../validators/credentials";
 import { Outlet } from "react-router-dom";
 
 // Custom Hooks
-import useLocalContext from "../../../custom_hooks/useLocalContext";
+import useLocalContext from "../../../hooks/useLocalContext";
 
 function SignUpForm() {
   const [localContext] = useLocalContext("register-context", {
