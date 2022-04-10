@@ -8,7 +8,7 @@ function getStoredContext<T>(key: string, initialValue: T): T {
       return parsedValue;
     } else return initialValue;
   } catch (err) {
-    console.log("getStoredContext", err);
+    console.error("getStoredContext", err);
     return initialValue;
   }
 }

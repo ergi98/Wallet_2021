@@ -15,6 +15,7 @@ import CurrencySchema from "../schemas/currency.schema.js";
 // Utilities
 import {
 	generateToken,
+	verifyRefreshToken,
 	generateRefreshToken,
 } from "../utilities/token-utilities.js";
 
@@ -146,19 +147,21 @@ async function logOut(req, res) {
 	}
 }
 
-function getUserFields(userDoc) {
-	let user = userDoc._doc;
-	let {
-		updatedAt,
-		lastLogOut,
-		lastLogIn,
-		deletedAt,
-		createdAt,
-		password,
-		refresh,
-		...userData
-	} = user;
-	return userData;
+async function refreshToken(req, res) {
+	try {
+		// Verifying if refresh token is valid
+		const decodedToken = await verifyRefreshToken(req.cookies.refresh);
+		// Verifying if it is the same as the one stored in DB
+		const user = await UserSchema.findById(decodedToken.payload.userId);
+		if (user === null || user?.refresh !== req.cookies.refresh)
+			throw new Error("Invalid token");
+		// Generating a new token
+		const newToken = await generateToken(decodedToken.payload);
+		res.status(200).send({ token: newToken });
+		next();
+	} catch (err) {
+		res.status(400).send(err);
+	}
 }
 
-export { logIn, signUp, logOut, validateUsername };
+export { logIn, signUp, logOut, refreshToken, validateUsername };

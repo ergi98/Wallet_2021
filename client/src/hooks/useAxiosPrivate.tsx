@@ -3,12 +3,16 @@ import { useEffect } from "react";
 // Axios
 import { axiosPrivate } from "../axios/axios";
 
+// RFDC
+import rfdc from "rfdc";
+
 // Hooks
 import useAuth from "./useAuth";
 import useRefreshToken from "./useRefreshToken";
 
 const useAxiosPrivate = () => {
 	const refreshToken = useRefreshToken();
+	const clone = rfdc();
 	const { token } = useAuth();
 
 	useEffect(() => {
@@ -25,7 +29,7 @@ const useAxiosPrivate = () => {
 		const responseIntercept = axiosPrivate.interceptors.response.use(
 			(response) => response,
 			async (error) => {
-				const prevRequest = error?.config;
+				const prevRequest = clone(error?.config);
 				if (error?.response?.status === 403 && !prevRequest?.sent) {
 					prevRequest.sent = true;
 					const newAccessToken = await refreshToken();

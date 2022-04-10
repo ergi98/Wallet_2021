@@ -7,7 +7,7 @@ const useRefreshToken = () => {
 	const tryCatch = useTryCatch();
 
 	const refresh = async () => {
-		const { data } = tryCatch(
+		const { data } = await tryCatch(
 			axios.get("auth/refresh-token", {
 				withCredentials: true,
 			})
@@ -20,6 +20,7 @@ const useRefreshToken = () => {
 						token: data.data.token,
 					};
 				});
+			return data.data.token;
 		}
 	};
 

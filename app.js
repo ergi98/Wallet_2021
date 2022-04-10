@@ -55,7 +55,7 @@ const server = createServer(app);
 mongoose
 	.connect(process.env.MONGO_URI)
 	.then(() => console.log(`Successfully connected to MongoDB`))
-	.catch((err) => console.log(err));
+	.catch((err) => console.error(err));
 
 server.listen(port, () => {
 	console.log(`Listening on port ${port}`);
