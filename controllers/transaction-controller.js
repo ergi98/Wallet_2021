@@ -6,6 +6,7 @@ import { exactDiff } from "../utilities/number.utilities.js";
 
 // Schema
 import TransactionSchema from "../schemas/transaction-schema.js";
+import TransactionTypesSchema from "../schemas/transaction-types-schema.js";
 
 async function getHomeStatistics(req, res) {
 	try {
@@ -25,7 +26,7 @@ async function getHomeStatistics(req, res) {
 		const otherStages = [
 			{
 				$lookup: {
-					from: "transactionTypes",
+					from: "transaction-types",
 					localField: "type",
 					foreignField: "_id",
 					as: "typeData",
@@ -192,12 +193,13 @@ async function getHomeStatistics(req, res) {
 
 		data = data[0];
 
+		const transactionTypes = await TransactionTypesSchema.find({});
+
 		const format = (arr) => {
 			let obj = {};
-			const transactionTypes = ["earning", "expense", "transfer"];
 			if (arr.length === 0) {
-				for (let type of transactionTypes) {
-					obj[type] = {
+				for (let element of transactionTypes) {
+					obj[element.type] = {
 						amount: 0,
 					};
 				}
@@ -208,9 +210,9 @@ async function getHomeStatistics(req, res) {
 						amount: element.amount,
 					};
 				}
-				for (let type of transactionTypes) {
-					if (obj[type] === undefined) {
-						obj[type] = {
+				for (let element of transactionTypes) {
+					if (obj[element.type] === undefined) {
+						obj[element.type] = {
 							amount: 0,
 						};
 					}
@@ -220,11 +222,10 @@ async function getHomeStatistics(req, res) {
 		};
 
 		const calculatePercentChange = (today, previous) => {
-			const transactionTypes = ["earning", "expense", "transfer"];
-			for (let type of transactionTypes) {
-				let previousVal = previous[type]["amount"];
-				let todayVal = today[type]["amount"];
-				today[type]["percent"] =
+			for (let element of transactionTypes) {
+				let previousVal = previous[element.type]["amount"];
+				let todayVal = today[element.type]["amount"];
+				today[element.type]["percent"] =
 					previousVal === 0
 						? 0
 						: (exactDiff(todayVal, previousVal) / previousVal) * 100;
