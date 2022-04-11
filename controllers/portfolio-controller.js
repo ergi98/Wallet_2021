@@ -31,6 +31,7 @@ async function createPortfolio(req, res) {
 
 		const portfolioCount = await PortfolioSchema.count({
 			description: req.body.description,
+			deletedAt: { $exists: 0 },
 		});
 
 		if (portfolioCount !== 0)
@@ -88,4 +89,32 @@ async function getPortfolioById(req, res) {
 	}
 }
 
-export { createPortfolio, getPortfolios, getPortfolioById };
+async function deletePortfolio(req, res) {
+	try {
+		await objectIdSchema.validateAsync(req.query.id);
+
+		const portfolio = await PortfolioSchema.findById(req.query.id);
+
+		if (portfolio === null || portfolio.deletedAt !== undefined)
+			throw new Error("Portfolio with this id does not exits");
+		else if (portfolio.amounts.length !== 0)
+			throw new Error("Portfolio cannot be deleted if it is not empty");
+
+		const deletedPortfolio = await PortfolioSchema.findByIdAndUpdate(
+			req.query.id,
+			{
+				$set: {
+					deletedAt: new Date(),
+					updatedAt: new Date(),
+				},
+			}
+		);
+
+		res.status(200).send(deletedPortfolio);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send(err);
+	}
+}
+
+export { createPortfolio, getPortfolios, getPortfolioById, deletePortfolio };
