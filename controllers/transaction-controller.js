@@ -4,12 +4,17 @@ import mongoose from "mongoose";
 // Utilities
 import { exactDiff } from "../utilities/number.utilities.js";
 
+// Validation
+import { homeStatisticsSchema } from "../validators/transaction-validators.js";
+
 // Schema
 import TransactionSchema from "../schemas/transaction-schema.js";
 import TransactionTypesSchema from "../schemas/transaction-types-schema.js";
 
 async function getHomeStatistics(req, res) {
 	try {
+		await homeStatisticsSchema.validateAsync(req.query);
+
 		let end = new Date(req.query.end);
 		let start = new Date(req.query.start);
 
@@ -22,6 +27,17 @@ async function getHomeStatistics(req, res) {
 
 		let prevEnd = new Date(EODTimestamp);
 		let prevStart = new Date(SODTimestamp);
+
+		const getBoundaries = (start) => {
+			let arr = [];
+			for (let i = 6; i >= -1; i--) {
+				let timestamp = new Date(start).setUTCDate(start.getUTCDate() - i);
+				arr.push(new Date(timestamp));
+			}
+			return arr;
+		};
+
+		const boundaries = getBoundaries(start);
 
 		const otherStages = [
 			{
@@ -56,6 +72,8 @@ async function getHomeStatistics(req, res) {
 			},
 		];
 
+		const transactionTypes = await TransactionTypesSchema.find({});
+
 		let data = await TransactionSchema.aggregate([
 			{
 				$facet: {
@@ -88,6 +106,28 @@ async function getHomeStatistics(req, res) {
 							},
 						},
 						...otherStages,
+					],
+					expenseChart: [
+						{
+							$match: {
+								user: mongoose.Types.ObjectId(req.headers.userId),
+								type: mongoose.Types.ObjectId(
+									transactionTypes.find((el) => el.type === "expense")._id
+								),
+								deletedAt: { $exists: 0 },
+								correctedAt: { $exists: 0 },
+								correctedBy: { $exists: 0 },
+							},
+						},
+						// Test this
+						{
+							$bucket: {
+								groupBy: "$date",
+								boundaries: boundaries,
+								default: "other",
+								output: {},
+							},
+						},
 					],
 					transactions: [
 						{
@@ -193,8 +233,6 @@ async function getHomeStatistics(req, res) {
 
 		data = data[0];
 
-		const transactionTypes = await TransactionTypesSchema.find({});
-
 		const format = (arr) => {
 			let obj = {};
 			if (arr.length === 0) {
@@ -242,5 +280,13 @@ async function getHomeStatistics(req, res) {
 		res.status(400).send(err);
 	}
 }
+
+async function addExpenseTransaction(req, res) {
+  try {
+    
+  } catch(err) {
+
+  }
+} 
 
 export { getHomeStatistics };

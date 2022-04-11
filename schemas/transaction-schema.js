@@ -10,6 +10,7 @@ const transactionSchema = new mongoose.Schema({
 		required: true,
 		default: Date.now,
 	},
+	// Amounts
 	amount: {
 		required: true,
 		type: mongoose.Decimal128,
@@ -18,10 +19,7 @@ const transactionSchema = new mongoose.Schema({
 		required: true,
 		type: mongoose.Decimal128,
 	},
-	description: {
-		type: String,
-		required: true,
-	},
+	// Categorization
 	journals: {
 		required: true,
 		ref: "journals",
@@ -35,18 +33,9 @@ const transactionSchema = new mongoose.Schema({
 	type: {
 		required: true,
 		type: "ObjectId",
-		ref: "transactionTypes",
+		ref: "transaction-types",
 	},
-	source: {
-		ref: "sources",
-		required: true,
-		type: "ObjectId",
-	},
-	portfolio: {
-		required: true,
-		type: "ObjectId",
-		ref: "portfolios",
-	},
+	// Currency
 	currency: {
 		required: true,
 		type: "ObjectId",
@@ -56,6 +45,44 @@ const transactionSchema = new mongoose.Schema({
 		required: true,
 		type: mongoose.Decimal128,
 	},
+	// Desc - Earing & Expense
+	description: {
+		type: String,
+	},
+	// Categorization - Earning & Expense
+	portfolio: {
+		type: "ObjectId",
+		ref: "portfolios",
+	},
+	// Categorization - Earning
+	source: {
+		ref: "sources",
+		type: "ObjectId",
+	},
+	// Categorization - Expense
+	category: {
+		ref: "categories",
+		type: "ObjectId",
+	},
+	// Categorization - Transfer
+	from: {
+		ref: "portfolios",
+		type: "ObjectId",
+	},
+	to: {
+		ref: "portfolios",
+		type: "ObjectId",
+	},
+	// Location - Expense
+	location: {
+		longitude: {
+			type: String,
+		},
+		latitude: {
+			type: String,
+		},
+	},
+	// Other
 	correctedBy: {
 		type: "ObjectId",
 		ref: "transactions",
