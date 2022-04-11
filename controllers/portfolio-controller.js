@@ -2,18 +2,21 @@ import mongoose from "mongoose";
 
 // Validation
 import {
-	typeSchema,
+	objectIdSchema,
 	virtualWalletSchema,
 	walletSchema,
 } from "../validators/portfolio-validators.js";
 
+// Aggregations
+import { getPortfoliosAggregation } from "../aggregations/portfolio-aggregations.js";
+
 // Schema
-import PortfolioTypesSchema from "../schemas/portfolio-types-schema.js";
 import PortfolioSchema from "../schemas/portfolio-schema.js";
+import PortfolioTypesSchema from "../schemas/portfolio-types-schema.js";
 
 async function createPortfolio(req, res) {
 	try {
-		await typeSchema.validateAsync(req.body.type);
+		await objectIdSchema.validateAsync(req.body.type);
 		let portfolioType = await PortfolioTypesSchema.findById(req.body.type);
 		if (portfolioType === null) throw new Error("Invalid portfolio type");
 
@@ -44,77 +47,9 @@ async function createPortfolio(req, res) {
 
 async function getPortfolios(req, res) {
 	try {
-		const portfolios = await PortfolioSchema.aggregate([
-			{
-				$match: {
-					user: mongoose.Types.ObjectId(req.headers.userId),
-					deletedAt: { $exists: false },
-				},
-			},
-			{
-				$project: {
-					user: 0,
-					__v: 0,
-				},
-			},
-			{
-				$lookup: {
-					from: "portfolio-types",
-					localField: "type",
-					foreignField: "_id",
-					as: "type",
-				},
-			},
-			{
-				$set: {
-					type: { $arrayElemAt: ["$type", 0] },
-				},
-			},
-			{
-				$set: {
-					type: "$type.type",
-				},
-			},
-			{
-				$unwind: {
-					path: "$amounts",
-					preserveNullAndEmptyArrays: true,
-				},
-			},
-			{
-				$lookup: {
-					from: "currencies",
-					foreignField: "_id",
-					as: "amounts.currency",
-					localField: "amounts.currency",
-				},
-			},
-			{
-				$set: {
-					"amounts.currency": { $arrayElemAt: ["$amounts.currency", 0] },
-					"amounts.amount": { $ifNull: [{ $toDouble: "$amounts.amount" }, 0] },
-				},
-			},
-			{
-				$group: {
-					_id: "$_id",
-					root: {
-						$first: "$$ROOT",
-					},
-					amounts: {
-						$push: "$amounts",
-					},
-				},
-			},
-			{
-				$set: {
-					"root.amounts": "$amounts",
-				},
-			},
-			{
-				$replaceRoot: { newRoot: "$root" },
-			},
-		]);
+		const portfolios = await PortfolioSchema.aggregate(
+			getPortfoliosAggregation(req.headers.userId)
+		);
 
 		for (let portfolio of portfolios) {
 			portfolio.amounts = portfolio.amounts.filter(
@@ -129,4 +64,28 @@ async function getPortfolios(req, res) {
 	}
 }
 
-export { createPortfolio, getPortfolios };
+async function getPortfolioById(req, res) {
+	try {
+		await objectIdSchema.validateAsync(req.query.id);
+
+		const result = await PortfolioSchema.aggregate(
+			getPortfoliosAggregation(req.headers.userId, req.query.id)
+		);
+
+		let portfolio = result[0];
+
+		if (portfolio === undefined)
+			throw new Error("Portfolio with this id does not exits");
+
+		portfolio.amounts = portfolio.amounts.filter(
+			(amount) => amount.currency !== undefined
+		);
+
+		res.status(200).send(portfolio);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send(err);
+	}
+}
+
+export { createPortfolio, getPortfolios, getPortfolioById };

@@ -3,7 +3,7 @@ import Joi from "joi";
 const cardNumberRegex = /([0-9]){16}/;
 const maxDescriptionLength = 100;
 
-const typeSchema = Joi.string().hex().length(24).required();
+const objectIdSchema = Joi.string().hex().length(24).required();
 
 const walletSchema = Joi.object({
 	type: Joi.string().hex().length(24).required(),
@@ -20,4 +20,4 @@ const virtualWalletSchema = Joi.object({
 	cardNumber: Joi.string().length(16).pattern(cardNumberRegex),
 }).concat(walletSchema);
 
-export { typeSchema, walletSchema, virtualWalletSchema };
+export { objectIdSchema, walletSchema, virtualWalletSchema };
