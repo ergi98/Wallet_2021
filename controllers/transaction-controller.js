@@ -236,7 +236,7 @@ async function getHomeStatistics(req, res) {
 		data.previous = format(data.previous);
 		calculatePercentChange(data.today, data.previous);
 
-		res.status(200).send({ data });
+		res.status(200).send(data);
 	} catch (err) {
 		console.error(err);
 		res.status(400).send(err);
