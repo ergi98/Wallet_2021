@@ -1,6 +1,9 @@
 // Mongoose
 import mongoose from "mongoose";
 
+// Utilities
+import { exactDiff } from "../utilities/number.utilities.js";
+
 // Schema
 import TransactionSchema from "../schemas/transaction-schema.js";
 
@@ -52,7 +55,7 @@ async function getHomeStatistics(req, res) {
 			},
 		];
 
-		const data = await TransactionSchema.aggregate([
+		let data = await TransactionSchema.aggregate([
 			{
 				$facet: {
 					previous: [
@@ -186,6 +189,51 @@ async function getHomeStatistics(req, res) {
 				},
 			},
 		]);
+
+		data = data[0];
+
+		const format = (arr) => {
+			let obj = {};
+			const transactionTypes = ["earning", "expense", "transfer"];
+			if (arr.length === 0) {
+				for (let type of transactionTypes) {
+					obj[type] = {
+						amount: 0,
+					};
+				}
+				return obj;
+			} else {
+				for (let element of arr) {
+					obj[element.type] = {
+						amount: element.amount,
+					};
+				}
+				for (let type of transactionTypes) {
+					if (obj[type] === undefined) {
+						obj[type] = {
+							amount: 0,
+						};
+					}
+				}
+				return obj;
+			}
+		};
+
+		const calculatePercentChange = (today, previous) => {
+			const transactionTypes = ["earning", "expense", "transfer"];
+			for (let type of transactionTypes) {
+				let previousVal = previous[type]["amount"];
+				let todayVal = today[type]["amount"];
+				today[type]["percent"] =
+					previousVal === 0
+						? 0
+						: (exactDiff(todayVal, previousVal) / previousVal) * 100;
+			}
+		};
+
+		data.today = format(data.today);
+		data.previous = format(data.previous);
+		calculatePercentChange(data.today, data.previous);
 
 		res.status(200).send({ data });
 	} catch (err) {
