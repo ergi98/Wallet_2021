@@ -34,7 +34,6 @@ import ToggleVisibility from "../../general/ToggleVisibility";
 import useAuth from "../../../hooks/useAuth";
 import useTryCatch from "../../../hooks/useTryCatch";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
-import useError from "../../../hooks/useError";
 
 interface LogInData {
 	username: string;
@@ -46,7 +45,6 @@ function LoginForm() {
 	const tryCatch = useTryCatch();
 	const axios = useAxiosPrivate();
 	const { setAuthState } = useAuth();
-	const { handleError } = useError();
 
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -71,7 +69,6 @@ function LoginForm() {
 				});
 			navigate("/home/expenses", { replace: true });
 		}
-		if (error) handleError && handleError(error);
 	}
 
 	return (
