@@ -49,7 +49,7 @@ interface ActiveElement {
 }
 
 function MobilePortfolios() {
-	const [swiperInstance, setSwiperInstance] = useState<any>();
+	const [, setSwiperInstance] = useState<any>();
 	const [activeElement, setActiveElement] = useState<ActiveElement>({
 		id: "6023423j4kl32j4kl32j4",
 		index: 0,
@@ -81,7 +81,7 @@ function MobilePortfolios() {
 					<Button
 						sx={{ color: "inherit", borderColor: "inherit !important" }}
 						endIcon={<RiAddFill className=" scale-75" />}
-            className="border-neutral-50"
+						className="border-neutral-50"
 						variant="outlined"
 						size="small"
 					>

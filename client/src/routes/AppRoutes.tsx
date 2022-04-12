@@ -9,7 +9,9 @@ import { AnimatePresence } from "framer-motion";
 // Utilities
 import { isMobile } from "../utilities/mobile-utilities";
 
-// Auth
+// Hooks
+import useAuth from "../hooks/useAuth";
+import useRefreshToken from "../hooks/useRefreshToken";
 
 // General
 import PublicRoute from "./PublicRoute";
@@ -54,8 +56,6 @@ import MobileHomeEarnings from "../views/mobile/home/MobileHomeEarnings";
 import MobileSettings from "../views/mobile/settings/MobileSettings";
 
 import MobilePortfolios from "../views/mobile/portfolios/MobilePortfolios";
-import useAuth from "../hooks/useAuth";
-import useRefreshToken from "../hooks/useRefreshToken";
 
 const desktopRoutes = [
 	{
@@ -164,14 +164,14 @@ const appRoutes = isMobile ? mobileRoutes : desktopRoutes;
 function AppRoutes() {
 	const location = useLocation();
 
-	const { isAuthenticated, token, setAuthState } = useAuth();
+	const { isAuthenticated, token } = useAuth();
 	const refreshToken = useRefreshToken();
 
 	const [checkingToken, setCheckingToken] = useState<boolean>(true);
 
 	const showMobileNavigation = useMemo(
 		() => isAuthenticated && isMobile,
-		[isAuthenticated, isMobile]
+		[isAuthenticated]
 	);
 
 	useEffect(() => {
