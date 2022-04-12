@@ -169,10 +169,43 @@ async function editPortfolio(req, res) {
 	}
 }
 
+async function restorePortfolio(req, res) {
+	try {
+		await objectIdSchema.validateAsync(req.body.id);
+
+		const foundPortfolio = await PortfolioSchema.findById(req.body.id);
+
+		// Checking if portfolio exists and is not deleted
+		if (foundPortfolio === null)
+			throw new Error("Portfolio with this id does not exits");
+		else if (foundPortfolio.deletedAt === undefined)
+			throw new Error("Can not restore a portfolio that is not deleted");
+
+		const restoredPortfolio = await PortfolioSchema.findByIdAndUpdate(
+			foundPortfolio._doc._id,
+			{
+				$set: {
+					updatedAt: new Date(),
+				},
+				$unset: {
+					deletedAt: "",
+				},
+			},
+			{ returnDocument: "after" }
+		);
+
+		res.status(200).send(restoredPortfolio);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send(err);
+	}
+}
+
 export {
-	createPortfolio,
 	getPortfolios,
-	getPortfolioById,
-	deletePortfolio,
 	editPortfolio,
+	createPortfolio,
+	deletePortfolio,
+	getPortfolioById,
+	restorePortfolio,
 };
