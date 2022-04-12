@@ -180,7 +180,6 @@ async function refreshToken(req, res) {
 		if (user === null || user?.refresh !== req.cookies.refresh)
 			throw new Error("Invalid token");
 
-		console.log(user);
 		// Generating a new token
 		const newToken = await generateToken(decodedToken.payload);
 		res.status(200).send({ token: newToken });

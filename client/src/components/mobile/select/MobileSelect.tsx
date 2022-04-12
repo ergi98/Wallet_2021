@@ -69,7 +69,6 @@ function MobileSelect(props: PropsInterface) {
 	const clearSelections = () => setSelectedOptions([]);
 
 	function confirmSelections() {
-		console.log(selectedOptions);
 		props.onChange(props.multiple ? selectedOptions : selectedOptions[0]);
 	}
 
