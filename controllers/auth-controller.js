@@ -64,7 +64,7 @@ async function validateUsername(req, res) {
 		let count = await UserSchema.count({
 			username: req.query.username,
 		});
-		if (count > 0) throw new Error("Username is taken 😔");
+		if (count !== 0) throw new Error("Username is taken 😔");
 		res.status(200).send();
 	} catch (err) {
 		res.status(400).send({
@@ -85,14 +85,17 @@ async function logIn(req, res) {
 			username: req.body.username,
 		});
 
-		let isPwdCorrect = user
-			? await bcrypt.compare(req.body.password, user._doc.password)
-			: false;
+		if (user === null) throw new Error("Invalid username or password");
 
-		if (user === null || isPwdCorrect === false)
-			throw new Error("Invalid username or password");
+		let isPwdCorrect = await bcrypt.compare(
+			req.body.password,
+			user._doc.password
+		);
+
+		if (isPwdCorrect === false) throw new Error("Invalid username or password");
+
 		// Revert the delete flag
-		else if (user.deletedAt !== null) {
+		if (user.deletedAt !== undefined) {
 			await UserSchema.findByIdAndUpdate(user._doc._id, {
 				$unset: {
 					deletedAt: "",
@@ -116,6 +119,7 @@ async function logIn(req, res) {
 			// 1 day
 			maxAge: 24 * 60 * 60 * 1000,
 		});
+    
 		res.status(200).send({ token });
 	} catch (err) {
 		res.status(400).send({
@@ -153,7 +157,7 @@ async function refreshToken(req, res) {
 		if (user === null || user?.refresh !== req.cookies.refresh)
 			throw new Error("Invalid token");
 
-    console.log(user)
+		console.log(user);
 		// Generating a new token
 		const newToken = await generateToken(decodedToken.payload);
 		res.status(200).send({ token: newToken });
