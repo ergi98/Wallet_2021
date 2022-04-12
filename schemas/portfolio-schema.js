@@ -49,6 +49,20 @@ const portfolioSchema = new mongoose.Schema({
 		type: Date,
 		required: false,
 	},
+	// Virtual Wallet
+	cvc: {
+		type: String,
+	},
+	validity: {
+		type: Date,
+	},
+	bank: {
+		type: "ObjectId",
+		ref: "banks",
+	},
+	cardNumber: {
+		type: String,
+	},
 });
 
 export default mongoose.model("portfolios", portfolioSchema);

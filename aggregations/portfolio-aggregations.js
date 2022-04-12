@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const getPortfoliosAggregation = (userId, portfolioId) => {
 	let match = {
 		user: mongoose.Types.ObjectId(userId),
-		deletedAt: { $exists: false },
 	};
 
 	if (portfolioId) match["_id"] = mongoose.Types.ObjectId(portfolioId);

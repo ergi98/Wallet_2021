@@ -6,6 +6,7 @@ import {
 	createPortfolio,
 	deletePortfolio,
 	getPortfolioById,
+	editPortfolio,
 } from "../controllers/portfolio-controller.js";
 
 const router = express.Router();
@@ -15,6 +16,7 @@ router.route("/get-all").get(getPortfolios);
 router.route("/get-by-id").get(getPortfolioById);
 
 // POST
+router.route("/edit").post(editPortfolio);
 router.route("/create").post(createPortfolio);
 
 // DELETE

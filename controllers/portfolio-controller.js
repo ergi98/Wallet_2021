@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 
 // Validation
 import {
+	editVirtualWalletSchema,
+	editWalletSchema,
 	objectIdSchema,
 	virtualWalletSchema,
 	walletSchema,
@@ -29,9 +31,9 @@ async function createPortfolio(req, res) {
 		req.body.user = mongoose.Types.ObjectId(req.headers.userId);
 		req.body.type = mongoose.Types.ObjectId(req.body.type);
 
+		// Checks deleted and active portfolios
 		const portfolioCount = await PortfolioSchema.count({
 			description: req.body.description,
-			deletedAt: { $exists: 0 },
 		});
 
 		if (portfolioCount !== 0)
@@ -39,13 +41,14 @@ async function createPortfolio(req, res) {
 
 		const portfolio = await PortfolioSchema.create(req.body);
 
-		res.status(200).send({ portfolio });
+		res.status(200).send(portfolio);
 	} catch (err) {
 		console.error(err);
 		res.status(400).send(err);
 	}
 }
 
+// Retrieves deleted and active portfolios
 async function getPortfolios(req, res) {
 	try {
 		const portfolios = await PortfolioSchema.aggregate(
@@ -65,6 +68,7 @@ async function getPortfolios(req, res) {
 	}
 }
 
+// Retrieves deleted and active portfolio
 async function getPortfolioById(req, res) {
 	try {
 		await objectIdSchema.validateAsync(req.query.id);
@@ -95,8 +99,10 @@ async function deletePortfolio(req, res) {
 
 		const portfolio = await PortfolioSchema.findById(req.query.id);
 
-		if (portfolio === null || portfolio.deletedAt !== undefined)
+		if (portfolio === null)
 			throw new Error("Portfolio with this id does not exits");
+		else if (portfolio.deletedAt !== undefined)
+			throw new Error("Portfolio with this id is already deleted");
 		else if (portfolio.amounts.length !== 0)
 			throw new Error("Portfolio cannot be deleted if it is not empty");
 
@@ -107,7 +113,8 @@ async function deletePortfolio(req, res) {
 					deletedAt: new Date(),
 					updatedAt: new Date(),
 				},
-			}
+			},
+			{ returnDocument: "after" }
 		);
 
 		res.status(200).send(deletedPortfolio);
@@ -117,4 +124,55 @@ async function deletePortfolio(req, res) {
 	}
 }
 
-export { createPortfolio, getPortfolios, getPortfolioById, deletePortfolio };
+async function editPortfolio(req, res) {
+	try {
+		await objectIdSchema.validateAsync(req.body.id);
+
+		const foundPortfolio = await PortfolioSchema.findById(req.body.id);
+
+		// Checking if portfolio exists and is not deleted
+		if (foundPortfolio === null)
+			throw new Error("Portfolio with this id does not exits");
+		else if (foundPortfolio.deletedAt !== undefined)
+			throw new Error("Can not edit a deleted portfolio");
+
+		let portfolioType = await PortfolioTypesSchema.findById(
+			foundPortfolio._doc.type
+		);
+
+		if (portfolioType === null)
+			throw new Error("This portfolio does not have a valid type.");
+
+		let { type } = portfolioType;
+
+		type === "wallet"
+			? await editWalletSchema.validateAsync(req.body)
+			: await editVirtualWalletSchema.validateAsync(req.body);
+
+		let { id, ...fieldsToEdit } = req.body;
+
+		const editedPortfolio = await PortfolioSchema.findByIdAndUpdate(
+			foundPortfolio._doc._id,
+			{
+				$set: {
+					...fieldsToEdit,
+					updatedAt: new Date(),
+				},
+			},
+			{ returnDocument: "after" }
+		);
+
+		res.status(200).send(editedPortfolio);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send(err);
+	}
+}
+
+export {
+	createPortfolio,
+	getPortfolios,
+	getPortfolioById,
+	deletePortfolio,
+	editPortfolio,
+};
