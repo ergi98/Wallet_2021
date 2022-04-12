@@ -30,15 +30,14 @@ const signUpSchema = Joi.object({
 	personal: Joi.object({
 		name: Joi.string().max(nameMaxLength).required(),
 		surname: Joi.string().max(nameMaxLength).required(),
-		gender: Joi.string().valid("M", "F", "TG", "NB/C").optional(),
+		gender: Joi.string().valid("M", "F", "TG", "NB/C").allow(""),
 		birthday: Joi.date()
 			.less("now")
 			.greater(new Date(1900, 0).toISOString())
-			.optional(),
-		employer: Joi.string().max(nameMaxLength).optional(),
-		profession: Joi.string().max(nameMaxLength).optional(),
+			.allow(""),
+		employer: Joi.string().max(nameMaxLength).allow(""),
+		profession: Joi.string().max(nameMaxLength).allow(""),
 	}),
-	defaultCurrency: Joi.string().hex().length(24).required(),
 }).concat(loginSchema);
 
 const usernameSchema = Joi.string()

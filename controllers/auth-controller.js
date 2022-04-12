@@ -10,6 +10,7 @@ import {
 
 // Schema
 import UserSchema from "../schemas/user-schema.js";
+import CurrencySchema from "../schemas/currency-schema.js";
 
 // Utilities
 import {
@@ -29,12 +30,22 @@ async function signUp(req, res) {
 			username: userData.username,
 		});
 
-		if (count > 0) throw new Error("Username is taken 😔");
+		if (count !== 0) throw new Error("Username is taken 😔");
 
 		userData.password = await hashPassword(userData.password);
 		userData.lastLogIn = new Date().toISOString();
 
-		const user = await UserSchema.create(userData);
+		const currency = await CurrencySchema.findOne({
+			acronym: "ALL",
+		});
+
+		if (currency === null)
+			throw new Error("Internal error: Could not set default currency");
+
+		const user = await UserSchema.create({
+			...userData,
+			defaultCurrency: currency._doc._id,
+		});
 
 		// Tokens
 		let token = await generateToken({ userId: user._doc._id });
@@ -46,7 +57,13 @@ async function signUp(req, res) {
 			},
 		});
 
-		res.status(200).send({ token, refresh });
+		res.cookie("refresh", refresh, {
+			httpOnly: true,
+			// 1 day
+			maxAge: 24 * 60 * 60 * 1000,
+		});
+
+		res.status(200).send({ token });
 	} catch (err) {
 		res.status(400).send({
 			message:
@@ -119,7 +136,7 @@ async function logIn(req, res) {
 			// 1 day
 			maxAge: 24 * 60 * 60 * 1000,
 		});
-    
+
 		res.status(200).send({ token });
 	} catch (err) {
 		res.status(400).send({

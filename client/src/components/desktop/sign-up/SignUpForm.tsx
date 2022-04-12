@@ -5,12 +5,32 @@ import { Formik } from "formik";
 import { signUpSchema } from "../../../validators/credentials";
 
 // Navigation
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 // Custom Hooks
+import useAuth from "../../../hooks/useAuth";
+import useTryCatch from "../../../hooks/useTryCatch";
 import useLocalContext from "../../../hooks/useLocalContext";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+
+interface FormikValues {
+	birthday: string;
+	employer: string;
+	gender: string;
+	name: string;
+	password: string;
+	profession: string;
+	surname: string;
+	username: string;
+}
 
 function SignUpForm() {
+	const navigate = useNavigate();
+	const tryCatch = useTryCatch();
+	const axios = useAxiosPrivate();
+
+	const { setAuthState } = useAuth();
+
 	const [localContext] = useLocalContext("register-context", {
 		// Step 1
 		name: "",
@@ -25,19 +45,29 @@ function SignUpForm() {
 		password: "",
 	});
 
-	async function handleUserSignUp(values: Object, setSubmitting: Function) {
-		// TODO: User sign up
-		try {
-			console.log("submitting");
-			let dummyPromise = new Promise((resolve, reject) => {
-				setTimeout(() => {
-					reject("Smth happened");
-				}, 1000);
-			});
-			await dummyPromise;
-		} catch (err) {
-			setSubmitting(false);
-			// TODO: Display error if something goes wrong
+	async function handleUserSignUp(
+		values: FormikValues,
+		setSubmitting: Function
+	) {
+		setSubmitting(true);
+		let { username, password, ...personal } = values;
+		let { data } = await tryCatch(
+			axios.post("/auth/sign-up", {
+				username,
+				password,
+				personal,
+			})
+		);
+		setSubmitting(false);
+
+		if (data) {
+			setAuthState &&
+				setAuthState({
+					token: data.data.token,
+					isAuthenticated: true,
+				});
+			localStorage.removeItem("register-context");
+			navigate("/home/expenses", { replace: true });
 		}
 	}
 
