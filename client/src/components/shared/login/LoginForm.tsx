@@ -59,7 +59,7 @@ function LoginForm() {
 
 	async function handleUserLogin(values: LogInData, setSubmitting: Function) {
 		setSubmitting(true);
-		let { data, error } = await tryCatch(axios.post("/auth/log-in", values));
+		let { data } = await tryCatch(axios.post("/auth/log-in", values));
 		setSubmitting(false);
 		if (data) {
 			setAuthState &&
