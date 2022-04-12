@@ -71,7 +71,6 @@ async function signUp(req, res) {
 				err.details?.message ||
 				err.message ||
 				"An error occurred. Please try again.",
-			err: err,
 		});
 	}
 }
@@ -91,7 +90,6 @@ async function validateUsername(req, res) {
 				err.details?.message ||
 				err.message ||
 				"An error occurred. Please try again.",
-			err: err,
 		});
 	}
 }

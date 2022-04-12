@@ -34,7 +34,7 @@ const signUpSchema = Joi.object({
 		birthday: Joi.date()
 			.less("now")
 			.greater(new Date(1900, 0).toISOString())
-			.allow(""),
+			.allow("", null),
 		employer: Joi.string().max(nameMaxLength).allow(""),
 		profession: Joi.string().max(nameMaxLength).allow(""),
 	}),
