@@ -1,4 +1,4 @@
-import { Suspense, useMemo } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 
 // Router
 import { Route, Routes, useLocation } from "react-router-dom";
@@ -55,6 +55,7 @@ import MobileSettings from "../views/mobile/settings/MobileSettings";
 
 import MobilePortfolios from "../views/mobile/portfolios/MobilePortfolios";
 import useAuth from "../hooks/useAuth";
+import useRefreshToken from "../hooks/useRefreshToken";
 
 const desktopRoutes = [
 	{
@@ -163,17 +164,28 @@ const appRoutes = isMobile ? mobileRoutes : desktopRoutes;
 function AppRoutes() {
 	const location = useLocation();
 
-	const { isAuthenticated } = useAuth();
+	const { isAuthenticated, token, setAuthState } = useAuth();
+	const refreshToken = useRefreshToken();
+
+	const [checkingToken, setCheckingToken] = useState<boolean>(true);
 
 	const showMobileNavigation = useMemo(
 		() => isAuthenticated && isMobile,
 		[isAuthenticated, isMobile]
 	);
 
+	useEffect(() => {
+		async function fetchToken() {
+			await refreshToken();
+			setCheckingToken(false);
+		}
+		!token ? fetchToken() : setCheckingToken(false);
+	}, []);
+
 	return (
 		<>
 			{/* Condition to check wether the initial setup has finished */}
-			{true ? (
+			{checkingToken === false ? (
 				<Suspense fallback={<PageLoading />}>
 					<AnimatePresence exitBeforeEnter>
 						<Routes key={location.pathname} location={location}>

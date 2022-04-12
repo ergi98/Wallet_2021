@@ -68,6 +68,7 @@ function App() {
 			window.addEventListener("resize", setGlobalVh);
 			window.addEventListener("orientationchange", setGlobalVh);
 		}
+
 		setGlobalVh();
 		return () => {
 			window.removeEventListener("resize", setGlobalVh);

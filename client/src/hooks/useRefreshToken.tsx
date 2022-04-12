@@ -17,6 +17,7 @@ const useRefreshToken = () => {
 				setAuthState((prev) => {
 					return {
 						...prev,
+						isAuthenticated: true,
 						token: data.data.token,
 					};
 				});
