@@ -4,8 +4,8 @@ import bcrypt from "bcrypt";
 // Validation
 import {
 	loginSchema,
-	usernameSchema,
 	signUpSchema,
+	usernameSchema,
 } from "../validators/auth-validators.js";
 
 // Schema
