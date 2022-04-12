@@ -65,6 +65,7 @@ async function signUp(req, res) {
 
 		res.status(200).send({ token });
 	} catch (err) {
+		console.error(err);
 		res.status(400).send({
 			message:
 				err.details?.message ||
@@ -84,6 +85,7 @@ async function validateUsername(req, res) {
 		if (count !== 0) throw new Error("Username is taken 😔");
 		res.status(200).send();
 	} catch (err) {
+		console.error(err);
 		res.status(400).send({
 			message:
 				err.details?.message ||
@@ -139,12 +141,12 @@ async function logIn(req, res) {
 
 		res.status(200).send({ token });
 	} catch (err) {
+		console.error(err);
 		res.status(400).send({
 			message:
 				err.details?.message ||
 				err.message ||
 				"An error occurred. Please try again.",
-			err: err,
 		});
 	}
 }
@@ -161,7 +163,13 @@ async function logOut(req, res) {
 		});
 		res.status(200).send();
 	} catch (err) {
-		res.status(400).send(err);
+		console.error(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
 	}
 }
 
@@ -179,7 +187,13 @@ async function refreshToken(req, res) {
 		const newToken = await generateToken(decodedToken.payload);
 		res.status(200).send({ token: newToken });
 	} catch (err) {
-		res.status(400).send(err);
+		console.error(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
 	}
 }
 

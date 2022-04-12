@@ -26,6 +26,8 @@ import "swiper/css";
 
 // Context
 import { AuthProvider } from "./context/AuthProvider";
+import { ErrorProvider } from "./context/ErrorProvider";
+import ErrorDisplay from "./components/general/ErrorDisplay";
 
 declare module "@mui/material/styles" {
 	interface BreakpointOverrides {
@@ -76,24 +78,27 @@ function App() {
 	return (
 		<React.StrictMode>
 			<AuthProvider>
-				<LocalizationProvider dateAdapter={DateAdapter}>
-					<CssBaseline>
-						<Container
-							disableGutters
-							maxWidth={false}
-							className="z-10 h-full overflow-x-hidden overflow-y-auto relative px-env pt-env"
-						>
-							<ThemeProvider theme={theme}>
-								<BrowserRouter>
-									<AppRoutes />
-								</BrowserRouter>
-							</ThemeProvider>
-						</Container>
-						<TopRightBlob className="top-0 right-0 absolute rotate-50 select-none translate-x-1/2 -translate-y-1/2 opacity-50" />
-						<MiddleLeftBlob className="left-0 top-1/4 absolute select-none -translate-y-1/5 -translate-x-1/3 opacity-50" />
-						<BottomRightBlob className="right-0 bottom-0 absolute select-none translate-y-1/2 translate-x-1/2 opacity-50" />
-					</CssBaseline>
-				</LocalizationProvider>
+				<ErrorProvider>
+					<LocalizationProvider dateAdapter={DateAdapter}>
+						<CssBaseline>
+							<Container
+								disableGutters
+								maxWidth={false}
+								className="z-10 h-full overflow-x-hidden overflow-y-auto relative px-env pt-env"
+							>
+								<ThemeProvider theme={theme}>
+									<BrowserRouter>
+										<AppRoutes />
+                    <ErrorDisplay />
+									</BrowserRouter>
+								</ThemeProvider>
+							</Container>
+							<TopRightBlob className="top-0 right-0 absolute rotate-50 select-none translate-x-1/2 -translate-y-1/2 opacity-50" />
+							<MiddleLeftBlob className="left-0 top-1/4 absolute select-none -translate-y-1/5 -translate-x-1/3 opacity-50" />
+							<BottomRightBlob className="right-0 bottom-0 absolute select-none translate-y-1/2 translate-x-1/2 opacity-50" />
+						</CssBaseline>
+					</LocalizationProvider>
+				</ErrorProvider>
 			</AuthProvider>
 		</React.StrictMode>
 	);

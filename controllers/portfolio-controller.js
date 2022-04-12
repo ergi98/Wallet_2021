@@ -64,7 +64,12 @@ async function getPortfolios(req, res) {
 		res.status(200).send(portfolios);
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
 	}
 }
 
@@ -89,7 +94,12 @@ async function getPortfolioById(req, res) {
 		res.status(200).send(portfolio);
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
 	}
 }
 
@@ -120,7 +130,12 @@ async function deletePortfolio(req, res) {
 		res.status(200).send(deletedPortfolio);
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
 	}
 }
 
@@ -165,7 +180,12 @@ async function editPortfolio(req, res) {
 		res.status(200).send(editedPortfolio);
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
 	}
 }
 
@@ -197,7 +217,12 @@ async function restorePortfolio(req, res) {
 		res.status(200).send(restoredPortfolio);
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
 	}
 }
 

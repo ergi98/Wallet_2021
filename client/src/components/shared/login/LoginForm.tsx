@@ -34,6 +34,7 @@ import ToggleVisibility from "../../general/ToggleVisibility";
 import useAuth from "../../../hooks/useAuth";
 import useTryCatch from "../../../hooks/useTryCatch";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import useError from "../../../hooks/useError";
 
 interface LogInData {
 	username: string;
@@ -45,6 +46,8 @@ function LoginForm() {
 	const tryCatch = useTryCatch();
 	const axios = useAxiosPrivate();
 	const { setAuthState } = useAuth();
+	const { handleError } = useError();
+
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 
 	const navigateToSignUp = () => navigate("/sign-up/introduction");
@@ -58,7 +61,7 @@ function LoginForm() {
 
 	async function handleUserLogin(values: LogInData, setSubmitting: Function) {
 		setSubmitting(true);
-		let { data } = await tryCatch(axios.post("/auth/log-in", values));
+		let { data, error } = await tryCatch(axios.post("/auth/log-in", values));
 		setSubmitting(false);
 		if (data) {
 			setAuthState &&
@@ -68,6 +71,7 @@ function LoginForm() {
 				});
 			navigate("/home/expenses", { replace: true });
 		}
+		if (error) handleError && handleError(error);
 	}
 
 	return (
