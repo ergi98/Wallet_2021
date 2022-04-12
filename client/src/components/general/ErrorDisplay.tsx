@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 
 // MUI
 import { Alert, Slide, Snackbar, SnackbarCloseReason } from "@mui/material";
+
+// Hooks
 import useError from "../../hooks/useError";
 
 interface Message {
@@ -32,6 +34,7 @@ function ErrorDisplay() {
 			open={message.show}
 			onClose={clearError}
 			autoHideDuration={2500}
+			style={{ display: message.show ? "block" : "none" }}
 			anchorOrigin={{ vertical: "top", horizontal: "center" }}
 			TransitionComponent={(props) => <Slide {...props} direction="down" />}
 		>
