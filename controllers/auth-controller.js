@@ -18,22 +18,21 @@ import {
 	verifyRefreshToken,
 	generateRefreshToken,
 } from "../utilities/token-utilities.js";
+import mongoose from "mongoose";
 
 const hashPassword = async (password) => await bcrypt.hash(password, 10);
 
 async function signUp(req, res) {
 	try {
-		let userData = req.body;
-		await signUpSchema.validateAsync(userData);
+		await signUpSchema.validateAsync(req.body);
 
-		let count = await UserSchema.count({
-			username: userData.username,
+		const count = await UserSchema.count({
+			username: req.body.username,
 		});
 
 		if (count !== 0) throw new Error("Username is taken 😔");
 
-		userData.password = await hashPassword(userData.password);
-		userData.lastLogIn = new Date().toISOString();
+		req.body.password = await hashPassword(req.body.password);
 
 		const currency = await CurrencySchema.findOne({
 			acronym: "ALL",
@@ -43,13 +42,14 @@ async function signUp(req, res) {
 			throw new Error("Internal error: Could not set default currency");
 
 		const user = await UserSchema.create({
-			...userData,
+			...req.body,
+			lastLogIn: new Date(),
 			defaultCurrency: currency._doc._id,
 		});
 
 		// Tokens
-		let token = await generateToken({ userId: user._doc._id });
-		let refresh = await generateRefreshToken({ userId: user._doc._id });
+		const token = await generateToken({ userId: user._doc._id });
+		const refresh = await generateRefreshToken({ userId: user._doc._id });
 
 		await UserSchema.findByIdAndUpdate(user._doc._id, {
 			$set: {
@@ -78,7 +78,7 @@ async function signUp(req, res) {
 async function validateUsername(req, res) {
 	try {
 		await usernameSchema.validateAsync(req.query.username);
-		let count = await UserSchema.count({
+		const count = await UserSchema.count({
 			username: req.query.username,
 		});
 		if (count !== 0) throw new Error("Username is taken 😔");
@@ -104,32 +104,32 @@ async function logIn(req, res) {
 
 		if (user === null) throw new Error("Invalid username or password");
 
-		let isPwdCorrect = await bcrypt.compare(
+		const isPwdCorrect = await bcrypt.compare(
 			req.body.password,
 			user._doc.password
 		);
 
 		if (isPwdCorrect === false) throw new Error("Invalid username or password");
 
+		// Tokens
+		const token = await generateToken({ userId: user._doc._id });
+		const refresh = await generateRefreshToken({ userId: user._doc._id });
+
+		const updateObject = {
+			$set: {
+				refresh: refresh,
+				lastLogIn: new Date(),
+			},
+		};
+
 		// Revert the delete flag
 		if (user.deletedAt !== undefined) {
-			await UserSchema.findByIdAndUpdate(user._doc._id, {
-				$unset: {
-					deletedAt: "",
-				},
-			});
+			updateObject["$unset"] = {
+				deletedAt: "",
+			};
 		}
 
-		// Tokens
-		let token = await generateToken({ userId: user._doc._id });
-		let refresh = await generateRefreshToken({ userId: user._doc._id });
-
-		await UserSchema.findByIdAndUpdate(user._doc._id, {
-			$set: {
-				lastLogIn: new Date(),
-				refresh: refresh,
-			},
-		});
+		await UserSchema.findByIdAndUpdate(user._doc._id, updateObject);
 
 		res.cookie("refresh", refresh, {
 			httpOnly: true,
@@ -175,13 +175,19 @@ async function refreshToken(req, res) {
 	try {
 		// Verifying if refresh token is valid
 		const decodedToken = await verifyRefreshToken(req.cookies.refresh);
+
 		// Verifying if it is the same as the one stored in DB
-		const user = await UserSchema.findById(decodedToken.payload.userId);
+		const user = await UserSchema.find({
+			user: mongoose.Types.ObjectId(decodedToken.payload.userId),
+			deletedAt: { $exists: 0 },
+		});
+
 		if (user === null || user?.refresh !== req.cookies.refresh)
 			throw new Error("Invalid token");
 
 		// Generating a new token
 		const newToken = await generateToken(decodedToken.payload);
+
 		res.status(200).send({ token: newToken });
 	} catch (err) {
 		console.error(err);
