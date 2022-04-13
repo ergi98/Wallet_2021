@@ -277,16 +277,18 @@ async function getHomeStatistics(req, res) {
 		res.status(200).send(data);
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
 	}
 }
 
 async function addExpenseTransaction(req, res) {
-  try {
-    
-  } catch(err) {
-
-  }
-} 
+	try {
+	} catch (err) {}
+}
 
 export { getHomeStatistics };

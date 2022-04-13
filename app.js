@@ -42,10 +42,12 @@ app.use("/auth", authRoutes);
 app.use("/user", tokenMiddleware, userRoutes);
 app.use("/bank", tokenMiddleware, bankRoutes);
 app.use("/source", tokenMiddleware, sourceRoutes);
-app.use("/journal", tokenMiddleware, journalRoutes);
 app.use("/category", tokenMiddleware, categoryRoutes);
 app.use("/currency", tokenMiddleware, currencyRoutes);
 app.use("/portfolio", tokenMiddleware, portfolioRoutes);
+
+// Find a way to make journal a middleware and share the same session
+app.use("/journal", tokenMiddleware, journalRoutes);
 app.use("/transaction", tokenMiddleware, transactionRoutes);
 
 const port = process.env.PORT;
