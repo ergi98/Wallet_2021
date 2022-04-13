@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 // BCrypt
 import bcrypt from "bcrypt";
 
@@ -18,7 +20,6 @@ import {
 	verifyRefreshToken,
 	generateRefreshToken,
 } from "../utilities/token-utilities.js";
-import mongoose from "mongoose";
 
 const hashPassword = async (password) => await bcrypt.hash(password, 10);
 
