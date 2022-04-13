@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 // Schema
 import SourcesSchema from "../schemas/sources-schema.js";
+import { objectIdSchema } from "../validators/portfolio-validators.js";
 
 // Validators
 import {
@@ -103,4 +104,46 @@ async function editSource(req, res) {
 	}
 }
 
-export { getSources, createSource, editSource };
+async function deleteSource(req, res) {
+	try {
+		await objectIdSchema.validateAsync(req.query.id);
+
+		const source = await SourcesSchema.findOne({
+			deletedAt: { $exists: 0 },
+			_id: mongoose.Types.ObjectId(req.query.id),
+			user: mongoose.Types.ObjectId(req.headers.userId),
+		});
+
+		if (source === null) throw new Error("Source does not exits");
+
+		console.log(source);
+
+		const deletedSource = await SourcesSchema.findByIdAndUpdate(
+			source._doc._id,
+			{
+				deletedAt: new Date(),
+				updatedAt: new Date(),
+			},
+			{
+				projection: {
+					__v: 0,
+					user: 0,
+					updatedAt: 0,
+				},
+				returnDocument: "after",
+			}
+		);
+
+		res.status(200).send(deletedSource);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
+	}
+}
+
+export { getSources, createSource, editSource, deleteSource };
