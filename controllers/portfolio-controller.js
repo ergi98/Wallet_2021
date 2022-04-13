@@ -115,6 +115,10 @@ async function deletePortfolio(req, res) {
 			throw new Error("Portfolio with this id is already deleted");
 		else if (portfolio.amounts.length !== 0)
 			throw new Error("Portfolio cannot be deleted if it is not empty");
+		else if (
+			!portfolio._doc.user.equals(mongoose.Types.ObjectId(req.headers.userId))
+		)
+			throw new Error("Cannot delete a portfolio that does not belong to you");
 
 		const deletedPortfolio = await PortfolioSchema.findByIdAndUpdate(
 			req.query.id,
@@ -150,6 +154,12 @@ async function editPortfolio(req, res) {
 			throw new Error("Portfolio with this id does not exits");
 		else if (foundPortfolio.deletedAt !== undefined)
 			throw new Error("Can not edit a deleted portfolio");
+		else if (
+			!foundPortfolio._doc.user.equals(
+				mongoose.Types.ObjectId(req.headers.userId)
+			)
+		)
+			throw new Error("Cannot edit a portfolio that does not belong to you");
 
 		let portfolioType = await PortfolioTypesSchema.findById(
 			foundPortfolio._doc.type
