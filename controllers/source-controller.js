@@ -116,13 +116,13 @@ async function deleteSource(req, res) {
 
 		if (source === null) throw new Error("Source does not exits");
 
-		console.log(source);
-
 		const deletedSource = await SourcesSchema.findByIdAndUpdate(
 			source._doc._id,
 			{
-				deletedAt: new Date(),
-				updatedAt: new Date(),
+				$set: {
+					deletedAt: new Date(),
+					updatedAt: new Date(),
+				},
 			},
 			{
 				projection: {
@@ -146,4 +146,48 @@ async function deleteSource(req, res) {
 	}
 }
 
-export { getSources, createSource, editSource, deleteSource };
+async function restoreSource(req, res) {
+	try {
+		await objectIdSchema.validateAsync(req.query.id);
+
+		const source = await SourcesSchema.findOne({
+			deletedAt: { $exists: 1 },
+			_id: mongoose.Types.ObjectId(req.query.id),
+			user: mongoose.Types.ObjectId(req.headers.userId),
+		});
+
+		if (source === null) throw new Error("Source does not exits");
+
+		const deletedSource = await SourcesSchema.findByIdAndUpdate(
+			source._doc._id,
+			{
+				$unset: {
+					deletedAt: "",
+				},
+				$set: {
+					updatedAt: new Date(),
+				},
+			},
+			{
+				projection: {
+					__v: 0,
+					user: 0,
+					updatedAt: 0,
+				},
+				returnDocument: "after",
+			}
+		);
+
+		res.status(200).send(deletedSource);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
+	}
+}
+
+export { getSources, createSource, editSource, deleteSource, restoreSource };
