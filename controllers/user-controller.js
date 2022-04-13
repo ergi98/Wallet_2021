@@ -1,9 +1,16 @@
 import mongoose from "mongoose";
+import CurrencySchema from "../schemas/currency-schema.js";
+
+// Schema
 import UserSchema from "../schemas/user-schema.js";
+
+// Validators
 import {
 	editUserSchema,
 	passwordSchema,
 } from "../validators/auth-validators.js";
+
+// Controllers
 import { hashPassword } from "./auth-controller.js";
 
 async function getUser(req, res) {
@@ -96,6 +103,29 @@ async function updateUser(req, res) {
 				returnDocument: "after",
 			}
 		);
+
+		const defaultCurrency = await CurrencySchema.aggregate([
+			{
+				$match: {
+					_id: updatedUser._doc.defaultCurrency,
+				},
+			},
+			{
+				$set: {
+					rateForALL: { $ifNull: [{ $toDouble: "$rateForALL" }, 1] },
+				},
+			},
+			{
+				$project: {
+					updatedAt: 0,
+				},
+			},
+		]);
+
+		if (defaultCurrency.length === 0)
+			throw new Error("Could not find currency details");
+
+		updatedUser._doc.defaultCurrency = defaultCurrency[0];
 
 		res.status(200).send(updatedUser);
 	} catch (err) {
