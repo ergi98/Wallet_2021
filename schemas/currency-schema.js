@@ -18,6 +18,10 @@ const currencySchema = new mongoose.Schema({
 		required: true,
 		type: mongoose.Decimal128,
 	},
+	updatedAt: {
+		type: Date,
+		required: true,
+	},
 });
 
 export default mongoose.model("currencies", currencySchema);

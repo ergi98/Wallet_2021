@@ -27,7 +27,8 @@
 		"joi": "^17.6.0",
 		"jsonwebtoken": "^8.5.1",
 		"mongoose": "^6.2.9",
-		"nodemon": "^2.0.15"
+		"nodemon": "^2.0.15",
+		"pupeteer": "^0.0.1"
 	},
 	"devDependencies": {
 		"typescript": "^4.6.3"
