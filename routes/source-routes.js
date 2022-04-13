@@ -1,7 +1,11 @@
 import express from "express";
 
 // Controller
-import { getSources, createSource } from "../controllers/source-controller.js";
+import {
+	getSources,
+	createSource,
+	editSource,
+} from "../controllers/source-controller.js";
 
 const router = express.Router();
 
@@ -9,6 +13,7 @@ const router = express.Router();
 router.route("/get-all").get(getSources);
 
 // POST
+router.route("/edit").post(editSource);
 router.route("/create").post(createSource);
 
 // DELETE

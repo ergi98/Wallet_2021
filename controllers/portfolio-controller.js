@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 
 // Validation
 import {
-	editVirtualWalletSchema,
-	editWalletSchema,
-	objectIdSchema,
-	virtualWalletSchema,
 	walletSchema,
+	objectIdSchema,
+	editWalletSchema,
+	virtualWalletSchema,
+	editVirtualWalletSchema,
 } from "../validators/portfolio-validators.js";
 
 // Aggregations
@@ -30,10 +30,12 @@ async function createPortfolio(req, res) {
 
 		req.body.user = mongoose.Types.ObjectId(req.headers.userId);
 		req.body.type = mongoose.Types.ObjectId(req.body.type);
+		req.body.description = req.body.description.trim();
 
 		// Checks deleted and active portfolios
 		const portfolioCount = await PortfolioSchema.count({
 			description: req.body.description,
+			user: mongoose.Types.ObjectId(req.headers.userId),
 		});
 
 		if (portfolioCount !== 0)
@@ -181,6 +183,8 @@ async function editPortfolio(req, res) {
 			: await editVirtualWalletSchema.validateAsync(req.body);
 
 		let { id, ...fieldsToEdit } = req.body;
+
+		fieldsToEdit.description = fieldsToEdit.description.trim();
 
 		const editedPortfolio = await PortfolioSchema.findByIdAndUpdate(
 			foundPortfolio._doc._id,
