@@ -31,9 +31,17 @@ const getPortfoliosAggregation = (userId, portfolioId) => {
 				type: { $arrayElemAt: ["$type", 0] },
 			},
 		},
+    {
+			$lookup: {
+				from: "banks",
+				localField: "bank",
+				foreignField: "_id",
+				as: "bank",
+			},
+		},
 		{
 			$set: {
-				type: "$type.type",
+				bank: { $arrayElemAt: ["$bank", 0] },
 			},
 		},
 		{

@@ -19,12 +19,12 @@ import PortfolioTypesSchema from "../schemas/portfolio-types-schema.js";
 async function createPortfolio(req, res) {
 	try {
 		await objectIdSchema.validateAsync(req.body.type);
+
+		// First get the type of portfolio to determine what validation schema to use
 		let portfolioType = await PortfolioTypesSchema.findById(req.body.type);
 		if (portfolioType === null) throw new Error("Invalid portfolio type");
 
-		let { type } = portfolioType;
-
-		type === "wallet"
+		portfolioType.type === "wallet"
 			? await walletSchema.validateAsync(req.body)
 			: await virtualWalletSchema.validateAsync(req.body);
 
@@ -32,21 +32,48 @@ async function createPortfolio(req, res) {
 		req.body.type = mongoose.Types.ObjectId(req.body.type);
 		req.body.description = req.body.description.trim();
 
-		// Checks deleted and active portfolios
-		const portfolioCount = await PortfolioSchema.count({
-			description: req.body.description,
-			user: mongoose.Types.ObjectId(req.headers.userId),
-		});
+		let count, error;
 
-		if (portfolioCount !== 0)
-			throw new Error("Portfolio with the same description already exists");
+		if (portfolioType.type === "wallet") {
+			count = await PortfolioSchema.count({
+				description: req.body.description,
+				user: mongoose.Types.ObjectId(req.headers.userId),
+			});
+			count !== 0 &&
+				(error = "Portfolio with the same description already exists");
+		} else {
+			count = await PortfolioSchema.count({
+				$or: [
+					{ cvc: req.body.cvc },
+					{ cardNumber: req.body.cardNumber },
+					{ description: req.body.description },
+				],
+				user: mongoose.Types.ObjectId(req.headers.userId),
+			});
+			count !== 0 &&
+				(error =
+					"Portfolio with the same description, cvc, or card number already exists");
+		}
+
+		if (count !== 0) throw new Error(error);
 
 		const portfolio = await PortfolioSchema.create(req.body);
 
-		res.status(200).send(portfolio);
+		await portfolio.populate("type");
+
+		if (portfolioType.type !== "wallet") await portfolio.populate("bank");
+
+		const { __v, user, ...data } = portfolio._doc;
+
+		res.status(200).send(data);
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
 	}
 }
 
@@ -109,18 +136,14 @@ async function deletePortfolio(req, res) {
 	try {
 		await objectIdSchema.validateAsync(req.query.id);
 
-		const portfolio = await PortfolioSchema.findById(req.query.id);
+		const portfolio = await PortfolioSchema.findOne({
+			deletedAt: { $exists: 0 },
+			_id: mongoose.Types.ObjectId(req.query.id),
+			user: mongoose.Types.ObjectId(req.headers.userId),
+		});
 
 		if (portfolio === null)
 			throw new Error("Portfolio with this id does not exits");
-		else if (portfolio.deletedAt !== undefined)
-			throw new Error("Portfolio with this id is already deleted");
-		else if (portfolio.amounts.length !== 0)
-			throw new Error("Portfolio cannot be deleted if it is not empty");
-		else if (
-			!portfolio._doc.user.equals(mongoose.Types.ObjectId(req.headers.userId))
-		)
-			throw new Error("Cannot delete a portfolio that does not belong to you");
 
 		const deletedPortfolio = await PortfolioSchema.findByIdAndUpdate(
 			req.query.id,
@@ -155,19 +178,14 @@ async function editPortfolio(req, res) {
 	try {
 		await objectIdSchema.validateAsync(req.body.id);
 
-		const foundPortfolio = await PortfolioSchema.findById(req.body.id);
+		const foundPortfolio = await PortfolioSchema.findOne({
+			deletedAt: { $exists: 0 },
+			_id: mongoose.Types.ObjectId(req.body.id),
+			user: mongoose.Types.ObjectId(res.headers.userId),
+		});
 
 		// Checking if portfolio exists and is not deleted
-		if (foundPortfolio === null)
-			throw new Error("Portfolio with this id does not exits");
-		else if (foundPortfolio.deletedAt !== undefined)
-			throw new Error("Can not edit a deleted portfolio");
-		else if (
-			!foundPortfolio._doc.user.equals(
-				mongoose.Types.ObjectId(req.headers.userId)
-			)
-		)
-			throw new Error("Cannot edit a portfolio that does not belong to you");
+		if (foundPortfolio === null) throw new Error("Portfolio does not exits");
 
 		let portfolioType = await PortfolioTypesSchema.findById(
 			foundPortfolio._doc.type
@@ -176,15 +194,40 @@ async function editPortfolio(req, res) {
 		if (portfolioType === null)
 			throw new Error("This portfolio does not have a valid type.");
 
-		let { type } = portfolioType;
-
-		type === "wallet"
+		portfolioType.type === "wallet"
 			? await editWalletSchema.validateAsync(req.body)
 			: await editVirtualWalletSchema.validateAsync(req.body);
 
 		let { id, ...fieldsToEdit } = req.body;
 
 		fieldsToEdit.description = fieldsToEdit.description.trim();
+
+		let count, error;
+
+		if (portfolioType.type === "wallet") {
+			count = await PortfolioSchema.count({
+				description: fieldsToEdit.description,
+				user: mongoose.Types.ObjectId(req.headers.userId),
+				_id: { $ne: mongoose.Types.ObjectId(req.body.id) },
+			});
+			count !== 0 &&
+				(error = "Portfolio with the same description already exists");
+		} else {
+			count = await PortfolioSchema.count({
+				$or: [
+					{ cvc: req.body.cvc },
+					{ cardNumber: req.body.cardNumber },
+					{ description: req.body.description },
+				],
+				user: mongoose.Types.ObjectId(req.headers.userId),
+				_id: { $ne: mongoose.Types.ObjectId(req.body.id) },
+			});
+			count !== 0 &&
+				(error =
+					"Portfolio with the same description, cvc, or card number already exists");
+		}
+
+		if (count !== 0) throw new Error(error);
 
 		const editedPortfolio = await PortfolioSchema.findByIdAndUpdate(
 			foundPortfolio._doc._id,
@@ -219,13 +262,14 @@ async function restorePortfolio(req, res) {
 	try {
 		await objectIdSchema.validateAsync(req.body.id);
 
-		const foundPortfolio = await PortfolioSchema.findById(req.body.id);
+		const foundPortfolio = await PortfolioSchema.findById({
+			deletedAt: { $exists: 1 },
+			_id: mongoose.Types.ObjectId(req.body.id),
+			user: mongoose.Types.ObjectId(req.headers.userId),
+		});
 
 		// Checking if portfolio exists and is not deleted
-		if (foundPortfolio === null)
-			throw new Error("Portfolio with this id does not exits");
-		else if (foundPortfolio.deletedAt === undefined)
-			throw new Error("Can not restore a portfolio that is not deleted");
+		if (foundPortfolio === null) throw new Error("Portfolio does not exits");
 
 		const restoredPortfolio = await PortfolioSchema.findByIdAndUpdate(
 			foundPortfolio._doc._id,
