@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 
 // Schema
 import SourcesSchema from "../schemas/sources-schema.js";
-import { objectIdSchema } from "../validators/portfolio-validators.js";
 
 // Validators
 import {
 	editSourceSchema,
 	createSourceSchema,
 } from "../validators/source-validators.js";
+import { objectIdSchema } from "../validators/portfolio-validators.js";
 
 async function getSources(req, res) {
 	try {
@@ -64,6 +64,14 @@ async function editSource(req, res) {
 	try {
 		await editSourceSchema.validateAsync(req.body);
 
+		const source = await SourcesSchema.findOne({
+			deletedAt: { $exists: 0 },
+			_id: mongoose.Types.ObjectId(req.body.id),
+			user: mongoose.Types.ObjectId(req.headers.userId),
+		});
+
+		if (source === null) throw new Error("Source does not exist");
+
 		let name = req.body.name.trim();
 
 		const count = await SourcesSchema.count({
@@ -74,7 +82,7 @@ async function editSource(req, res) {
 
 		if (count !== 0) throw new Error("Source with this name already exists");
 
-		const source = await SourcesSchema.findByIdAndUpdate(
+		const updatedSource = await SourcesSchema.findByIdAndUpdate(
 			req.body.id,
 			{
 				$set: {
@@ -92,7 +100,7 @@ async function editSource(req, res) {
 			}
 		);
 
-		res.status(200).send(source);
+		res.status(200).send(updatedSource);
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({
