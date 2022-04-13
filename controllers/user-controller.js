@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 import UserSchema from "../schemas/user-schema.js";
-import { editUserSchema } from "../validators/auth-validators.js";
+import {
+	editUserSchema,
+	passwordSchema,
+} from "../validators/auth-validators.js";
+import { hashPassword } from "./auth-controller.js";
 
 async function getUser(req, res) {
 	try {
@@ -130,4 +134,49 @@ async function deleteUser(req, res) {
 	}
 }
 
-export { getUser, deleteUser, updateUser };
+async function changePassword(req, res) {
+	try {
+		await passwordSchema.validateAsync(req.body.password);
+
+		const user = await UserSchema.findById(req.headers.userId);
+
+		if (user === null || user.deletedAt !== undefined)
+			throw new Error("User not found");
+
+		req.body.password = await hashPassword(req.body.password);
+
+		await UserSchema.findByIdAndUpdate(
+			user._doc._id,
+			{
+				$set: {
+					password: req.body.password,
+					updatedAt: new Date(),
+				},
+			},
+			{
+				projection: {
+					__v: 0,
+					refresh: 0,
+					password: 0,
+					updatedAt: 0,
+					createdAt: 0,
+					lastLogIn: 0,
+					lastLogOut: 0,
+				},
+				returnDocument: "after",
+			}
+		);
+
+		res.status(200).send();
+	} catch (err) {
+		console.error(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
+	}
+}
+
+export { getUser, deleteUser, updateUser, changePassword };

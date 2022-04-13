@@ -194,4 +194,4 @@ async function refreshToken(req, res) {
 	}
 }
 
-export { logIn, signUp, logOut, refreshToken, validateUsername };
+export { logIn, signUp, logOut, refreshToken, validateUsername, hashPassword };

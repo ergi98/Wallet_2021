@@ -26,6 +26,12 @@ const loginSchema = Joi.object({
 		.required(),
 });
 
+const passwordSchema = Joi.string()
+	.min(passwordMinLength)
+	.max(passwordMaxLength)
+	.pattern(passwordRegex)
+	.required();
+
 const signUpSchema = Joi.object({
 	personal: Joi.object({
 		name: Joi.string().max(nameMaxLength).required(),
@@ -66,4 +72,10 @@ const editUserSchema = Joi.object({
 	}),
 });
 
-export { loginSchema, usernameSchema, signUpSchema, editUserSchema };
+export {
+	loginSchema,
+	signUpSchema,
+	usernameSchema,
+	editUserSchema,
+	passwordSchema,
+};
