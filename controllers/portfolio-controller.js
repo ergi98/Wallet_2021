@@ -128,7 +128,13 @@ async function deletePortfolio(req, res) {
 					updatedAt: new Date(),
 				},
 			},
-			{ returnDocument: "after" }
+			{
+				projection: {
+					__v: 0,
+					updatedAt: 0,
+				},
+				returnDocument: "after",
+			}
 		);
 
 		res.status(200).send(deletedPortfolio);
@@ -184,7 +190,13 @@ async function editPortfolio(req, res) {
 					updatedAt: new Date(),
 				},
 			},
-			{ returnDocument: "after" }
+			{
+				projection: {
+					__v: 0,
+					updatedAt: 0,
+				},
+				returnDocument: "after",
+			}
 		);
 
 		res.status(200).send(editedPortfolio);
@@ -221,7 +233,13 @@ async function restorePortfolio(req, res) {
 					deletedAt: "",
 				},
 			},
-			{ returnDocument: "after" }
+			{
+				projection: {
+					__v: 0,
+					createdAt: 0,
+				},
+				returnDocument: "after",
+			}
 		);
 
 		res.status(200).send(restoredPortfolio);

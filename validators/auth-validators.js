@@ -46,4 +46,24 @@ const usernameSchema = Joi.string()
 	.pattern(usernameRegex)
 	.required();
 
-export { loginSchema, usernameSchema, signUpSchema };
+const editUserSchema = Joi.object({
+	username: Joi.string()
+		.min(usernameMinLength)
+		.max(usernameMaxLength)
+		.pattern(usernameRegex)
+		.required(),
+	defaultCurrency: Joi.string().hex().length(24).required(),
+	personal: Joi.object({
+		name: Joi.string().max(nameMaxLength).required(),
+		surname: Joi.string().max(nameMaxLength).required(),
+		gender: Joi.string().valid("M", "F", "TG", "NB/C").allow(""),
+		birthday: Joi.date()
+			.less("now")
+			.greater(new Date(1900, 0).toISOString())
+			.allow("", null),
+		employer: Joi.string().max(nameMaxLength).allow(""),
+		profession: Joi.string().max(nameMaxLength).allow(""),
+	}),
+});
+
+export { loginSchema, usernameSchema, signUpSchema, editUserSchema };
