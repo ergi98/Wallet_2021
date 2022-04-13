@@ -1,7 +1,10 @@
 import express from "express";
 
+// Controller
+import { getBankList } from "../controllers/bank-controller.js";
+
 const router = express.Router();
 
-// router.route("/create-user").post(UserController.createUser);
+router.route("/get-all").get(getBankList);
 
 export default router;
