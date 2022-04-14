@@ -5,6 +5,4 @@ const homeStatisticsSchema = Joi.object({
 	end: Joi.date().required(),
 });
 
-const expenseTransactionSchema = Joi.object({})
-
 export { homeStatisticsSchema };

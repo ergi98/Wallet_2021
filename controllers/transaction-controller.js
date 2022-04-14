@@ -11,6 +11,19 @@ import { homeStatisticsSchema } from "../validators/transaction-validators.js";
 import TransactionSchema from "../schemas/transaction-schema.js";
 import TransactionTypesSchema from "../schemas/transaction-types-schema.js";
 
+async function createTransaction(req, res) {
+	try {
+	} catch (err) {
+		console.error(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
+	}
+}
+
 async function getHomeStatistics(req, res) {
 	try {
 		await homeStatisticsSchema.validateAsync(req.query);
@@ -286,9 +299,4 @@ async function getHomeStatistics(req, res) {
 	}
 }
 
-async function addExpenseTransaction(req, res) {
-	try {
-	} catch (err) {}
-}
-
-export { getHomeStatistics };
+export { getHomeStatistics, createTransaction };
