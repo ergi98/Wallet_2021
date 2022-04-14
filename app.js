@@ -27,6 +27,7 @@ import categoryRoutes from "./routes/category-routes.js";
 import currencyRoutes from "./routes/currency-routes.js";
 import portfolioRoutes from "./routes/portfolio-routes.js";
 import transactionRoutes from "./routes/transaction-routes.js";
+import currencyRatesRoutes from "./routes/currency-rates-routes.js";
 
 // Middleware
 import tokenMiddleware from "./middleware/token-middleware.js";
@@ -45,6 +46,7 @@ app.use("/source", tokenMiddleware, sourceRoutes);
 app.use("/category", tokenMiddleware, categoryRoutes);
 app.use("/currency", tokenMiddleware, currencyRoutes);
 app.use("/portfolio", tokenMiddleware, portfolioRoutes);
+app.use("/currency-rate", tokenMiddleware, currencyRatesRoutes);
 
 // Find a way to make journal a middleware and share the same session
 app.use("/journal", tokenMiddleware, journalRoutes);

@@ -1,15 +1,11 @@
 import express from "express";
 
 // Controller
-import {
-	getCurrencyRates,
-	populateRatesFromBOA,
-} from "../controllers/currency-controller.js";
+import { getCurrencyListWithLatestRates } from "../controllers/currency-controller.js";
 
 const router = express.Router();
 
 // GET
-router.route("/rates").get(getCurrencyRates);
-router.route("/populate").get(populateRatesFromBOA);
+router.route("/rates").get(getCurrencyListWithLatestRates);
 
 export default router;
