@@ -65,6 +65,23 @@ async function createCurrencyEntryHelper(
 	);
 }
 
+async function getPortfolioByIdHelper(portfolioId, userId) {
+	const result = await PortfolioSchema.aggregate(
+		getPortfoliosAggregation(userId, portfolioId)
+	);
+
+	const portfolio = result[0];
+
+	if (portfolio === undefined)
+		throw new Error("Portfolio with this id does not exits");
+
+	portfolio.amounts = portfolio.amounts.filter(
+		(amount) => amount.currency !== undefined
+	);
+
+	return portfolio;
+}
+
 async function createPortfolio(req, res) {
 	try {
 		await objectIdSchema.validateAsync(req.body.type);
@@ -156,17 +173,9 @@ async function getPortfolioById(req, res) {
 	try {
 		await objectIdSchema.validateAsync(req.query.id);
 
-		const result = await PortfolioSchema.aggregate(
-			getPortfoliosAggregation(req.headers.userId, req.query.id)
-		);
-
-		let portfolio = result[0];
-
-		if (portfolio === undefined)
-			throw new Error("Portfolio with this id does not exits");
-
-		portfolio.amounts = portfolio.amounts.filter(
-			(amount) => amount.currency !== undefined
+		const portfolio = await getPortfolioByIdHelper(
+			req.query.id,
+			req.headers.userId
 		);
 
 		res.status(200).send(portfolio);
@@ -359,6 +368,7 @@ export {
 	getPortfolioById,
 	restorePortfolio,
 	// HELPERS
+	getPortfolioByIdHelper,
 	addInExistingCurrHelper,
 	getActivePortfolioHelper,
 	createCurrencyEntryHelper,

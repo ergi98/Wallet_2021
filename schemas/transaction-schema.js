@@ -61,24 +61,16 @@ const transactionSchema = new mongoose.Schema({
 	},
 	// Location - Expense
 	location: {
-		longitude: {
-			type: String,
-		},
-		latitude: {
-			type: String,
-		},
+		longitude: { type: String },
+		latitude: { type: String },
 	},
 	// Other
 	correctedBy: {
 		type: "ObjectId",
 		ref: "transactions",
 	},
-	correctedAt: {
-		type: Date,
-	},
-	deletedAt: {
-		type: Date,
-	},
+	deletedAt: { type: Date },
+	correctedAt: { type: Date },
 });
 
 export default mongoose.model("transactions", transactionSchema);

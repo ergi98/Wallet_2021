@@ -8,7 +8,7 @@ const homeStatisticsSchema = Joi.object({
 });
 
 const baseTransactionSchema = Joi.object({
-	amount: Joi.number().positive().precision(2).required(),
+	amount: Joi.number().precision(2).positive().required(),
 	type: Joi.string().hex().length(24).required(),
 });
 

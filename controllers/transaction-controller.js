@@ -13,11 +13,15 @@ import {
 } from "../validators/transaction-validators.js";
 import { objectIdSchema } from "../validators/portfolio-validators.js";
 
+// Aggregations
+import { getTransactionsAggregation } from "../aggregations/transaction-aggregations.js";
+
 // Helpers
 import { getActiveSourceHelper } from "./source-controller.js";
 import {
 	addInExistingCurrHelper,
 	getActivePortfolioHelper,
+	getPortfolioByIdHelper,
 } from "./portfolio-controller.js";
 
 // Schema
@@ -31,12 +35,20 @@ async function validateTransactionTypeHelper(typeId, expectedType) {
 		throw new Error("Invalid transaction type");
 }
 
+async function getTransactionByIdHelper(transactionId, userId) {
+	const transactions = await TransactionSchema.aggregate(
+		getTransactionsAggregation(transactionId, userId)
+	);
+	return transactions[0];
+}
+
 async function createEarningTransaction(req, res) {
 	let session;
 	try {
 		await objectIdSchema.validateAsync(req.body.type);
 		await validateTransactionTypeHelper(req.body.type, "earning");
-		await earningTransactionSchema.validateAsync(req.body);
+		req.body.date = new Date(req.body.date);
+		await earningTransactionSchema.validateAsync(req.body, { convert: false });
 
 		// Validating source
 		const source = await getActiveSourceHelper(
@@ -58,11 +70,13 @@ async function createEarningTransaction(req, res) {
 
 		session = await mongoose.startSession();
 
+		let newTransaction, newPortfolio;
+
 		await session.withTransaction(async () => {
 			const createdAt = new Date();
 
 			// Inserting Transaction
-			const newTransaction = await TransactionSchema.create({
+			const transaction = await TransactionSchema.create({
 				createdAt,
 				...req.body,
 				user: mongoose.Types.ObjectId(req.headers.userId),
@@ -71,27 +85,39 @@ async function createEarningTransaction(req, res) {
 			// Checking if the portfolio has an entry for this currency
 			const hasExistingEntry = portfolio._doc.amounts.find((amount) =>
 				mongoose.Types.ObjectId(amount.currency).equals(
-					newTransaction._doc.currency
+					transaction._doc.currency
 				)
 			);
 
 			// Adding new entry to portfolio amounts or incrementing the current one
 			hasExistingEntry
 				? await addInExistingCurrHelper(
-						newTransaction._doc.portfolio,
-						newTransaction._doc.user,
-						newTransaction._doc.amount,
-						newTransaction._doc.currency
+						transaction._doc.portfolio,
+						transaction._doc.user,
+						transaction._doc.amount,
+						transaction._doc.currency
 				  )
 				: await createCurrencyEntryHelper(
-						newTransaction._doc.portfolio,
-						newTransaction._doc.user,
-						newTransaction._doc.amount,
-						newTransaction._doc.currency
+						transaction._doc.portfolio,
+						transaction._doc.user,
+						transaction._doc.amount,
+						transaction._doc.currency
 				  );
+
+			newPortfolio = await getPortfolioByIdHelper(
+				transaction._doc.portfolio,
+				transaction._doc.user
+			);
+
+			newTransaction = await getTransactionByIdHelper(
+				transaction._doc._id,
+				transaction._doc.user
+			);
 		});
 
-		res.status(200).send({ success: true });
+		res
+			.status(200)
+			.send({ transaction: newTransaction, portfolio: newPortfolio });
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({
@@ -101,7 +127,7 @@ async function createEarningTransaction(req, res) {
 				"An error occurred. Please try again.",
 		});
 	} finally {
-		session.endSession();
+		session && session.endSession();
 	}
 }
 
