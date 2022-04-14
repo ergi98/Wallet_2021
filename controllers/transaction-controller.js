@@ -5,14 +5,93 @@ import mongoose from "mongoose";
 import { exactDiff } from "../utilities/number.utilities.js";
 
 // Validation
-import { homeStatisticsSchema } from "../validators/transaction-validators.js";
+import {
+	homeStatisticsSchema,
+	earningTransactionSchema,
+	expenseTransactionSchema,
+	transferTransactionSchema,
+} from "../validators/transaction-validators.js";
+import { objectIdSchema } from "../validators/portfolio-validators.js";
+
+// Helpers
+import { getActiveSourceHelper } from "./source-controller.js";
+import {
+	addInExistingCurrHelper,
+	getActivePortfolioHelper,
+} from "./portfolio-controller.js";
 
 // Schema
+import CurrencySchema from "../schemas/currency-schema.js";
 import TransactionSchema from "../schemas/transaction-schema.js";
 import TransactionTypesSchema from "../schemas/transaction-types-schema.js";
 
-async function createTransaction(req, res) {
+async function validateTransactionTypeHelper(typeId, expectedType) {
+	const type = await TransactionTypesSchema.findById(typeId);
+	if (type === null || type._doc.type !== expectedType)
+		throw new Error("Invalid transaction type");
+}
+
+async function createEarningTransaction(req, res) {
+	let session;
 	try {
+		await objectIdSchema.validateAsync(req.body.type);
+		await validateTransactionTypeHelper(req.body.type, "earning");
+		await earningTransactionSchema.validateAsync(req.body);
+
+		// Validating source
+		const source = await getActiveSourceHelper(
+			req.headers.userId,
+			req.body.source
+		);
+		if (source === null) throw new Error("Invalid transaction source");
+
+		// Validating currency
+		const currency = await CurrencySchema.findById(req.body.currency);
+		if (currency === null) throw new Error("Invalid transaction currency");
+
+		// Validating portfolio
+		const portfolio = await getActivePortfolioHelper(
+			req.headers.userId,
+			req.body.portfolio
+		);
+		if (portfolio === null) throw new Error("Invalid transaction portfolio");
+
+		session = await mongoose.startSession();
+
+		await session.withTransaction(async () => {
+			const createdAt = new Date();
+
+			// Inserting Transaction
+			const newTransaction = await TransactionSchema.create({
+				createdAt,
+				...req.body,
+				user: mongoose.Types.ObjectId(req.headers.userId),
+			});
+
+			// Checking if the portfolio has an entry for this currency
+			const hasExistingEntry = portfolio._doc.amounts.find((amount) =>
+				mongoose.Types.ObjectId(amount.currency).equals(
+					newTransaction._doc.currency
+				)
+			);
+
+			// Adding new entry to portfolio amounts or incrementing the current one
+			hasExistingEntry
+				? await addInExistingCurrHelper(
+						newTransaction._doc.portfolio,
+						newTransaction._doc.user,
+						newTransaction._doc.amount,
+						newTransaction._doc.currency
+				  )
+				: await createCurrencyEntryHelper(
+						newTransaction._doc.portfolio,
+						newTransaction._doc.user,
+						newTransaction._doc.amount,
+						newTransaction._doc.currency
+				  );
+		});
+
+		res.status(200).send({ success: true });
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({
@@ -21,6 +100,8 @@ async function createTransaction(req, res) {
 				err.message ||
 				"An error occurred. Please try again.",
 		});
+	} finally {
+		session.endSession();
 	}
 }
 
@@ -299,4 +380,4 @@ async function getHomeStatistics(req, res) {
 	}
 }
 
-export { getHomeStatistics, createTransaction };
+export { getHomeStatistics, createEarningTransaction };

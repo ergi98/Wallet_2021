@@ -16,6 +16,55 @@ import { getPortfoliosAggregation } from "../aggregations/portfolio-aggregations
 import PortfolioSchema from "../schemas/portfolio-schema.js";
 import PortfolioTypesSchema from "../schemas/portfolio-types-schema.js";
 
+async function getActivePortfolioHelper(userId, portfolioId) {
+	const portfolio = await PortfolioSchema.findOne({
+		_id: mongoose.Types.ObjectId(portfolioId),
+		user: mongoose.Types.ObjectId(userId),
+		deletedAt: { $exists: 0 },
+	});
+	return portfolio;
+}
+
+// If the portfolio currently holds some amount of the transaction currency
+async function addInExistingCurrHelper(portfolioId, userId, amount, currency) {
+	return await PortfolioSchema.findOneAndUpdate(
+		{
+			_id: portfolioId,
+			user: userId,
+			deletedAt: { $exists: 0 },
+		},
+		{
+			$inc: {
+				"amounts.$[index].amount": amount,
+			},
+		},
+		{
+			arrayFilters: [{ "index.currency": currency }],
+		}
+	);
+}
+
+// If it is the first time storing this amount on the wallet
+async function createCurrencyEntryHelper(
+	portfolioId,
+	userId,
+	amount,
+	currency
+) {
+	return await PortfolioSchema.findOneAndUpdate(
+		{
+			_id: portfolioId,
+			user: userId,
+			deletedAt: { $exists: 0 },
+		},
+		{
+			$push: {
+				amounts: { currency, amount },
+			},
+		}
+	);
+}
+
 async function createPortfolio(req, res) {
 	try {
 		await objectIdSchema.validateAsync(req.body.type);
@@ -309,4 +358,8 @@ export {
 	deletePortfolio,
 	getPortfolioById,
 	restorePortfolio,
+	// HELPERS
+	addInExistingCurrHelper,
+	getActivePortfolioHelper,
+	createCurrencyEntryHelper,
 };

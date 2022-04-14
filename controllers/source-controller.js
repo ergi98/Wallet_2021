@@ -10,6 +10,17 @@ import {
 } from "../validators/source-validators.js";
 import { objectIdSchema } from "../validators/portfolio-validators.js";
 
+// Returns an not deleted source
+async function getActiveSourceHelper(userId, sourceId) {
+	const source = await SourcesSchema.findOne({
+		deletedAt: { $exists: 0 },
+		_id: mongoose.Types.ObjectId(sourceId),
+		user: mongoose.Types.ObjectId(userId),
+	}).select({ updatedAt: 0, user: 0, __v: 0 });
+
+	return source;
+}
+
 async function getSources(req, res) {
 	try {
 		const sources = await SourcesSchema.find({
@@ -198,4 +209,12 @@ async function restoreSource(req, res) {
 	}
 }
 
-export { getSources, createSource, editSource, deleteSource, restoreSource };
+export {
+	getSources,
+	createSource,
+	editSource,
+	deleteSource,
+	restoreSource,
+	// HELPERS
+	getActiveSourceHelper,
+};

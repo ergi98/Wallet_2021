@@ -15,16 +15,6 @@ const transactionSchema = new mongoose.Schema({
 		required: true,
 		type: mongoose.Decimal128,
 	},
-	amountInDefault: {
-		required: true,
-		type: mongoose.Decimal128,
-	},
-	// Categorization
-	journals: {
-		required: true,
-		ref: "journals",
-		type: ["ObjectId"],
-	},
 	user: {
 		ref: "users",
 		required: true,
@@ -40,10 +30,6 @@ const transactionSchema = new mongoose.Schema({
 		required: true,
 		type: "ObjectId",
 		ref: "currencies",
-	},
-	currencyRate: {
-		required: true,
-		type: mongoose.Decimal128,
 	},
 	// Desc - Earing & Expense
 	description: {

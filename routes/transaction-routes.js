@@ -3,7 +3,7 @@ import express from "express";
 // Controller
 import {
 	getHomeStatistics,
-	createTransaction,
+	createEarningTransaction,
 } from "../controllers/transaction-controller.js";
 
 const router = express.Router();
@@ -12,6 +12,6 @@ const router = express.Router();
 router.route("/home-statistics").get(getHomeStatistics);
 
 // POST
-router.route("/create").post(createTransaction);
+router.route("/earning").post(createEarningTransaction);
 
 export default router;
