@@ -2,9 +2,13 @@ import Joi from "joi";
 
 const maxDescriptionLength = 100;
 
+// Cant record transactions that are done prior to 01 January 2012
+const earliestTransactionDate = new Date(Date.UTC(2012, 0, 1, 0, 0, 0, 0));
+
+console.log(earliestTransactionDate);
 const homeStatisticsSchema = Joi.object({
-	start: Joi.date().less(Joi.ref("end")).required(),
-	end: Joi.date().less("now").required(),
+	start: Joi.date().iso().greater(earliestTransactionDate).required(),
+	end: Joi.date().iso().less("now").greater(Joi.ref("start")).required(),
 });
 
 const baseTransactionSchema = Joi.object({
@@ -13,7 +17,11 @@ const baseTransactionSchema = Joi.object({
 });
 
 const expenseTransactionSchema = Joi.object({
-	date: Joi.date().less("now").required(),
+	date: Joi.date()
+		.iso()
+		.less("now")
+		.greater(earliestTransactionDate)
+		.required(),
 	category: Joi.string().hex().length(24).required(),
 	currency: Joi.string().hex().length(24).required(),
 	portfolio: Joi.string().hex().length(24).required(),
@@ -25,7 +33,11 @@ const expenseTransactionSchema = Joi.object({
 }).concat(baseTransactionSchema);
 
 const earningTransactionSchema = Joi.object({
-	date: Joi.date().less("now").required(),
+	date: Joi.date()
+		.iso()
+		.less("now")
+		.greater(earliestTransactionDate)
+		.required(),
 	source: Joi.string().hex().length(24).required(),
 	currency: Joi.string().hex().length(24).required(),
 	portfolio: Joi.string().hex().length(24).required(),
