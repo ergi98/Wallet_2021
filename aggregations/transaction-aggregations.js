@@ -86,13 +86,6 @@ const getTransactionsAggregation = (transactionId, userId) => {
 				localField: "type",
 				foreignField: "_id",
 				as: "type",
-				pipeline: [
-					{
-						$project: {
-							__v: 0,
-						},
-					},
-				],
 			},
 		},
 		{
@@ -183,7 +176,6 @@ const getTransactionsAggregation = (transactionId, userId) => {
 		},
 		{
 			$project: {
-				__v: 0,
 				day: 0,
 				user: 0,
 				year: 0,

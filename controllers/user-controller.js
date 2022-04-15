@@ -92,7 +92,6 @@ async function updateUser(req, res) {
 			},
 			{
 				projection: {
-					__v: 0,
 					refresh: 0,
 					password: 0,
 					updatedAt: 0,
@@ -185,7 +184,6 @@ async function changePassword(req, res) {
 			},
 			{
 				projection: {
-					__v: 0,
 					refresh: 0,
 					password: 0,
 					updatedAt: 0,

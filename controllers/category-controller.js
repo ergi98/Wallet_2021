@@ -16,7 +16,7 @@ async function getActiveCategoryHelper(userId, sourceId) {
 		deletedAt: { $exists: 0 },
 		_id: mongoose.Types.ObjectId(sourceId),
 		user: mongoose.Types.ObjectId(userId),
-	}).select({ updatedAt: 0, user: 0, __v: 0 });
+	}).select({ updatedAt: 0, user: 0 });
 
 	return category;
 }
@@ -25,7 +25,7 @@ async function getCategories(req, res) {
 	try {
 		const sources = await CategorySchema.find({
 			user: mongoose.Types.ObjectId(req.headers.userId),
-		}).select({ updatedAt: 0, user: 0, __v: 0 });
+		}).select({ updatedAt: 0, user: 0 });
 
 		res.status(200).send(sources);
 	} catch (err) {
@@ -57,7 +57,7 @@ async function createCategory(req, res) {
 			user: mongoose.Types.ObjectId(req.headers.userId),
 		});
 
-		const { user, __v, ...data } = source._doc;
+		const { user, ...data } = source._doc;
 
 		res.status(200).send(data);
 	} catch (err) {
@@ -103,7 +103,6 @@ async function editCategory(req, res) {
 			},
 			{
 				projection: {
-					__v: 0,
 					user: 0,
 					updatedAt: 0,
 				},
@@ -145,7 +144,6 @@ async function deleteCategory(req, res) {
 			},
 			{
 				projection: {
-					__v: 0,
 					user: 0,
 					updatedAt: 0,
 				},
@@ -189,7 +187,6 @@ async function restoreCategory(req, res) {
 			},
 			{
 				projection: {
-					__v: 0,
 					user: 0,
 					updatedAt: 0,
 				},

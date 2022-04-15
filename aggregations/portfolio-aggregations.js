@@ -13,7 +13,6 @@ const getPortfoliosAggregation = (userId, portfolioId) => {
 		},
 		{
 			$project: {
-				__v: 0,
 				user: 0,
 				updatedAt: 0,
 			},

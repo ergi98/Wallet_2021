@@ -144,7 +144,7 @@ async function createPortfolio(req, res) {
 
 		if (portfolioType.type !== "wallet") await portfolio.populate("bank");
 
-		const { __v, user, ...data } = portfolio._doc;
+		const { user, ...data } = portfolio._doc;
 
 		res.status(200).send(data);
 	} catch (err) {
@@ -228,7 +228,6 @@ async function deletePortfolio(req, res) {
 			},
 			{
 				projection: {
-					__v: 0,
 					updatedAt: 0,
 				},
 				returnDocument: "after",
@@ -312,7 +311,6 @@ async function editPortfolio(req, res) {
 			},
 			{
 				projection: {
-					__v: 0,
 					updatedAt: 0,
 				},
 				returnDocument: "after",
@@ -356,7 +354,6 @@ async function restorePortfolio(req, res) {
 			},
 			{
 				projection: {
-					__v: 0,
 					createdAt: 0,
 				},
 				returnDocument: "after",
