@@ -3,8 +3,8 @@ import Joi from "joi";
 const maxDescriptionLength = 100;
 
 const homeStatisticsSchema = Joi.object({
-	start: Joi.date().required(),
-	end: Joi.date().required(),
+	start: Joi.date().less(Joi.ref("end")).required(),
+	end: Joi.date().less("now").required(),
 });
 
 const baseTransactionSchema = Joi.object({
@@ -13,7 +13,7 @@ const baseTransactionSchema = Joi.object({
 });
 
 const expenseTransactionSchema = Joi.object({
-	date: Joi.date().required(),
+	date: Joi.date().less("now").required(),
 	category: Joi.string().hex().length(24).required(),
 	currency: Joi.string().hex().length(24).required(),
 	portfolio: Joi.string().hex().length(24).required(),
@@ -25,7 +25,7 @@ const expenseTransactionSchema = Joi.object({
 }).concat(baseTransactionSchema);
 
 const earningTransactionSchema = Joi.object({
-	date: Joi.date().required(),
+	date: Joi.date().less("now").required(),
 	source: Joi.string().hex().length(24).required(),
 	currency: Joi.string().hex().length(24).required(),
 	portfolio: Joi.string().hex().length(24).required(),

@@ -19,9 +19,10 @@ import { getTransactionsAggregation } from "../aggregations/transaction-aggregat
 // Helpers
 import { getActiveSourceHelper } from "./source-controller.js";
 import {
+	getPortfolioByIdHelper,
 	addInExistingCurrHelper,
 	getActivePortfolioHelper,
-	getPortfolioByIdHelper,
+	createCurrencyEntryHelper,
 } from "./portfolio-controller.js";
 
 // Schema

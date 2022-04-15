@@ -104,8 +104,7 @@ const getTransactionsAggregation = (transactionId, userId) => {
 				pipeline: [
 					{
 						$project: {
-							user: 0,
-							__v: 0,
+							name: 1,
 						},
 					},
 				],
@@ -120,8 +119,7 @@ const getTransactionsAggregation = (transactionId, userId) => {
 				pipeline: [
 					{
 						$project: {
-							user: 0,
-							__v: 0,
+							name: 1,
 						},
 					},
 				],
