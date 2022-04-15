@@ -5,7 +5,6 @@ const maxDescriptionLength = 100;
 // Cant record transactions that are done prior to 01 January 2012
 const earliestTransactionDate = new Date(Date.UTC(2012, 0, 1, 0, 0, 0, 0));
 
-console.log(earliestTransactionDate);
 const homeStatisticsSchema = Joi.object({
 	start: Joi.date().iso().greater(earliestTransactionDate).required(),
 	end: Joi.date().iso().less("now").greater(Joi.ref("start")).required(),
