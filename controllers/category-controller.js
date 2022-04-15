@@ -10,6 +10,17 @@ import {
 } from "../validators/source-validators.js";
 import { objectIdSchema } from "../validators/portfolio-validators.js";
 
+// Returns an not deleted source
+async function getActiveCategoryHelper(userId, sourceId) {
+	const category = await CategorySchema.findOne({
+		deletedAt: { $exists: 0 },
+		_id: mongoose.Types.ObjectId(sourceId),
+		user: mongoose.Types.ObjectId(userId),
+	}).select({ updatedAt: 0, user: 0, __v: 0 });
+
+	return category;
+}
+
 async function getCategories(req, res) {
 	try {
 		const sources = await CategorySchema.find({
@@ -199,9 +210,10 @@ async function restoreCategory(req, res) {
 }
 
 export {
+	editCategory,
 	getCategories,
 	createCategory,
-	editCategory,
 	deleteCategory,
 	restoreCategory,
+	getActiveCategoryHelper,
 };

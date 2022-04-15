@@ -25,6 +25,21 @@ async function getActivePortfolioHelper(userId, portfolioId) {
 	return portfolio;
 }
 
+async function removeCurrencyEntryHelper(portfolioId, userId, currencyId) {
+	return await PortfolioSchema.findOneAndUpdate(
+		{
+			_id: portfolioId,
+			user: userId,
+			deletedAt: { $exists: 0 },
+		},
+		{
+			$pull: {
+				amounts: { currency: currencyId },
+			},
+		}
+	);
+}
+
 // If the portfolio currently holds some amount of the transaction currency
 async function addInExistingCurrHelper(portfolioId, userId, amount, currency) {
 	return await PortfolioSchema.findOneAndUpdate(
@@ -372,4 +387,5 @@ export {
 	addInExistingCurrHelper,
 	getActivePortfolioHelper,
 	createCurrencyEntryHelper,
+	removeCurrencyEntryHelper,
 };

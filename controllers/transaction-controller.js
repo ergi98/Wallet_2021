@@ -17,18 +17,23 @@ import { objectIdSchema } from "../validators/portfolio-validators.js";
 import { getTransactionsAggregation } from "../aggregations/transaction-aggregations.js";
 
 // Helpers
-import { getActiveSourceHelper } from "./source-controller.js";
 import {
 	getPortfolioByIdHelper,
 	addInExistingCurrHelper,
 	getActivePortfolioHelper,
 	createCurrencyEntryHelper,
+	removeCurrencyEntryHelper,
 } from "./portfolio-controller.js";
+import { getActiveSourceHelper } from "./source-controller.js";
+import { getActiveCategoryHelper } from "./category-controller.js";
 
 // Schema
 import CurrencySchema from "../schemas/currency-schema.js";
 import TransactionSchema from "../schemas/transaction-schema.js";
 import TransactionTypesSchema from "../schemas/transaction-types-schema.js";
+
+// Big Number
+import BigNumber from "bignumber.js";
 
 async function validateTransactionTypeHelper(typeId, expectedType) {
 	const type = await TransactionTypesSchema.findById(typeId);
@@ -48,7 +53,7 @@ async function createEarningTransaction(req, res) {
 	try {
 		await objectIdSchema.validateAsync(req.body.type);
 		await validateTransactionTypeHelper(req.body.type, "earning");
-		req.body.date = new Date(req.body.date);
+		req.body.date = new Date(req.body.date ?? "");
 		await earningTransactionSchema.validateAsync(req.body, { convert: false });
 
 		// Validating source
@@ -102,6 +107,107 @@ async function createEarningTransaction(req, res) {
 						transaction._doc.portfolio,
 						transaction._doc.user,
 						transaction._doc.amount,
+						transaction._doc.currency
+				  );
+
+			newPortfolio = await getPortfolioByIdHelper(
+				transaction._doc.portfolio,
+				transaction._doc.user
+			);
+
+			newTransaction = await getTransactionByIdHelper(
+				transaction._doc._id,
+				transaction._doc.user
+			);
+		});
+
+		res
+			.status(200)
+			.send({ transaction: newTransaction, portfolio: newPortfolio });
+	} catch (err) {
+		console.error(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
+	} finally {
+		session && session.endSession();
+	}
+}
+
+async function createExpenseTransaction(req, res) {
+	let session;
+	try {
+		await objectIdSchema.validateAsync(req.body.type);
+		await validateTransactionTypeHelper(req.body.type, "expense");
+		req.body.date = new Date(req.body.date ?? "");
+		await expenseTransactionSchema.validateAsync(req.body, { convert: false });
+
+		// Validating category
+		const category = await getActiveCategoryHelper(
+			req.headers.userId,
+			req.body.category
+		);
+		if (category === null) throw new Error("Invalid transaction category");
+
+		// Validating currency
+		const currency = await CurrencySchema.findById(req.body.currency);
+		if (currency === null) throw new Error("Invalid transaction currency");
+
+		// Validating portfolio
+		const portfolio = await getActivePortfolioHelper(
+			req.headers.userId,
+			req.body.portfolio
+		);
+		if (portfolio === null) throw new Error("Invalid transaction portfolio");
+
+		let portfolioAmount = portfolio._doc.amounts.find((entry) =>
+			mongoose.Types.ObjectId(req.body.currency).equals(entry.currency)
+		);
+		if (portfolioAmount === undefined)
+			throw new Error(
+				"Not enough amount in this portfolio to perform this transaction with the given currency."
+			);
+
+		let amount = new BigNumber(portfolioAmount.amount);
+		let amountAfter = amount.minus(req.body.amount);
+		if (
+			amountAfter.isNaN() ||
+			!amountAfter.isFinite() ||
+			amountAfter.isNegative()
+		)
+			throw new Error(
+				"Not enough amount in this portfolio to perform this transaction with the given currency."
+			);
+
+		session = await mongoose.startSession();
+
+		let newTransaction, newPortfolio;
+
+		await session.withTransaction(async () => {
+			const createdAt = new Date();
+
+			// Inserting Transaction
+			const transaction = await TransactionSchema.create({
+				createdAt,
+				...req.body,
+				user: mongoose.Types.ObjectId(req.headers.userId),
+			});
+
+			const amountToSubtract = new BigNumber(req.body.amount).negated();
+
+			amountAfter.isZero()
+				? await removeCurrencyEntryHelper(
+						transaction._doc.portfolio,
+						transaction._doc.user,
+						transaction._doc.currency
+				  )
+				: await addInExistingCurrHelper(
+						transaction._doc.portfolio,
+						transaction._doc.user,
+						amountToSubtract,
 						transaction._doc.currency
 				  );
 
@@ -407,4 +513,8 @@ async function getHomeStatistics(req, res) {
 	}
 }
 
-export { getHomeStatistics, createEarningTransaction };
+export {
+	getHomeStatistics,
+	createEarningTransaction,
+	createExpenseTransaction,
+};
