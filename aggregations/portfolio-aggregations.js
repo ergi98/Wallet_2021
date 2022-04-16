@@ -94,6 +94,65 @@ const populatePortfolioAmounts = [
 			foreignField: "_id",
 			as: "amounts.currency",
 			localField: "amounts.currency",
+			pipeline: [
+				{
+					$lookup: {
+						from: "currency-rates",
+						localField: "_id",
+						foreignField: "currency",
+						as: "rates",
+						pipeline: [
+							{
+								// Match only the currency rates of TODAY (Latest)
+								$match: {
+									$expr: {
+										$and: [
+											// Start of today
+											{
+												$gte: [
+													"$createdAt",
+													new Date(new Date().setUTCHours(0, 0, 0, 0)),
+												],
+											},
+											// End of today
+											{
+												$lte: [
+													"$createdAt",
+													new Date(new Date().setUTCHours(23, 59, 59, 999)),
+												],
+											},
+										],
+									},
+								},
+							},
+						],
+					},
+				},
+				{
+					$set: {
+						rates: { $arrayElemAt: ["$rates", 0] },
+					},
+				},
+				{
+					$set: {
+						rates: "$rates.rates",
+					},
+				},
+				{
+					$set: {
+						rates: {
+							$map: {
+								input: "$rates",
+								as: "rate",
+								in: {
+									acronym: "$$rate.acronym",
+									rate: { $toDouble: "$$rate.rate" },
+								},
+							},
+						},
+					},
+				},
+			],
 		},
 	},
 	{
