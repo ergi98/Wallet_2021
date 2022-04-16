@@ -27,18 +27,47 @@ async function getCurrencyListWithLatestRates(req, res) {
 							},
 						},
 					],
-					as: "rateForALL",
+					as: "rates",
 				},
 			},
 			{
 				$set: {
-					rateForALL: { $arrayElemAt: ["$rateForALL", 0] },
+					rates: { $arrayElemAt: ["$rates", 0] },
 				},
 			},
 			{
 				$set: {
-					rateForALL: { $ifNull: [{ $toDouble: "$rateForALL.rateForALL" }, 1] },
+					rates: "$rates.rates",
 				},
+			},
+			{
+				$unwind: {
+					path: "$rates",
+				},
+			},
+			{
+				$set: {
+					"rates.rate": { $ifNull: [{ $toDouble: "$rates.rate" }, 1] },
+				},
+			},
+			{
+				$group: {
+					_id: "$_id",
+					root: {
+						$first: "$$ROOT",
+					},
+					rates: {
+						$push: "$rates",
+					},
+				},
+			},
+			{
+				$set: {
+					"root.rates": "$rates",
+				},
+			},
+			{
+				$replaceRoot: { newRoot: "$root" },
 			},
 		]);
 
