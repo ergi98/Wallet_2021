@@ -14,11 +14,6 @@ const currencySchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		rateForALL: {
-			default: 1,
-			required: true,
-			type: mongoose.Decimal128,
-		},
 		updatedAt: {
 			type: Date,
 			required: true,

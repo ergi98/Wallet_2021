@@ -3,9 +3,14 @@ import mongoose from "mongoose";
 // Puppeteer
 import puppeteer from "puppeteer";
 
+// Big Number
+import BigNumber from "bignumber.js";
+
 // Schema
 import CurrencySchema from "../schemas/currency-schema.js";
 import CurrencyRatesSchema from "../schemas/currency-rates-schema.js";
+
+BigNumber.set({ DECIMAL_PLACES: 4, ROUNDING_MODE: 4 });
 
 async function fetchRatesWithPuppeteer() {
 	const browser = await puppeteer.launch({ headless: true });
@@ -81,6 +86,34 @@ async function populateRatesFromBOA(req, res) {
 			throw new Error(
 				"Currency data does not include any currency we store in DB."
 			);
+		else if (filteredRates.length !== currencies.length - 1)
+			throw new Error("Could not fetch data for all the needed currencies");
+
+		filteredRates.push({
+			acronym: "ALL",
+			rateForALL: 1,
+		});
+
+		// Calculating rates for each currency to each currency
+		for (let fromEntry of filteredRates) {
+			for (let toEntry of filteredRates) {
+				const fromRateToALL = new BigNumber(fromEntry.rateForALL);
+				const toRateToALL = new BigNumber(toEntry.rateForALL);
+				if (fromEntry.rates === undefined) {
+					fromEntry.rates = [
+						{
+							acronym: toEntry.acronym,
+							rate: fromRateToALL.dividedBy(toRateToALL).toString(),
+						},
+					];
+				} else {
+					fromEntry.rates.push({
+						acronym: toEntry.acronym,
+						rate: fromRateToALL.dividedBy(toRateToALL).toString(),
+					});
+				}
+			}
+		}
 
 		let createdAt = new Date();
 
@@ -96,28 +129,17 @@ async function populateRatesFromBOA(req, res) {
 
 		// First time inserting these rates for today
 		if (latestStoredRates.length === 0) {
-			const currencyRatesArray = [
-				{
-					createdAt,
-					rateForALL: 1,
-					currency: mongoose.Types.ObjectId(availableCurrencies["ALL"]),
-				},
-			];
+			const currencyRatesArray = [];
 			for (let rate of filteredRates) {
 				let currencyId = availableCurrencies[rate.acronym];
 				if (!currencyId)
 					throw new Error("Something went wrong when fetching currency rates");
 				currencyRatesArray.push({
 					createdAt,
-					rateForALL: rate.rateForALL,
+					rates: rate.rates,
 					currency: mongoose.Types.ObjectId(currencyId),
 				});
 			}
-
-			// Not all currencies have been updated
-			if (currencyRatesArray.length !== currencies.length)
-				throw new Error("Could not fetch data for all the needed currencies");
-
 			await CurrencyRatesSchema.insertMany(currencyRatesArray);
 		}
 		// Called later on the same day - Just update
@@ -130,16 +152,10 @@ async function populateRatesFromBOA(req, res) {
 				bulkUpdateArray.push({
 					updateOne: {
 						filter: { _id: mongoose.Types.ObjectId(currencyId) },
-						update: { rateForALL: rate.rateForALL },
+						update: { rates: rate.rates },
 					},
 				});
 			}
-
-			// Not all currencies have been updated
-			// No need to update ALL - ALL
-			if (bulkUpdateArray.length !== currencies.length - 1)
-				throw new Error("Could not fetch data for all the needed currencies");
-
 			await CurrencyRatesSchema.bulkWrite(bulkUpdateArray);
 		}
 

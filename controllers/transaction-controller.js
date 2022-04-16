@@ -18,11 +18,12 @@ import { getTransactionsAggregation } from "../aggregations/transaction-aggregat
 
 // Helpers
 import {
-	getPortfolioByIdHelper,
 	addInExistingCurrHelper,
 	getActivePortfolioHelper,
 	createCurrencyEntryHelper,
 	removeCurrencyEntryHelper,
+	getPortfolioAmountsHelper,
+	getTransactionPortfoliosHelper,
 } from "./portfolio-controller.js";
 import { getActiveSourceHelper } from "./source-controller.js";
 import { getActiveCategoryHelper } from "./category-controller.js";
@@ -110,9 +111,9 @@ async function createEarningTransaction(req, res) {
 						transaction._doc.currency
 				  );
 
-			newPortfolio = await getPortfolioByIdHelper(
-				transaction._doc.portfolio,
-				transaction._doc.user
+			newPortfolio = await getPortfolioAmountsHelper(
+				transaction._doc.user,
+				transaction._doc.portfolio
 			);
 
 			newTransaction = await getTransactionByIdHelper(
@@ -211,9 +212,102 @@ async function createExpenseTransaction(req, res) {
 						transaction._doc.currency
 				  );
 
-			newPortfolio = await getPortfolioByIdHelper(
-				transaction._doc.portfolio,
+			newPortfolio = await getPortfolioAmountsHelper(
+				transaction._doc.user,
+				transaction._doc.portfolio
+			);
+
+			newTransaction = await getTransactionByIdHelper(
+				transaction._doc._id,
 				transaction._doc.user
+			);
+		});
+
+		res
+			.status(200)
+			.send({ transaction: newTransaction, portfolio: newPortfolio });
+	} catch (err) {
+		console.error(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
+	} finally {
+		session && session.endSession();
+	}
+}
+
+async function createTransferTransaction(req, res) {
+	let session;
+	try {
+		await objectIdSchema.validateAsync(req.body.type);
+		await validateTransactionTypeHelper(req.body.type, "transfer");
+		await transferTransactionSchema.validateAsync(req.body, { convert: false });
+
+		// Validating currency
+		const currency = await CurrencySchema.findById(req.body.currency);
+		if (currency === null) throw new Error("Invalid transaction currency");
+
+		// Validating portfolio
+		const portfolios = await getTransactionPortfoliosHelper(
+			req.headers.userId,
+			req.body.from,
+			req.body.to
+		);
+		if (portfolios.length !== 2)
+			throw new Error("Invalid transaction portfolios");
+
+		const fromPortfolio = portfolios.find((portfolio) =>
+			mongoose.Types.ObjectId(req.body.from).equals(portfolio._id)
+		);
+
+		if (fromPortfolio === undefined) throw new Error("Invalid from portfolio");
+
+		const fromPortfolioAmount = fromPortfolio.amounts.find((entry) =>
+			mongoose.Types.ObjectId(req.body.currency).equals(entry.currency)
+		);
+
+		if (fromPortfolioAmount === undefined)
+			throw new Error(
+				"Not enough amount in this portfolio to perform this transaction with the given currency."
+			);
+
+		const amount = new BigNumber(fromPortfolioAmount.amount);
+		const amountAfter = amount.minus(req.body.amount);
+
+		if (
+			amountAfter.isNaN() ||
+			!amountAfter.isFinite() ||
+			amountAfter.isNegative()
+		)
+			throw new Error(
+				"Not enough amount in this portfolio to perform this transaction with the given currency."
+			);
+
+		session = await mongoose.startSession();
+
+		let newTransaction, newPortfolio;
+
+		await session.withTransaction(async () => {
+			const createdAt = new Date();
+
+			// Inserting Transaction
+			const transaction = await TransactionSchema.create({
+				createdAt,
+				...req.body,
+				user: mongoose.Types.ObjectId(req.headers.userId),
+			});
+
+			const amountToSubtract = new BigNumber(req.body.amount).negated();
+
+			// TODO: Increment TO portfolio
+			// TODO: Decrement FROM portfolio
+
+			newPortfolio = await getPortfolioAmountsHelper(
+				transaction._doc.user,
+				transaction._doc.portfolio
 			);
 
 			newTransaction = await getTransactionByIdHelper(
@@ -517,4 +611,5 @@ export {
 	getHomeStatistics,
 	createEarningTransaction,
 	createExpenseTransaction,
+	createTransferTransaction,
 };

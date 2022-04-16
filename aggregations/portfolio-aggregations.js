@@ -1,13 +1,13 @@
 import mongoose from "mongoose";
 
 const getPortfoliosAggregation = (userId, portfolioId) => {
-	let match = {
+	const match = {
 		user: mongoose.Types.ObjectId(userId),
 	};
 
 	if (portfolioId) match["_id"] = mongoose.Types.ObjectId(portfolioId);
 
-	let aggregation = [
+	const aggregation = [
 		{
 			$match: match,
 		},
@@ -30,7 +30,7 @@ const getPortfoliosAggregation = (userId, portfolioId) => {
 				type: { $arrayElemAt: ["$type", 0] },
 			},
 		},
-    {
+		{
 			$lookup: {
 				from: "banks",
 				localField: "bank",
@@ -43,47 +43,84 @@ const getPortfoliosAggregation = (userId, portfolioId) => {
 				bank: { $arrayElemAt: ["$bank", 0] },
 			},
 		},
-		{
-			$unwind: {
-				path: "$amounts",
-				preserveNullAndEmptyArrays: true,
-			},
-		},
-		{
-			$lookup: {
-				from: "currencies",
-				foreignField: "_id",
-				as: "amounts.currency",
-				localField: "amounts.currency",
-			},
-		},
-		{
-			$set: {
-				"amounts.currency": { $arrayElemAt: ["$amounts.currency", 0] },
-				"amounts.amount": { $ifNull: [{ $toDouble: "$amounts.amount" }, 0] },
-			},
-		},
-		{
-			$group: {
-				_id: "$_id",
-				root: {
-					$first: "$$ROOT",
-				},
-				amounts: {
-					$push: "$amounts",
-				},
-			},
-		},
-		{
-			$set: {
-				"root.amounts": "$amounts",
-			},
-		},
-		{
-			$replaceRoot: { newRoot: "$root" },
-		},
+		...populatePortfolioAmounts,
 	];
 	return aggregation;
 };
 
-export { getPortfoliosAggregation };
+const portfolioAmountAggregation = (
+	userId,
+	portfolioIds = [],
+	onlyActive = true
+) => {
+	const match = {
+		user: mongoose.Types.ObjectId(userId),
+	};
+
+	if (portfolioIds.length !== 0) {
+		match["$or"] = portfolioIds.map((portfolioId) => {
+			return {
+				_id: mongoose.Types.ObjectId(portfolioId),
+			};
+		});
+	}
+	if (onlyActive) match["deletedAt"] = { $exists: 0 };
+
+	const aggregation = [
+		{
+			$match: match,
+		},
+		{
+			$project: {
+				amounts: 1,
+			},
+		},
+		...populatePortfolioAmounts,
+	];
+
+	return aggregation;
+};
+
+const populatePortfolioAmounts = [
+	{
+		$unwind: {
+			path: "$amounts",
+			preserveNullAndEmptyArrays: true,
+		},
+	},
+	{
+		$lookup: {
+			from: "currencies",
+			foreignField: "_id",
+			as: "amounts.currency",
+			localField: "amounts.currency",
+		},
+	},
+	{
+		$set: {
+			"amounts.currency": { $arrayElemAt: ["$amounts.currency", 0] },
+			"amounts.amount": { $ifNull: [{ $toDouble: "$amounts.amount" }, 0] },
+		},
+	},
+	{
+		$group: {
+			_id: "$_id",
+			root: {
+				$first: "$$ROOT",
+			},
+			amounts: {
+				$push: "$amounts",
+			},
+		},
+	},
+	{
+		$set: {
+			"root.amounts": "$amounts",
+		},
+	},
+	{
+		$replaceRoot: { newRoot: "$root" },
+	},
+];
+
+export { getPortfoliosAggregation, portfolioAmountAggregation };

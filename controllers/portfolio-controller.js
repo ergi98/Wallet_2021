@@ -10,7 +10,10 @@ import {
 } from "../validators/portfolio-validators.js";
 
 // Aggregations
-import { getPortfoliosAggregation } from "../aggregations/portfolio-aggregations.js";
+import {
+	getPortfoliosAggregation,
+	portfolioAmountAggregation,
+} from "../aggregations/portfolio-aggregations.js";
 
 // Schema
 import PortfolioSchema from "../schemas/portfolio-schema.js";
@@ -23,6 +26,19 @@ async function getActivePortfolioHelper(userId, portfolioId) {
 		deletedAt: { $exists: 0 },
 	});
 	return portfolio;
+}
+
+// PID = Portfolio ID
+async function getTransactionPortfoliosHelper(userId, fromPID, toPID) {
+	const portfolios = await PortfolioSchema.find({
+		$or: [
+			{ _id: mongoose.Types.ObjectId(fromPID) },
+			{ _id: mongoose.Types.ObjectId(toPID) },
+		],
+		user: mongoose.Types.ObjectId(userId),
+		deletedAt: { $exists: 0 },
+	});
+	return portfolios;
 }
 
 async function removeCurrencyEntryHelper(portfolioId, userId, currencyId) {
@@ -80,9 +96,9 @@ async function createCurrencyEntryHelper(
 	);
 }
 
-async function getPortfolioByIdHelper(portfolioId, userId) {
+async function getPortfolioAmountsHelper(userId, ...portfolioIds) {
 	const result = await PortfolioSchema.aggregate(
-		getPortfoliosAggregation(userId, portfolioId)
+		portfolioAmountAggregation(userId, portfolioIds)
 	);
 
 	const portfolio = result[0];
@@ -188,9 +204,17 @@ async function getPortfolioById(req, res) {
 	try {
 		await objectIdSchema.validateAsync(req.query.id);
 
-		const portfolio = await getPortfolioByIdHelper(
-			req.query.id,
-			req.headers.userId
+		const result = await PortfolioSchema.aggregate(
+			getPortfoliosAggregation(req.headers.userId, req.query.id)
+		);
+
+		const portfolio = result[0];
+
+		if (portfolio === undefined)
+			throw new Error("Portfolio with this id does not exits");
+
+		portfolio.amounts = portfolio.amounts.filter(
+			(amount) => amount.currency !== undefined
 		);
 
 		res.status(200).send(portfolio);
@@ -380,9 +404,10 @@ export {
 	getPortfolioById,
 	restorePortfolio,
 	// HELPERS
-	getPortfolioByIdHelper,
 	addInExistingCurrHelper,
 	getActivePortfolioHelper,
 	createCurrencyEntryHelper,
 	removeCurrencyEntryHelper,
+	getPortfolioAmountsHelper,
+	getTransactionPortfoliosHelper,
 };
