@@ -250,12 +250,7 @@ async function deletePortfolio(req, res) {
 					updatedAt: new Date(),
 				},
 			},
-			{
-				projection: {
-					updatedAt: 0,
-				},
-				returnDocument: "after",
-			}
+			{ projection: { _id: 1 } }
 		);
 
 		res.status(200).send(deletedPortfolio);
@@ -275,9 +270,9 @@ async function editPortfolio(req, res) {
 		await objectIdSchema.validateAsync(req.body.id);
 
 		const foundPortfolio = await PortfolioSchema.findOne({
-			deletedAt: { $exists: 0 },
 			_id: mongoose.Types.ObjectId(req.body.id),
 			user: mongoose.Types.ObjectId(req.headers.userId),
+			deletedAt: { $exists: 0 },
 		});
 
 		// Checking if portfolio exists and is not deleted
@@ -290,9 +285,25 @@ async function editPortfolio(req, res) {
 		if (portfolioType === null)
 			throw new Error("This portfolio does not have a valid type.");
 
-		portfolioType.type === "wallet"
-			? await editWalletSchema.validateAsync(req.body)
-			: await editVirtualWalletSchema.validateAsync(req.body);
+		let projection;
+
+		if (portfolioType.type === "wallet") {
+			await editWalletSchema.validateAsync(req.body);
+			projection = {
+				color: 1,
+				description: 1,
+			};
+		} else {
+			await editVirtualWalletSchema.validateAsync(req.body);
+			projection = {
+				cvc: 1,
+				bank: 1,
+				color: 1,
+				validity: 1,
+				cardNumber: 1,
+				description: 1,
+			};
+		}
 
 		let { id, ...fieldsToEdit } = req.body;
 
@@ -334,9 +345,7 @@ async function editPortfolio(req, res) {
 				},
 			},
 			{
-				projection: {
-					updatedAt: 0,
-				},
+				projection,
 				returnDocument: "after",
 			}
 		);
@@ -358,33 +367,37 @@ async function restorePortfolio(req, res) {
 		await objectIdSchema.validateAsync(req.body.id);
 
 		const foundPortfolio = await PortfolioSchema.findById({
-			deletedAt: { $exists: 1 },
 			_id: mongoose.Types.ObjectId(req.body.id),
 			user: mongoose.Types.ObjectId(req.headers.userId),
+			deletedAt: { $exists: 1 },
 		});
 
 		// Checking if portfolio exists and is not deleted
 		if (foundPortfolio === null) throw new Error("Portfolio does not exits");
 
-		const restoredPortfolio = await PortfolioSchema.findByIdAndUpdate(
-			foundPortfolio._doc._id,
-			{
-				$set: {
-					updatedAt: new Date(),
-				},
-				$unset: {
-					deletedAt: "",
-				},
+		await PortfolioSchema.findByIdAndUpdate(foundPortfolio._doc._id, {
+			$set: {
+				updatedAt: new Date(),
 			},
-			{
-				projection: {
-					createdAt: 0,
-				},
-				returnDocument: "after",
-			}
+			$unset: {
+				deletedAt: "",
+			},
+		});
+
+		const result = await PortfolioSchema.aggregate(
+			getPortfoliosAggregation(req.headers.userId, foundPortfolio._doc._id)
 		);
 
-		res.status(200).send(restoredPortfolio);
+		const portfolio = result[0];
+
+		if (portfolio === undefined)
+			throw new Error("Portfolio with this id does not exits");
+
+		portfolio.amounts = portfolio.amounts.filter(
+			(amount) => amount.currency !== undefined
+		);
+
+		res.status(200).send(portfolio);
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({
