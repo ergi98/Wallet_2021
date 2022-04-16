@@ -277,7 +277,7 @@ async function editPortfolio(req, res) {
 		const foundPortfolio = await PortfolioSchema.findOne({
 			deletedAt: { $exists: 0 },
 			_id: mongoose.Types.ObjectId(req.body.id),
-			user: mongoose.Types.ObjectId(res.headers.userId),
+			user: mongoose.Types.ObjectId(req.headers.userId),
 		});
 
 		// Checking if portfolio exists and is not deleted
