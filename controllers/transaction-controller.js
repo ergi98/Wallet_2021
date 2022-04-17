@@ -49,7 +49,7 @@ async function getTransactionByIdHelper(transactionId, userId) {
 	return transactions[0];
 }
 
-async function createEarningTransaction(req, res) {
+async function createEarning(req, res) {
 	let session;
 	try {
 		await objectIdSchema.validateAsync(req.body.type);
@@ -138,7 +138,7 @@ async function createEarningTransaction(req, res) {
 	}
 }
 
-async function createExpenseTransaction(req, res) {
+async function createExpense(req, res) {
 	let session;
 	try {
 		await objectIdSchema.validateAsync(req.body.type);
@@ -242,7 +242,7 @@ async function createExpenseTransaction(req, res) {
 	}
 }
 
-async function createTransferTransaction(req, res) {
+async function createTransfer(req, res) {
 	let session;
 	try {
 		await objectIdSchema.validateAsync(req.body.type);
@@ -376,6 +376,122 @@ async function createTransferTransaction(req, res) {
 		session && session.endSession();
 	}
 }
+
+async function deleteTransaction(req, res) {
+	let session;
+	try {
+		await objectIdSchema.validateAsync(req.query.id);
+		const transaction = await TransactionSchema.findOne({
+			_id: mongoose.Types.ObjectId(req.query.id),
+			user: mongoose.Types.ObjectId(req.headers.userId),
+			deletedAt: { $exists: 0 },
+			correctedAt: { $exists: 0 },
+			correctedBy: { $exists: 0 },
+		});
+		if (transaction === null) throw new Error("Transaction can not be found");
+
+		// Check transaction type
+		const transactionType = await TransactionTypesSchema.findById(
+			transaction._doc.type
+		);
+		if (transactionType === null) throw new Error("Unknown transaction type");
+
+		let result;
+
+		switch (transactionType._doc.type) {
+			case "earning":
+				result = await deleteEarning(transaction._doc);
+				break;
+			case "expense":
+				result = await deleteExpense(transaction._doc);
+				break;
+			case "transfer":
+				result = await deleteTransfer(transaction._doc);
+				break;
+		}
+
+		res.status(200).send(result);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
+	} finally {
+		session && session.endSession();
+	}
+}
+
+async function deleteEarning(transaction) {
+	const portfolio = await getActivePortfolioHelper(
+		transaction.user,
+		transaction.portfolio
+	);
+	if (portfolio === null) throw new Error("Invalid portfolio");
+
+	const amount = portfolio._doc.amounts.find((entry) =>
+		mongoose.Types.ObjectId(transaction.currency).equals(entry.currency)
+	);
+
+	if (amount === undefined)
+		throw new Error(
+			`Transaction could not be deleted. Not enough funds in the ${portfolio._doc.description} portfolio`
+		);
+
+	const portfolioAmount = new BigNumber(amount.amount);
+	const transactionAmount = new BigNumber(transaction.amount);
+
+	const amountToSubtract = mongoose.Types.Decimal128(
+		transactionAmount.negated().toString()
+	);
+	const portfolioAmountAfter = portfolioAmount.minus(transactionAmount);
+
+	if (
+		portfolioAmountAfter.isNaN() ||
+		!portfolioAmountAfter.isFinite() ||
+		portfolioAmountAfter.isNegative()
+	)
+		throw new Error(
+			`Transaction could not be deleted. Not enough funds in the ${portfolio._doc.description} portfolio`
+		);
+
+	// Deleting transaction
+	await TransactionSchema.findByIdAndUpdate(transaction._id, {
+		$set: {
+			deletedAt: new Date(),
+		},
+	});
+
+	// Decrementing earning portfolio
+	portfolioAmountAfter.isZero()
+		? await removeCurrencyEntryHelper(
+				transaction.portfolio,
+				transaction.user,
+				transaction.currency
+		  )
+		: await addInExistingCurrHelper(
+				transaction.portfolio,
+				transaction.user,
+				amountToSubtract,
+				transaction.currency
+		  );
+
+	const portfolioAmounts = await getPortfolioAmountsHelper(
+		transaction.user,
+		transaction.portfolio
+	);
+
+	return {
+		transaction: transaction._id,
+		portfolio: portfolioAmounts,
+	};
+}
+
+async function deleteExpense(transaction) {}
+
+async function deleteTransfer(transaction) {}
 
 async function getHomeStatistics(req, res) {
 	try {
@@ -653,8 +769,9 @@ async function getHomeStatistics(req, res) {
 }
 
 export {
+	createEarning,
+	createExpense,
+	createTransfer,
+	deleteTransaction,
 	getHomeStatistics,
-	createEarningTransaction,
-	createExpenseTransaction,
-	createTransferTransaction,
 };

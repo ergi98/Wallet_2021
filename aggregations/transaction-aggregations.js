@@ -2,13 +2,14 @@ import mongoose from "mongoose";
 
 const getTransactionsAggregation = (transactionId, userId) => {
 	let match = {
-		deletedAt: { $exists: 0 },
-		correctedBy: { $exists: 0 },
-		correctedAt: { $exists: 0 },
 		user: mongoose.Types.ObjectId(userId),
 	};
 
 	if (transactionId) match["_id"] = mongoose.Types.ObjectId(transactionId);
+
+	match["deletedAt"] = { $exists: 0 };
+	match["correctedBy"] = { $exists: 0 };
+	match["correctedAt"] = { $exists: 0 };
 
 	let aggregation = [
 		{
