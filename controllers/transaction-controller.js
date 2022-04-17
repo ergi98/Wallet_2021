@@ -398,17 +398,21 @@ async function deleteTransaction(req, res) {
 
 		let result;
 
-		switch (transactionType._doc.type) {
-			case "earning":
-				result = await deleteEarning(transaction._doc);
-				break;
-			case "expense":
-				result = await deleteExpense(transaction._doc);
-				break;
-			case "transfer":
-				result = await deleteTransfer(transaction._doc);
-				break;
-		}
+		session = await mongoose.startSession();
+
+		await session.withTransaction(async () => {
+			switch (transactionType._doc.type) {
+				case "earning":
+					result = await deleteEarning(transaction._doc);
+					break;
+				case "expense":
+					result = await deleteExpense(transaction._doc);
+					break;
+				case "transfer":
+					result = await deleteTransfer(transaction._doc);
+					break;
+			}
+		});
 
 		res.status(200).send(result);
 	} catch (err) {
@@ -489,9 +493,149 @@ async function deleteEarning(transaction) {
 	};
 }
 
-async function deleteExpense(transaction) {}
+async function deleteExpense(transaction) {
+	const portfolio = await getActivePortfolioHelper(
+		transaction.user,
+		transaction.portfolio
+	);
+	if (portfolio === null) throw new Error("Invalid portfolio");
 
-async function deleteTransfer(transaction) {}
+	// Deleting transaction
+	await TransactionSchema.findByIdAndUpdate(transaction._id, {
+		$set: {
+			deletedAt: new Date(),
+		},
+	});
+
+	// Checking if the portfolio has an entry for this currency
+	const hasExistingEntry = portfolio._doc.amounts.find((amount) =>
+		mongoose.Types.ObjectId(amount.currency).equals(transaction.currency)
+	);
+
+	// Adding new entry to portfolio amounts or incrementing the current one
+	hasExistingEntry
+		? await addInExistingCurrHelper(
+				transaction.portfolio,
+				transaction.user,
+				transaction.amount,
+				transaction.currency
+		  )
+		: await createCurrencyEntryHelper(
+				transaction.portfolio,
+				transaction.user,
+				transaction.amount,
+				transaction.currency
+		  );
+
+	const portfolioAmounts = await getPortfolioAmountsHelper(
+		transaction.user,
+		transaction.portfolio
+	);
+
+	return {
+		transaction: transaction._id,
+		portfolio: portfolioAmounts,
+	};
+}
+
+async function deleteTransfer(transaction) {
+	const portfolios = await getTransactionPortfoliosHelper(
+		transaction.user,
+		transaction.from,
+		transaction.to
+	);
+
+	if (portfolios.length !== 2)
+		throw new Error(
+			"One or both of the portfolios of this transaction are deleted"
+		);
+
+	const fromPortfolio = portfolios.find((portfolio) =>
+		mongoose.Types.ObjectId(transaction.from).equals(portfolio._id)
+	);
+
+	const toPortfolio = portfolios.find((portfolio) =>
+		mongoose.Types.ObjectId(transaction.to).equals(portfolio._id)
+	);
+
+	const toPortfolioAmount = toPortfolio.amounts.find((entry) =>
+		mongoose.Types.ObjectId(transaction.currency).equals(entry.currency)
+	);
+
+	const fromPortfolioAmount = fromPortfolio.amounts.find((entry) =>
+		mongoose.Types.ObjectId(transaction.currency).equals(entry.currency)
+	);
+
+	if (toPortfolioAmount === undefined)
+		throw new Error(
+			`Not enough amount in ${fromPortfolio.description} portfolio to delete this transaction.`
+		);
+
+	const transactionAmount = new BigNumber(transaction.amount);
+	const amountToSubtract = mongoose.Types.Decimal128(
+		transactionAmount.negated().toString()
+	);
+	const amount = new BigNumber(toPortfolioAmount.amount);
+	const amountAfter = amount.minus(transactionAmount);
+
+	if (
+		amountAfter.isNaN() ||
+		!amountAfter.isFinite() ||
+		amountAfter.isNegative()
+	)
+		throw new Error(
+			`Not enough amount in ${fromPortfolio.description} portfolio to delete this transaction.`
+		);
+
+	// Deleting transaction
+	await TransactionSchema.findByIdAndUpdate(transaction._id, {
+		$set: {
+			deletedAt: new Date(),
+		},
+	});
+
+	fromPortfolioAmount
+		? await addInExistingCurrHelper(
+				transaction.from,
+				transaction.user,
+				transaction.amount,
+				transaction.currency
+		  )
+		: await createCurrencyEntryHelper(
+				transaction.from,
+				transaction.user,
+				transaction.amount,
+				transaction.currency
+		  );
+	// Decrement TO portfolio
+	amountAfter.isZero()
+		? await removeCurrencyEntryHelper(
+				transaction.to,
+				transaction.user,
+				transaction.currency
+		  )
+		: await addInExistingCurrHelper(
+				transaction.to,
+				transaction.user,
+				amountToSubtract,
+				transaction.currency
+		  );
+
+	const newToPortfolio = await getPortfolioAmountsHelper(
+		transaction.user,
+		transaction.to
+	);
+
+	const newFromPortfolio = await getPortfolioAmountsHelper(
+		transaction.user,
+		transaction.from
+	);
+
+	return {
+		transaction: transaction._id,
+		portfolio: [newToPortfolio, newFromPortfolio],
+	};
+}
 
 async function getHomeStatistics(req, res) {
 	try {
