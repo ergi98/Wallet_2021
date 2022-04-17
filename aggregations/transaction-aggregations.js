@@ -24,9 +24,9 @@ const getTransactionsAggregation = (transactionId, userId) => {
 		},
 		{
 			$lookup: {
-				from: "currency-rates",
+				from: "currencies",
 				localField: "currency",
-				foreignField: "currency",
+				foreignField: "_id",
 				let: {
 					day: "$day",
 					year: "$year",
@@ -34,50 +34,59 @@ const getTransactionsAggregation = (transactionId, userId) => {
 				},
 				pipeline: [
 					{
-						$set: {
-							year: { $year: "$createdAt" },
-							month: { $month: "$createdAt" },
-							day: { $dayOfMonth: "$createdAt" },
-						},
-					},
-					{
-						$match: {
-							$expr: {
-								$and: [
-									{ $eq: ["$day", "$$day"] },
-									{ $eq: ["$year", "$$year"] },
-									{ $eq: ["$month", "$$month"] },
-								],
-							},
-						},
-					},
-					{
 						$lookup: {
-							from: "currencies",
-							localField: "currency",
-							foreignField: "_id",
-							as: "currency",
+							from: "currency-rates",
+							localField: "_id",
+							foreignField: "currency",
+							pipeline: [
+								{
+									$set: {
+										year: { $year: "$createdAt" },
+										month: { $month: "$createdAt" },
+										day: { $dayOfMonth: "$createdAt" },
+									},
+								},
+								{
+									$match: {
+										$expr: {
+											$and: [
+												{ $eq: ["$day", "$$day"] },
+												{ $eq: ["$year", "$$year"] },
+												{ $eq: ["$month", "$$month"] },
+											],
+										},
+									},
+								},
+							],
+							as: "rates",
 						},
 					},
 					{
 						$set: {
-							currency: { $arrayElemAt: ["$currency", 0] },
+							rates: { $arrayElemAt: ["$rates", 0] },
 						},
 					},
 					{
 						$set: {
-							"currency.rateForALL": {
-								$ifNull: [{ $toDouble: "$rateForALL" }, 1],
+							rates: "$rates.rates",
+						},
+					},
+					{
+						$set: {
+							rates: {
+								$map: {
+									input: "$rates",
+									as: "rate",
+									in: {
+										acronym: "$$rate.acronym",
+										rate: { $toDouble: "$$rate.rate" },
+									},
+								},
 							},
 						},
 					},
 				],
 				as: "currency",
-			},
-		},
-		{
-			$set: {
-				currency: { $arrayElemAt: ["$currency", 0] },
 			},
 		},
 		{
@@ -165,11 +174,11 @@ const getTransactionsAggregation = (transactionId, userId) => {
 		},
 		{
 			$set: {
-				currency: "$currency.currency",
 				to: { $arrayElemAt: ["$to", 0] },
 				from: { $arrayElemAt: ["$from", 0] },
 				type: { $arrayElemAt: ["$type", 0] },
 				source: { $arrayElemAt: ["$source", 0] },
+				currency: { $arrayElemAt: ["$currency", 0] },
 				category: { $arrayElemAt: ["$category", 0] },
 				portfolio: { $arrayElemAt: ["$portfolio", 0] },
 			},

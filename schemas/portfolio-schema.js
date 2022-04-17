@@ -1,24 +1,27 @@
 import mongoose from "mongoose";
 
+const portfolioAmountsSchema = new mongoose.Schema(
+	{
+		currency: {
+			type: "ObjectId",
+			ref: "currencies",
+			required: true,
+		},
+		amount: {
+			required: true,
+			type: mongoose.Decimal128,
+		},
+	},
+	{ _id: false }
+);
+
 const portfolioSchema = new mongoose.Schema(
 	{
 		description: {
 			type: String,
 			required: true,
 		},
-		amounts: {
-			type: [
-				{
-					currency: {
-						type: "ObjectId",
-						ref: "currencies",
-					},
-					amount: {
-						type: mongoose.Decimal128,
-					},
-				},
-			],
-		},
+		amounts: [portfolioAmountsSchema],
 		user: {
 			ref: "users",
 			required: true,

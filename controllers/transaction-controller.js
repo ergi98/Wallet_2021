@@ -164,7 +164,7 @@ async function createExpenseTransaction(req, res) {
 		);
 		if (portfolio === null) throw new Error("Invalid transaction portfolio");
 
-		let portfolioAmount = portfolio._doc.amounts.find((entry) =>
+		const portfolioAmount = portfolio._doc.amounts.find((entry) =>
 			mongoose.Types.ObjectId(req.body.currency).equals(entry.currency)
 		);
 		if (portfolioAmount === undefined)
@@ -172,8 +172,9 @@ async function createExpenseTransaction(req, res) {
 				"Not enough amount in this portfolio to perform this transaction with the given currency."
 			);
 
-		let amount = new BigNumber(portfolioAmount.amount);
-		let amountAfter = amount.minus(req.body.amount);
+		const amount = new BigNumber(portfolioAmount.amount);
+		const amountAfter = amount.minus(req.body.amount);
+
 		if (
 			amountAfter.isNaN() ||
 			!amountAfter.isFinite() ||
@@ -197,7 +198,9 @@ async function createExpenseTransaction(req, res) {
 				user: mongoose.Types.ObjectId(req.headers.userId),
 			});
 
-			const amountToSubtract = new BigNumber(req.body.amount).negated();
+			const amountToSubtract = mongoose.Types.Decimal128(
+				new BigNumber(req.body.amount).negated().toString()
+			);
 
 			amountAfter.isZero()
 				? await removeCurrencyEntryHelper(
@@ -256,6 +259,7 @@ async function createTransferTransaction(req, res) {
 			req.body.from,
 			req.body.to
 		);
+
 		if (portfolios.length !== 2)
 			throw new Error("Invalid transaction portfolios");
 
@@ -263,7 +267,13 @@ async function createTransferTransaction(req, res) {
 			mongoose.Types.ObjectId(req.body.from).equals(portfolio._id)
 		);
 
-		if (fromPortfolio === undefined) throw new Error("Invalid from portfolio");
+		const toPortfolio = portfolios.find((portfolio) =>
+			mongoose.Types.ObjectId(req.body.to).equals(portfolio._id)
+		);
+
+		const toPortfolioAmount = toPortfolio.amounts.find((entry) =>
+			mongoose.Types.ObjectId(req.body.currency).equals(entry.currency)
+		);
 
 		const fromPortfolioAmount = fromPortfolio.amounts.find((entry) =>
 			mongoose.Types.ObjectId(req.body.currency).equals(entry.currency)
@@ -288,7 +298,7 @@ async function createTransferTransaction(req, res) {
 
 		session = await mongoose.startSession();
 
-		let newTransaction, newPortfolio;
+		let newTransaction, newToPortfolio, newFromPortfolio;
 
 		await session.withTransaction(async () => {
 			const createdAt = new Date();
@@ -297,17 +307,51 @@ async function createTransferTransaction(req, res) {
 			const transaction = await TransactionSchema.create({
 				createdAt,
 				...req.body,
+				date: createdAt,
+				description: "Transfer",
 				user: mongoose.Types.ObjectId(req.headers.userId),
 			});
 
-			const amountToSubtract = new BigNumber(req.body.amount).negated();
+			const amountToSubtract = mongoose.Types.Decimal128(
+				new BigNumber(transaction._doc.amount).negated().toString()
+			);
 
-			// TODO: Increment TO portfolio
-			// TODO: Decrement FROM portfolio
+			// Adding new entry to the to portfolio amounts or incrementing the current one
+			toPortfolioAmount
+				? await addInExistingCurrHelper(
+						transaction._doc.to,
+						transaction._doc.user,
+						transaction._doc.amount,
+						transaction._doc.currency
+				  )
+				: await createCurrencyEntryHelper(
+						transaction._doc.to,
+						transaction._doc.user,
+						transaction._doc.amount,
+						transaction._doc.currency
+				  );
+			// Decrement FROM portfolio
+			amountAfter.isZero()
+				? await removeCurrencyEntryHelper(
+						transaction._doc.from,
+						transaction._doc.user,
+						transaction._doc.currency
+				  )
+				: await addInExistingCurrHelper(
+						transaction._doc.from,
+						transaction._doc.user,
+						amountToSubtract,
+						transaction._doc.currency
+				  );
 
-			newPortfolio = await getPortfolioAmountsHelper(
+			newToPortfolio = await getPortfolioAmountsHelper(
 				transaction._doc.user,
-				transaction._doc.portfolio
+				transaction._doc.to
+			);
+
+			newFromPortfolio = await getPortfolioAmountsHelper(
+				transaction._doc.user,
+				transaction._doc.from
 			);
 
 			newTransaction = await getTransactionByIdHelper(
@@ -316,9 +360,10 @@ async function createTransferTransaction(req, res) {
 			);
 		});
 
-		res
-			.status(200)
-			.send({ transaction: newTransaction, portfolio: newPortfolio });
+		res.status(200).send({
+			transaction: newTransaction,
+			portfolios: [newFromPortfolio, newToPortfolio],
+		});
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({

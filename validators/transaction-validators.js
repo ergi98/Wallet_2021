@@ -45,7 +45,7 @@ const earningTransactionSchema = Joi.object({
 
 const transferTransactionSchema = Joi.object({
 	to: Joi.string().hex().length(24).required(),
-	from: Joi.string().hex().length(24).required(),
+	from: Joi.string().hex().length(24).invalid(Joi.ref("to")).required(),
 	currency: Joi.string().hex().length(24).required(),
 }).concat(baseTransactionSchema);
 
