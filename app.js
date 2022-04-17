@@ -22,12 +22,13 @@ import authRoutes from "./routes/auth-routes.js";
 import userRoutes from "./routes/user-routes.js";
 import bankRoutes from "./routes/bank-routes.js";
 import sourceRoutes from "./routes/source-routes.js";
-import journalRoutes from "./routes/journal-routes.js";
 import categoryRoutes from "./routes/category-routes.js";
 import currencyRoutes from "./routes/currency-routes.js";
 import portfolioRoutes from "./routes/portfolio-routes.js";
 import transactionRoutes from "./routes/transaction-routes.js";
 import currencyRatesRoutes from "./routes/currency-rates-routes.js";
+import portfolioTypesRoutes from "./routes/portfolio-types-routes.js";
+import transactionTypesRoutes from "./routes/transaction-types-routes.js";
 
 // Middleware
 import tokenMiddleware from "./middleware/token-middleware.js";
@@ -46,11 +47,10 @@ app.use("/source", tokenMiddleware, sourceRoutes);
 app.use("/category", tokenMiddleware, categoryRoutes);
 app.use("/currency", tokenMiddleware, currencyRoutes);
 app.use("/portfolio", tokenMiddleware, portfolioRoutes);
-app.use("/currency-rate", tokenMiddleware, currencyRatesRoutes);
-
-// Find a way to make journal a middleware and share the same session
-app.use("/journal", tokenMiddleware, journalRoutes);
 app.use("/transaction", tokenMiddleware, transactionRoutes);
+app.use("/currency-rate", tokenMiddleware, currencyRatesRoutes);
+app.use("/portfolio-types", tokenMiddleware, portfolioTypesRoutes);
+app.use("/transaction-types", tokenMiddleware, transactionTypesRoutes);
 
 const port = process.env.PORT;
 
