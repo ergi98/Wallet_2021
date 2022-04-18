@@ -10,6 +10,7 @@ import {
 	earningTransactionSchema,
 	expenseTransactionSchema,
 	transferTransactionSchema,
+	correctEarningTransactionSchema,
 } from "../validators/transaction-validators.js";
 import { objectIdSchema } from "../validators/portfolio-validators.js";
 
@@ -23,7 +24,7 @@ import {
 	createCurrencyEntryHelper,
 	removeCurrencyEntryHelper,
 	getPortfolioAmountsHelper,
-	getTransactionPortfoliosHelper,
+	getMultiplePortfoliosHelper,
 } from "./portfolio-controller.js";
 import { getActiveSourceHelper } from "./source-controller.js";
 import { getActiveCategoryHelper } from "./category-controller.js";
@@ -36,10 +37,67 @@ import TransactionTypesSchema from "../schemas/transaction-types-schema.js";
 // Big Number
 import BigNumber from "bignumber.js";
 
+const compareIds = (id1, id2) =>
+	mongoose.Types.ObjectId(id1).equals(mongoose.Types.ObjectId(id2));
+
+const getPortfolioAmountOfCurrency = (
+	portfolio,
+	currencyId,
+	strict = false
+) => {
+	if (!portfolio) throw new Error("No portfolio to extract amount from.");
+	const amount = portfolio.amounts.find((amount) =>
+		compareIds(amount.currency, currencyId)
+	);
+	if (strict && amount === undefined)
+		throw new Error(
+			`Not enough amount in ${portfolio.description} portfolio to perform this transaction with the given currency.`
+		);
+	return amount;
+};
+
+const validateAmount = (description, amount, allowNegative = false) => {
+	if (
+		amount.isNaN() ||
+		!amount.isFinite() ||
+		(allowNegative === false && amount.isNegative())
+	)
+		throw new Error(
+			`Not enough amount in ${description} portfolio to perform this transaction with the given currency.`
+		);
+};
+
 async function validateTransactionTypeHelper(typeId, expectedType) {
 	const type = await TransactionTypesSchema.findById(typeId);
 	if (type === null || type._doc.type !== expectedType)
 		throw new Error("Invalid transaction type");
+}
+
+async function validateSource(userId, sourceId) {
+	const source = await getActiveSourceHelper(userId, sourceId);
+	if (source === null) throw new Error("Invalid transaction source");
+}
+
+async function validateCategory(userId, categoryId) {
+	const category = await getActiveCategoryHelper(userId, categoryId);
+	if (category === null) throw new Error("Invalid transaction category");
+}
+
+async function validateCurrency(currencyId) {
+	const currency = await CurrencySchema.findById(currencyId);
+	if (currency === null) throw new Error("Invalid transaction currency");
+}
+
+async function validatePortfolio(userId, portfolioId) {
+	const portfolio = await getActivePortfolioHelper(userId, portfolioId);
+	if (portfolio === null) throw new Error("Invalid transaction portfolio");
+	return portfolio;
+}
+
+async function validatePortfolios(userId, ...portfolioIds) {
+	const portfolios = await getMultiplePortfoliosHelper(userId, ...portfolioIds);
+	if (portfolios.length === 0 || portfolios.length !== portfolioIds.length)
+		throw new Error("Transaction portfolios seem to be deleted");
 }
 
 async function getTransactionByIdHelper(transactionId, userId) {
@@ -50,7 +108,7 @@ async function getTransactionByIdHelper(transactionId, userId) {
 }
 
 async function createEarning(req, res) {
-	let session;
+	const session = await mongoose.startSession();
 	try {
 		await objectIdSchema.validateAsync(req.body.type);
 		await validateTransactionTypeHelper(req.body.type, "earning");
@@ -58,24 +116,22 @@ async function createEarning(req, res) {
 		await earningTransactionSchema.validateAsync(req.body, { convert: false });
 
 		// Validating source
-		const source = await getActiveSourceHelper(
-			req.headers.userId,
-			req.body.source
-		);
-		if (source === null) throw new Error("Invalid transaction source");
+		await validateSource(req.headers.userId, req.body.source);
 
 		// Validating currency
-		const currency = await CurrencySchema.findById(req.body.currency);
-		if (currency === null) throw new Error("Invalid transaction currency");
+		await validateCurrency(req.body.currency);
 
 		// Validating portfolio
-		const portfolio = await getActivePortfolioHelper(
+		const portfolio = await validatePortfolio(
 			req.headers.userId,
 			req.body.portfolio
 		);
-		if (portfolio === null) throw new Error("Invalid transaction portfolio");
 
-		session = await mongoose.startSession();
+		// Checking if the portfolio has an entry for this currency
+		const hasExistingEntry = getPortfolioAmountOfCurrency(
+			portfolio._doc,
+			req.body.currency
+		);
 
 		let newTransaction, newPortfolio;
 
@@ -89,12 +145,113 @@ async function createEarning(req, res) {
 				user: mongoose.Types.ObjectId(req.headers.userId),
 			});
 
-			// Checking if the portfolio has an entry for this currency
-			const hasExistingEntry = portfolio._doc.amounts.find((amount) =>
-				mongoose.Types.ObjectId(amount.currency).equals(
-					transaction._doc.currency
-				)
+			// Adding new entry to portfolio amounts or incrementing the current one
+			hasExistingEntry
+				? await addInExistingCurrHelper(
+						transaction._doc.portfolio,
+						transaction._doc.user,
+						transaction._doc.amount,
+						transaction._doc.currency
+				  )
+				: await createCurrencyEntryHelper(
+						transaction._doc.portfolio,
+						transaction._doc.user,
+						transaction._doc.amount,
+						transaction._doc.currency
+				  );
+
+			newPortfolio = await getPortfolioAmountsHelper(
+				transaction._doc.user,
+				transaction._doc.portfolio
 			);
+
+			newTransaction = await getTransactionByIdHelper(
+				transaction._doc._id,
+				transaction._doc.user
+			);
+		});
+
+		res
+			.status(200)
+			.send({ transaction: newTransaction, portfolio: newPortfolio });
+	} catch (err) {
+		console.error(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
+	} finally {
+		session && session.endSession();
+	}
+}
+
+async function correctEarning(req, res) {
+	try {
+		await objectIdSchema.validateAsync(req.body.id);
+
+		req.body.date && (req.body.date = new Date(req.body.date));
+
+		await correctEarningTransactionSchema.validateAsync(req.body, {
+			convert: false,
+		});
+
+		// Getting old transaction (pre-edit)
+		const transaction = await TransactionSchema.find({
+			_id: mongoose.Types.ObjectId(req.body.id),
+			user: mongoose.Types.ObjectId(req.headers.userId),
+			deletedAt: { $exists: 0 },
+			correctedAt: { $exists: 0 },
+			correctedBy: { $exists: 0 },
+		});
+		if (transaction === null)
+			throw new Error("Transaction you are trying to edit could not be found");
+
+		// Validating type
+		const type = TransactionTypesSchema.findById(transaction._doc.type);
+
+		if (type === null || type._doc.type !== "earning")
+			throw new Error(
+				"Transaction you are trying to edit is not of type `Earning`"
+			);
+
+		// Validating currency if different from original
+		if (compareIds(req.body.currency, transaction._doc.currency) === false) {
+			const currency = await CurrencySchema.findById(req.body.currency);
+			if (currency === null) throw new Error("Invalid transaction currency");
+		}
+
+		// Validating source if different from original
+		if (compareIds(req.body.source, transaction._doc.source) === false) {
+			const source = await getActiveSourceHelper(
+				req.headers.userId,
+				req.body.source
+			);
+			if (source === null) throw new Error("Invalid transaction source");
+		}
+
+		let result;
+
+		// If the portfolio has NOT changed
+		if (compareIds(req.body.portfolio, transaction._doc.portfolio))
+			result = await correctEarningWithinSamePortfolio();
+		// If the portfolio has changed
+		else result = await correctEarningWithPortfolioChange();
+
+		const oldAmount = new BigNumber(transaction._doc.amount);
+		const reqAmount = new BigNumber(req.body.amount);
+		const newAmount = reqAmount.minus(oldAmount);
+
+		if (newAmount.isNaN() || !newAmount.isFinite())
+			throw new Error(
+				"Internal Error. Could not edit this transaction. Resulting amount is not valid"
+			);
+
+		session = await mongoose.startSession();
+
+		await session.withTransaction(async () => {
+			// Marking the old transaction as corrected
 
 			// Adding new entry to portfolio amounts or incrementing the current one
 			hasExistingEntry
@@ -139,7 +296,7 @@ async function createEarning(req, res) {
 }
 
 async function createExpense(req, res) {
-	let session;
+	const session = await mongoose.startSession();
 	try {
 		await objectIdSchema.validateAsync(req.body.type);
 		await validateTransactionTypeHelper(req.body.type, "expense");
@@ -147,44 +304,31 @@ async function createExpense(req, res) {
 		await expenseTransactionSchema.validateAsync(req.body, { convert: false });
 
 		// Validating category
-		const category = await getActiveCategoryHelper(
-			req.headers.userId,
-			req.body.category
-		);
-		if (category === null) throw new Error("Invalid transaction category");
+		await validateCategory(req.headers.userId, req.body.category);
 
 		// Validating currency
-		const currency = await CurrencySchema.findById(req.body.currency);
-		if (currency === null) throw new Error("Invalid transaction currency");
+		await validateCurrency(req.body.currency);
 
 		// Validating portfolio
-		const portfolio = await getActivePortfolioHelper(
+		const portfolio = await validatePortfolio(
 			req.headers.userId,
 			req.body.portfolio
 		);
-		if (portfolio === null) throw new Error("Invalid transaction portfolio");
 
-		const portfolioAmount = portfolio._doc.amounts.find((entry) =>
-			mongoose.Types.ObjectId(req.body.currency).equals(entry.currency)
+		const portfolioAmount = await getPortfolioAmountOfCurrency(
+			portfolio._doc,
+			req.body.currency,
+			true
 		);
-		if (portfolioAmount === undefined)
-			throw new Error(
-				"Not enough amount in this portfolio to perform this transaction with the given currency."
-			);
 
 		const amount = new BigNumber(portfolioAmount.amount);
 		const amountAfter = amount.minus(req.body.amount);
 
-		if (
-			amountAfter.isNaN() ||
-			!amountAfter.isFinite() ||
-			amountAfter.isNegative()
-		)
-			throw new Error(
-				"Not enough amount in this portfolio to perform this transaction with the given currency."
-			);
+		validateAmount(portfolio._doc.description, amountAfter);
 
-		session = await mongoose.startSession();
+		const amountToSubtract = mongoose.Types.Decimal128(
+			new BigNumber(req.body.amount).negated().toString()
+		);
 
 		let newTransaction, newPortfolio;
 
@@ -197,10 +341,6 @@ async function createExpense(req, res) {
 				...req.body,
 				user: mongoose.Types.ObjectId(req.headers.userId),
 			});
-
-			const amountToSubtract = mongoose.Types.Decimal128(
-				new BigNumber(req.body.amount).negated().toString()
-			);
 
 			amountAfter.isZero()
 				? await removeCurrencyEntryHelper(
@@ -243,60 +383,41 @@ async function createExpense(req, res) {
 }
 
 async function createTransfer(req, res) {
-	let session;
+	const session = await mongoose.startSession();
 	try {
 		await objectIdSchema.validateAsync(req.body.type);
 		await validateTransactionTypeHelper(req.body.type, "transfer");
 		await transferTransactionSchema.validateAsync(req.body, { convert: false });
 
 		// Validating currency
-		const currency = await CurrencySchema.findById(req.body.currency);
-		if (currency === null) throw new Error("Invalid transaction currency");
+		await validateCurrency(req.body.currency);
 
 		// Validating portfolio
-		const portfolios = await getTransactionPortfoliosHelper(
+		const portfolios = await validatePortfolios(
 			req.headers.userId,
 			req.body.from,
 			req.body.to
 		);
 
-		if (portfolios.length !== 2)
-			throw new Error("Invalid transaction portfolios");
-
-		const fromPortfolio = portfolios.find((portfolio) =>
-			mongoose.Types.ObjectId(req.body.from).equals(portfolio._id)
+		const toPortfolioAmount = getPortfolioAmountOfCurrency(
+			portfolios.find((portfolio) => compareIds(req.body.to, portfolio._id)),
+			req.body.currency
 		);
 
-		const toPortfolio = portfolios.find((portfolio) =>
-			mongoose.Types.ObjectId(req.body.to).equals(portfolio._id)
+		const fromPortfolioAmount = getPortfolioAmountOfCurrency(
+			portfolios.find((portfolio) => compareIds(req.body.from, portfolio._id)),
+			req.body.currency,
+			true
 		);
-
-		const toPortfolioAmount = toPortfolio.amounts.find((entry) =>
-			mongoose.Types.ObjectId(req.body.currency).equals(entry.currency)
-		);
-
-		const fromPortfolioAmount = fromPortfolio.amounts.find((entry) =>
-			mongoose.Types.ObjectId(req.body.currency).equals(entry.currency)
-		);
-
-		if (fromPortfolioAmount === undefined)
-			throw new Error(
-				"Not enough amount in this portfolio to perform this transaction with the given currency."
-			);
 
 		const amount = new BigNumber(fromPortfolioAmount.amount);
 		const amountAfter = amount.minus(req.body.amount);
 
-		if (
-			amountAfter.isNaN() ||
-			!amountAfter.isFinite() ||
-			amountAfter.isNegative()
-		)
-			throw new Error(
-				"Not enough amount in this portfolio to perform this transaction with the given currency."
-			);
+		validateAmount(fromPortfolioAmount._doc.description, amountAfter);
 
-		session = await mongoose.startSession();
+		const amountToSubtract = mongoose.Types.Decimal128(
+			new BigNumber(req.body.amount).negated().toString()
+		);
 
 		let newTransaction, newToPortfolio, newFromPortfolio;
 
@@ -311,10 +432,6 @@ async function createTransfer(req, res) {
 				description: "Transfer",
 				user: mongoose.Types.ObjectId(req.headers.userId),
 			});
-
-			const amountToSubtract = mongoose.Types.Decimal128(
-				new BigNumber(transaction._doc.amount).negated().toString()
-			);
 
 			// Adding new entry to the to portfolio amounts or incrementing the current one
 			toPortfolioAmount
@@ -378,7 +495,6 @@ async function createTransfer(req, res) {
 }
 
 async function deleteTransaction(req, res) {
-	let session;
 	try {
 		await objectIdSchema.validateAsync(req.query.id);
 		const transaction = await TransactionSchema.findOne({
@@ -400,19 +516,17 @@ async function deleteTransaction(req, res) {
 
 		session = await mongoose.startSession();
 
-		await session.withTransaction(async () => {
-			switch (transactionType._doc.type) {
-				case "earning":
-					result = await deleteEarning(transaction._doc);
-					break;
-				case "expense":
-					result = await deleteExpense(transaction._doc);
-					break;
-				case "transfer":
-					result = await deleteTransfer(transaction._doc);
-					break;
-			}
-		});
+		switch (transactionType._doc.type) {
+			case "earning":
+				result = await deleteEarning(transaction._doc);
+				break;
+			case "expense":
+				result = await deleteExpense(transaction._doc);
+				break;
+			case "transfer":
+				result = await deleteTransfer(transaction._doc);
+				break;
+		}
 
 		res.status(200).send(result);
 	} catch (err) {
@@ -423,26 +537,19 @@ async function deleteTransaction(req, res) {
 				err.message ||
 				"An error occurred. Please try again.",
 		});
-	} finally {
-		session && session.endSession();
 	}
 }
 
 async function deleteEarning(transaction) {
-	const portfolio = await getActivePortfolioHelper(
+	const portfolio = await validatePortfolio(
 		transaction.user,
 		transaction.portfolio
 	);
-	if (portfolio === null) throw new Error("Invalid portfolio");
-
-	const amount = portfolio._doc.amounts.find((entry) =>
-		mongoose.Types.ObjectId(transaction.currency).equals(entry.currency)
+	const amount = getPortfolioAmountOfCurrency(
+		portfolio._doc,
+		transaction.currency,
+		true
 	);
-
-	if (amount === undefined)
-		throw new Error(
-			`Transaction could not be deleted. Not enough funds in the ${portfolio._doc.description} portfolio`
-		);
 
 	const portfolioAmount = new BigNumber(amount.amount);
 	const transactionAmount = new BigNumber(transaction.amount);
@@ -452,35 +559,33 @@ async function deleteEarning(transaction) {
 	);
 	const portfolioAmountAfter = portfolioAmount.minus(transactionAmount);
 
-	if (
-		portfolioAmountAfter.isNaN() ||
-		!portfolioAmountAfter.isFinite() ||
-		portfolioAmountAfter.isNegative()
-	)
-		throw new Error(
-			`Transaction could not be deleted. Not enough funds in the ${portfolio._doc.description} portfolio`
-		);
+	validateAmount(portfolio._doc.description, portfolioAmountAfter);
 
-	// Deleting transaction
-	await TransactionSchema.findByIdAndUpdate(transaction._id, {
-		$set: {
-			deletedAt: new Date(),
-		},
+	const session = await mongoose.startSession();
+
+	session.withTransaction(async () => {
+		// Deleting transaction
+		await TransactionSchema.findByIdAndUpdate(transaction._id, {
+			$set: {
+				deletedAt: new Date(),
+			},
+		});
+		// Decrementing earning portfolio
+		portfolioAmountAfter.isZero()
+			? await removeCurrencyEntryHelper(
+					transaction.portfolio,
+					transaction.user,
+					transaction.currency
+			  )
+			: await addInExistingCurrHelper(
+					transaction.portfolio,
+					transaction.user,
+					amountToSubtract,
+					transaction.currency
+			  );
 	});
 
-	// Decrementing earning portfolio
-	portfolioAmountAfter.isZero()
-		? await removeCurrencyEntryHelper(
-				transaction.portfolio,
-				transaction.user,
-				transaction.currency
-		  )
-		: await addInExistingCurrHelper(
-				transaction.portfolio,
-				transaction.user,
-				amountToSubtract,
-				transaction.currency
-		  );
+	session && session.endSession();
 
 	const portfolioAmounts = await getPortfolioAmountsHelper(
 		transaction.user,
@@ -494,38 +599,41 @@ async function deleteEarning(transaction) {
 }
 
 async function deleteExpense(transaction) {
-	const portfolio = await getActivePortfolioHelper(
+	const portfolio = await validatePortfolio(
 		transaction.user,
 		transaction.portfolio
 	);
-	if (portfolio === null) throw new Error("Invalid portfolio");
-
-	// Deleting transaction
-	await TransactionSchema.findByIdAndUpdate(transaction._id, {
-		$set: {
-			deletedAt: new Date(),
-		},
-	});
 
 	// Checking if the portfolio has an entry for this currency
-	const hasExistingEntry = portfolio._doc.amounts.find((amount) =>
-		mongoose.Types.ObjectId(amount.currency).equals(transaction.currency)
+	const hasExistingEntry = getPortfolioAmountOfCurrency(
+		portfolio._doc,
+		transaction.currency
 	);
 
-	// Adding new entry to portfolio amounts or incrementing the current one
-	hasExistingEntry
-		? await addInExistingCurrHelper(
-				transaction.portfolio,
-				transaction.user,
-				transaction.amount,
-				transaction.currency
-		  )
-		: await createCurrencyEntryHelper(
-				transaction.portfolio,
-				transaction.user,
-				transaction.amount,
-				transaction.currency
-		  );
+	const session = await mongoose.startSession();
+
+	session.withTransaction(async () => {
+		// Deleting transaction
+		await TransactionSchema.findByIdAndUpdate(transaction._id, {
+			$set: {
+				deletedAt: new Date(),
+			},
+		});
+		// Adding new entry to portfolio amounts or incrementing the current one
+		hasExistingEntry
+			? await addInExistingCurrHelper(
+					transaction.portfolio,
+					transaction.user,
+					transaction.amount,
+					transaction.currency
+			  )
+			: await createCurrencyEntryHelper(
+					transaction.portfolio,
+					transaction.user,
+					transaction.amount,
+					transaction.currency
+			  );
+	});
 
 	const portfolioAmounts = await getPortfolioAmountsHelper(
 		transaction.user,
@@ -539,87 +647,70 @@ async function deleteExpense(transaction) {
 }
 
 async function deleteTransfer(transaction) {
-	const portfolios = await getTransactionPortfoliosHelper(
+	const portfolios = await validatePortfolios(
 		transaction.user,
 		transaction.from,
 		transaction.to
 	);
 
-	if (portfolios.length !== 2)
-		throw new Error(
-			"One or both of the portfolios of this transaction are deleted"
-		);
-
-	const fromPortfolio = portfolios.find((portfolio) =>
-		mongoose.Types.ObjectId(transaction.from).equals(portfolio._id)
+	const toPortfolioAmount = getPortfolioAmountOfCurrency(
+		portfolios.find((portfolio) => compareIds(transaction.to, portfolio._id)),
+		transaction.currency,
+		true
 	);
 
-	const toPortfolio = portfolios.find((portfolio) =>
-		mongoose.Types.ObjectId(transaction.to).equals(portfolio._id)
+	const fromPortfolioAmount = getPortfolioAmountOfCurrency(
+		portfolios.find((portfolio) => compareIds(transaction.from, portfolio._id)),
+		transaction.currency
 	);
 
-	const toPortfolioAmount = toPortfolio.amounts.find((entry) =>
-		mongoose.Types.ObjectId(transaction.currency).equals(entry.currency)
-	);
-
-	const fromPortfolioAmount = fromPortfolio.amounts.find((entry) =>
-		mongoose.Types.ObjectId(transaction.currency).equals(entry.currency)
-	);
-
-	if (toPortfolioAmount === undefined)
-		throw new Error(
-			`Not enough amount in ${fromPortfolio.description} portfolio to delete this transaction.`
-		);
-
+	const amount = new BigNumber(toPortfolioAmount.amount);
 	const transactionAmount = new BigNumber(transaction.amount);
+	const amountAfter = amount.minus(transactionAmount);
+
 	const amountToSubtract = mongoose.Types.Decimal128(
 		transactionAmount.negated().toString()
 	);
-	const amount = new BigNumber(toPortfolioAmount.amount);
-	const amountAfter = amount.minus(transactionAmount);
 
-	if (
-		amountAfter.isNaN() ||
-		!amountAfter.isFinite() ||
-		amountAfter.isNegative()
-	)
-		throw new Error(
-			`Not enough amount in ${fromPortfolio.description} portfolio to delete this transaction.`
-		);
+	validateAmount(toPortfolioAmount.description, amountAfter);
 
-	// Deleting transaction
-	await TransactionSchema.findByIdAndUpdate(transaction._id, {
-		$set: {
-			deletedAt: new Date(),
-		},
+	const session = await mongoose.startSession();
+
+	session.withTransaction(async () => {
+		// Deleting transaction
+		await TransactionSchema.findByIdAndUpdate(transaction._id, {
+			$set: {
+				deletedAt: new Date(),
+			},
+		});
+		// Incrementing FROM portfolio
+		fromPortfolioAmount
+			? await addInExistingCurrHelper(
+					transaction.from,
+					transaction.user,
+					transaction.amount,
+					transaction.currency
+			  )
+			: await createCurrencyEntryHelper(
+					transaction.from,
+					transaction.user,
+					transaction.amount,
+					transaction.currency
+			  );
+		// Decrement TO portfolio
+		amountAfter.isZero()
+			? await removeCurrencyEntryHelper(
+					transaction.to,
+					transaction.user,
+					transaction.currency
+			  )
+			: await addInExistingCurrHelper(
+					transaction.to,
+					transaction.user,
+					amountToSubtract,
+					transaction.currency
+			  );
 	});
-
-	fromPortfolioAmount
-		? await addInExistingCurrHelper(
-				transaction.from,
-				transaction.user,
-				transaction.amount,
-				transaction.currency
-		  )
-		: await createCurrencyEntryHelper(
-				transaction.from,
-				transaction.user,
-				transaction.amount,
-				transaction.currency
-		  );
-	// Decrement TO portfolio
-	amountAfter.isZero()
-		? await removeCurrencyEntryHelper(
-				transaction.to,
-				transaction.user,
-				transaction.currency
-		  )
-		: await addInExistingCurrHelper(
-				transaction.to,
-				transaction.user,
-				amountToSubtract,
-				transaction.currency
-		  );
 
 	const newToPortfolio = await getPortfolioAmountsHelper(
 		transaction.user,
@@ -913,6 +1004,7 @@ async function getHomeStatistics(req, res) {
 }
 
 export {
+	correctEarning,
 	createEarning,
 	createExpense,
 	createTransfer,

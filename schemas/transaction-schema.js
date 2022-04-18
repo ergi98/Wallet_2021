@@ -34,6 +34,7 @@ const transactionSchema = new mongoose.Schema(
 		},
 		// Desc - Earing & Expense
 		description: {
+			trim: true,
 			type: String,
 		},
 		// Categorization - Earning & Expense

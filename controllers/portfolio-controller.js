@@ -29,10 +29,10 @@ async function getActivePortfolioHelper(userId, portfolioId) {
 }
 
 // PID = Portfolio ID
-async function getTransactionPortfoliosHelper(userId, fromPID, toPID) {
+async function getMultiplePortfoliosHelper(userId, ...portfolioIds) {
 	const portfolios = await PortfolioSchema.find({
 		_id: {
-			$in: [mongoose.Types.ObjectId(fromPID), mongoose.Types.ObjectId(toPID)],
+			$in: portfolioIds.map((id) => mongoose.Types.ObjectId(id)),
 		},
 		user: mongoose.Types.ObjectId(userId),
 		deletedAt: { $exists: 0 },
@@ -421,5 +421,5 @@ export {
 	createCurrencyEntryHelper,
 	removeCurrencyEntryHelper,
 	getPortfolioAmountsHelper,
-	getTransactionPortfoliosHelper,
+	getMultiplePortfoliosHelper,
 };

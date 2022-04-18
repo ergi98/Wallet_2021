@@ -43,6 +43,19 @@ const earningTransactionSchema = Joi.object({
 	description: Joi.string().max(maxDescriptionLength).required(),
 }).concat(baseTransactionSchema);
 
+const correctEarningTransactionSchema = Joi.object({
+	amount: Joi.number().precision(2).positive().required(),
+	date: Joi.date()
+		.iso()
+		.less("now")
+		.greater(earliestTransactionDate)
+		.required(),
+	source: Joi.string().hex().length(24).required(),
+	currency: Joi.string().hex().length(24).required(),
+	portfolio: Joi.string().hex().length(24).required(),
+	description: Joi.string().max(maxDescriptionLength).required(),
+});
+
 const transferTransactionSchema = Joi.object({
 	to: Joi.string().hex().length(24).required(),
 	from: Joi.string().hex().length(24).invalid(Joi.ref("to")).required(),
@@ -54,4 +67,5 @@ export {
 	expenseTransactionSchema,
 	earningTransactionSchema,
 	transferTransactionSchema,
+	correctEarningTransactionSchema,
 };
