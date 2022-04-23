@@ -8,7 +8,7 @@ import {
 	editSourceSchema,
 	createSourceSchema,
 } from "../validators/source-validators.js";
-import { objectIdSchema } from "../validators/portfolio-validators.js";
+import { objectIdSchema } from "../validators/general-validators.js";
 
 // Returns an not deleted source
 async function getActiveCategoryHelper(userId, sourceId) {

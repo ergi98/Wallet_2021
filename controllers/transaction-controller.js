@@ -12,7 +12,7 @@ import {
 	transferTransactionSchema,
 	correctEarningTransactionSchema,
 } from "../validators/transaction-validators.js";
-import { objectIdSchema } from "../validators/portfolio-validators.js";
+import { objectIdSchema } from "../validators/general-validators.js";
 
 // Aggregations
 import { getTransactionsAggregation } from "../aggregations/transaction-aggregations.js";
@@ -175,7 +175,7 @@ async function createEarning(req, res) {
 
 		res
 			.status(200)
-			.send({ transaction: newTransaction, portfolio: newPortfolio });
+			.send({ transaction: newTransaction, portfolio: newPortfolio[0] });
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({
@@ -190,6 +190,7 @@ async function createEarning(req, res) {
 }
 
 async function correctEarning(req, res) {
+	let session;
 	try {
 		await objectIdSchema.validateAsync(req.body.id);
 
@@ -200,96 +201,119 @@ async function correctEarning(req, res) {
 		});
 
 		// Getting old transaction (pre-edit)
-		const transaction = await TransactionSchema.find({
+		const transactionToCorrect = await TransactionSchema.findOne({
 			_id: mongoose.Types.ObjectId(req.body.id),
 			user: mongoose.Types.ObjectId(req.headers.userId),
 			deletedAt: { $exists: 0 },
 			correctedAt: { $exists: 0 },
 			correctedBy: { $exists: 0 },
 		});
-		if (transaction === null)
+		if (transactionToCorrect === null)
 			throw new Error(
 				"Transaction you are trying to correct could not be found"
 			);
 
-		// Validating type
-		await validateTransactionTypeHelper(transaction._doc.type, "earning");
+		// New Transaction Amount
+		const NTA = new BigNumber(req.body.amount);
+		// Old Transaction Amount
+		const OTA = new BigNumber(transactionToCorrect._doc.amount);
 
-		// Validating source if different from original
-		if (compareIds(req.body.source, transaction._doc.source) === false)
+		// Getting Portfolios (Old and new)
+		const portfoliosArray = Array.from(
+			new Set([
+				transactionToCorrect._doc.portfolio.toString(),
+				req.body.portfolio,
+			])
+		);
+
+		const samePortfolio = compareIds(
+			req.body.portfolio,
+			transactionToCorrect._doc.portfolio
+		);
+
+		// Validating portfolio
+		const affectedPortfolios = await validatePortfolios(
+			req.headers.userId,
+			...portfoliosArray
+		);
+
+		// Getting old portfolio data
+		const oldPortfolio = affectedPortfolios.find((portfolio) =>
+			compareIds(portfolio._id, transactionToCorrect._doc.portfolio)
+		);
+
+		// Old Portfolio Amount In Old Currency
+		const OPAIOC = new BigNumber(
+			getPortfolioAmountOfCurrency(
+				oldPortfolio,
+				transactionToCorrect._doc.currency
+			)?.amount ?? 0
+		);
+
+		// Getting new portfolio data
+		const newPortfolio = affectedPortfolios.find((portfolio) =>
+			compareIds(portfolio._id, req.body.portfolio)
+		);
+		// New Portfolio Amount In New Currency
+		const NPAINC = getPortfolioAmountOfCurrency(
+			newPortfolio,
+			req.body.currency
+		);
+
+		// Validating Type
+		await validateTransactionTypeHelper(
+			transactionToCorrect._doc.type,
+			"earning"
+		);
+
+		// Validating Source (if different from original)
+		const sameSource = compareIds(
+			req.body.source,
+			transactionToCorrect._doc.source
+		);
+		if (sameSource === false)
 			await validateSource(req.headers.userId, req.body.source);
 
-		const diffCurrency = compareIds(
+		// Validating Currency (if different from original)
+		const sameCurrency = compareIds(
 			req.body.currency,
-			transaction._doc.currency
+			transactionToCorrect._doc.currency
 		);
-		// Validating currency if different from original
-		if (diffCurrency === false) await validateCurrency(req.body.currency);
+		if (sameCurrency === false) await validateCurrency(req.body.currency);
 
-		const newAmount = new BigNumber(req.body.amount);
-		const oldAmount = new BigNumber(transaction._doc.amount);
+		// Calculating the remaining amount in the old portfolio.
+		const amountAfter =
+			sameCurrency && samePortfolio
+				? OPAIOC.plus(NTA).minus(OTA)
+				: OPAIOC.minus(OTA);
 
-		const portfolio = await validatePortfolio(
-			req.headers.userId,
-			transaction._doc.portfolio
-		);
-		// If not changing the currency
-		if (diffCurrency === false) {
-			const diffAmount = newAmount.minus(oldAmount);
-			validateAmount(portfolio._doc.description, diffAmount, true);
-			// If the correction will result in less funds in the portfolio
-			if (diffAmount.isNegative()) {
-				const portfolioAmount = getPortfolioAmountOfCurrency(
-					portfolio._doc,
-					req.body.currency,
-					true
-				);
-				// If after the transfer the portfolio amount will go negative throw an error
-				const amountAfter = diffAmount.plus(portfolioAmount);
-				validateAmount(portfolio._doc.description, amountAfter, false);
-			}
-		}
-		// If changing the currency
-		else {
-			// Get previous transaction currency amount
-			const portfolioAmount = new BigNumber(
-				getPortfolioAmountOfCurrency(
-					portfolio._doc,
-					transaction._doc.currency,
-					true
-				)
-			);
-			// Check if after removing the previous amount the portfolio amount goes negative
-			const amountAfter = portfolioAmount.minus(oldAmount);
-			validateAmount(portfolio._doc.description, amountAfter, false);
-		}
+		// Do not allow correction if the portfolio amount will go negative
+		validateAmount(oldPortfolio._doc.description, amountAfter, false);
 
-		const session = await mongoose.startSession();
-
-		let newTransactionId,
-			correctedTransactionId = transaction._id;
-
-		const { _id, oldTransactionData } = transaction;
-		const { id, newTransactionData } = requestBody;
-
-		const portfolioAmountInNewCurrency = getPortfolioAmountOfCurrency(
-			portfolio._doc,
-			requestBody.currency
+		const amountToSubtract = mongoose.Types.Decimal128(
+			new BigNumber(transactionToCorrect._doc.amount).negated().toString()
 		);
 
-		session.withTransaction(async () => {
-			const NOW = new Date();
-			// Creating new Transaction
-			const newTransaction = await TransactionSchema.create({
-				...oldTransactionData,
+		const NOW = new Date();
+
+		const { _id, ...transactionToCorrectData } = transactionToCorrect._doc;
+		const { id, ...newTransactionData } = req.body;
+
+		let newTransaction;
+
+		session = await mongoose.startSession();
+
+		await session.withTransaction(async () => {
+			// Adding New Transaction
+			newTransaction = await TransactionSchema.create({
+				...transactionToCorrectData,
 				...newTransactionData,
 				createdAt: NOW,
 			});
 
-			newTransactionId = newTransaction._doc._id;
-
-			// Incrementing Portfolio (New Amount)
-			portfolioAmountInNewCurrency
+			// Incrementing New Portfolio Amount
+			// New Portfolio Amount In New Currency
+			NPAINC
 				? await addInExistingCurrHelper(
 						newTransaction._doc.portfolio,
 						newTransaction._doc.user,
@@ -303,69 +327,49 @@ async function correctEarning(req, res) {
 						newTransaction._doc.currency
 				  );
 
-			// Marking the previous transaction as corrected
-			await TransactionSchema.findByIdAndUpdate(transaction._id, {
+			// Correcting previous transaction
+			await TransactionSchema.findByIdAndUpdate(transactionToCorrect._doc._id, {
 				$set: {
 					correctedBy: newTransaction._doc._id,
 					correctedAt: NOW,
 				},
 			});
 
-			const oldPortfolio = await getActivePortfolioHelper(
-				transaction.portfolio
-			);
-
-			const amount = getPortfolioAmountOfCurrency(
-				oldPortfolio._doc,
-				transaction.currency,
-				true
-			);
-
-			const amountAfter = new BigNumber(amount).minus(transaction.amount);
-
-			// Decrementing Portfolio (Previous Amount)
+			// Decrementing Old Portfolio Amount
 			amountAfter.isZero()
 				? await removeCurrencyEntryHelper(
-						transaction.portfolio,
-						transaction.user,
-						transaction.currency
+						transactionToCorrect._doc.portfolio,
+						transactionToCorrect._doc.user,
+						transactionToCorrect._doc.currency
 				  )
 				: await addInExistingCurrHelper(
-						transaction.portfolio,
-						transaction.user,
-						mongoose.Types.Decimal128(
-							new BigNumber(transaction.amount).negated().toString()
-						),
-						transaction.currency
+						transactionToCorrect._doc.portfolio,
+						transactionToCorrect._doc.user,
+						amountToSubtract,
+						transactionToCorrect._doc.currency
 				  );
 		});
 
-		const newTransaction = await getTransactionByIdHelper(
-			newTransactionId,
-			transaction.user
+		await session.commitTransaction();
+
+		// Fetching updated data to send back to client
+		const populatedNewTransaction = await getTransactionByIdHelper(
+			newTransaction._doc._id,
+			newTransaction._doc.user
 		);
-
-		const updatedPortfolios = [];
-
-		const arrayOfChangedPortfolios = Array.from(
-			new Set([transaction.portfolio.toString(), req.body.portfolio])
+		const populatedAffectedPortfolios = await getPortfolioAmountsHelper(
+			req.headers.userId,
+			...portfoliosArray
 		);
-
-		for (let entry of arrayOfChangedPortfolios) {
-			const updatedPortfolio = await getPortfolioAmountsHelper(
-				req.headers.userId,
-				entry.portfolio
-			);
-			updatedPortfolios.push(updatedPortfolio);
-		}
 
 		res.status(200).send({
-			correctedId: correctedTransactionId,
-			transaction: newTransaction,
-			portfolios: [updatedPortfolios],
+			correctedId: transactionToCorrect._doc._id,
+			transaction: populatedNewTransaction,
+			portfolios: populatedAffectedPortfolios,
 		});
 	} catch (err) {
 		console.error(err);
+		if (session) await session.abortTransaction();
 		res.status(400).send({
 			message:
 				err.details?.message ||
@@ -448,7 +452,7 @@ async function createExpense(req, res) {
 
 		res
 			.status(200)
-			.send({ transaction: newTransaction, portfolio: newPortfolio });
+			.send({ transaction: newTransaction, portfolio: newPortfolio[0] });
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({
@@ -499,7 +503,7 @@ async function createTransfer(req, res) {
 			new BigNumber(req.body.amount).negated().toString()
 		);
 
-		let newTransaction, newToPortfolio, newFromPortfolio;
+		let newTransaction, affectedPortfolios;
 
 		await session.withTransaction(async () => {
 			const createdAt = new Date();
@@ -541,13 +545,9 @@ async function createTransfer(req, res) {
 						transaction._doc.currency
 				  );
 
-			newToPortfolio = await getPortfolioAmountsHelper(
+			affectedPortfolios = await getPortfolioAmountsHelper(
 				transaction._doc.user,
-				transaction._doc.to
-			);
-
-			newFromPortfolio = await getPortfolioAmountsHelper(
-				transaction._doc.user,
+				transaction._doc.to,
 				transaction._doc.from
 			);
 
@@ -559,7 +559,7 @@ async function createTransfer(req, res) {
 
 		res.status(200).send({
 			transaction: newTransaction,
-			portfolios: [newFromPortfolio, newToPortfolio],
+			portfolios: affectedPortfolios,
 		});
 	} catch (err) {
 		console.error(err);
@@ -674,7 +674,7 @@ async function deleteEarning(transaction) {
 
 	return {
 		transaction: transaction._id,
-		portfolio: portfolioAmounts,
+		portfolio: portfolioAmounts[0],
 	};
 }
 
@@ -722,7 +722,7 @@ async function deleteExpense(transaction) {
 
 	return {
 		transaction: transaction._id,
-		portfolio: portfolioAmounts,
+		portfolio: portfolioAmounts[0],
 	};
 }
 
@@ -792,19 +792,15 @@ async function deleteTransfer(transaction) {
 			  );
 	});
 
-	const newToPortfolio = await getPortfolioAmountsHelper(
+	const affectedPortfolios = await getPortfolioAmountsHelper(
 		transaction.user,
-		transaction.to
-	);
-
-	const newFromPortfolio = await getPortfolioAmountsHelper(
-		transaction.user,
+		transaction.to,
 		transaction.from
 	);
 
 	return {
 		transaction: transaction._id,
-		portfolio: [newToPortfolio, newFromPortfolio],
+		portfolio: affectedPortfolios,
 	};
 }
 

@@ -44,6 +44,7 @@ const earningTransactionSchema = Joi.object({
 }).concat(baseTransactionSchema);
 
 const correctEarningTransactionSchema = Joi.object({
+	id: Joi.string().hex().length(24).required(),
 	amount: Joi.number().precision(2).positive().required(),
 	date: Joi.date()
 		.iso()

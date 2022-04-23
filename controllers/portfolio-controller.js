@@ -3,11 +3,11 @@ import mongoose from "mongoose";
 // Validation
 import {
 	walletSchema,
-	objectIdSchema,
 	editWalletSchema,
 	virtualWalletSchema,
 	editVirtualWalletSchema,
 } from "../validators/portfolio-validators.js";
+import { objectIdSchema } from "../validators/general-validators.js";
 
 // Aggregations
 import {
@@ -100,16 +100,16 @@ async function getPortfolioAmountsHelper(userId, ...portfolioIds) {
 		portfolioAmountAggregation(userId, portfolioIds)
 	);
 
-	const portfolio = result[0];
-
-	if (portfolio === undefined)
+	if (result.length !== portfolioIds.length)
 		throw new Error("Portfolio with this id does not exits");
 
-	portfolio.amounts = portfolio.amounts.filter(
-		(amount) => amount.currency !== undefined
-	);
+	result.forEach((result) => {
+		result.amounts = result.amounts.filter(
+			(amount) => amount.currency !== undefined
+		);
+	});
 
-	return portfolio;
+	return result;
 }
 
 async function createPortfolio(req, res) {

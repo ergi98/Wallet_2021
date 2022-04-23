@@ -3,8 +3,6 @@ import Joi from "joi";
 const cardNumberRegex = /([0-9]){16}/;
 const maxDescriptionLength = 100;
 
-const objectIdSchema = Joi.string().hex().length(24).required();
-
 const walletSchema = Joi.object({
 	type: Joi.string().hex().length(24).required(),
 	description: Joi.string().max(maxDescriptionLength).required(),
@@ -41,7 +39,6 @@ const editVirtualWalletSchema = Joi.object({
 });
 
 export {
-	objectIdSchema,
 	walletSchema,
 	virtualWalletSchema,
 	editWalletSchema,
