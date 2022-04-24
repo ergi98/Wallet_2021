@@ -41,6 +41,8 @@ app.use(express.json());
 
 // Routes
 app.use("/auth", authRoutes);
+app.use("/currency-rate", currencyRatesRoutes);
+
 app.use("/user", tokenMiddleware, userRoutes);
 app.use("/bank", tokenMiddleware, bankRoutes);
 app.use("/source", tokenMiddleware, sourceRoutes);
@@ -48,7 +50,6 @@ app.use("/category", tokenMiddleware, categoryRoutes);
 app.use("/currency", tokenMiddleware, currencyRoutes);
 app.use("/portfolio", tokenMiddleware, portfolioRoutes);
 app.use("/transaction", tokenMiddleware, transactionRoutes);
-app.use("/currency-rate", tokenMiddleware, currencyRatesRoutes);
 app.use("/portfolio-types", tokenMiddleware, portfolioTypesRoutes);
 app.use("/transaction-types", tokenMiddleware, transactionTypesRoutes);
 
