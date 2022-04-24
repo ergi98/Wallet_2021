@@ -23,7 +23,6 @@ router.route("/transfer").post(createTransfer);
 
 router.route("/correct-earning").post(correctEarning);
 router.route("/correct-expense").post(correctExpense);
-// router.route("/correct-transfer").post(correctTransfer);
 
 // DELETE
 router.route("/delete").delete(deleteTransaction);
