@@ -2,12 +2,13 @@ import express from "express";
 
 // Controller
 import {
-	getHomeStatistics,
 	createEarning,
 	createExpense,
 	createTransfer,
-	deleteTransaction,
 	correctEarning,
+	correctExpense,
+	deleteTransaction,
+	getHomeStatistics,
 } from "../controllers/transaction-controller.js";
 
 const router = express.Router();
@@ -21,6 +22,8 @@ router.route("/expense").post(createExpense);
 router.route("/transfer").post(createTransfer);
 
 router.route("/correct-earning").post(correctEarning);
+router.route("/correct-expense").post(correctExpense);
+// router.route("/correct-transfer").post(correctTransfer);
 
 // DELETE
 router.route("/delete").delete(deleteTransaction);

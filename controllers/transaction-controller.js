@@ -8,6 +8,7 @@ import {
 	expenseTransactionSchema,
 	transferTransactionSchema,
 	correctEarningTransactionSchema,
+	correctExpenseTransactionSchema,
 } from "../validators/transaction-validators.js";
 import { objectIdSchema } from "../validators/general-validators.js";
 
@@ -313,7 +314,6 @@ async function correctEarning(req, res) {
 			});
 
 			// Incrementing New Portfolio Amount
-			// New Portfolio Amount In New Currency
 			NPAINC
 				? await addInExistingCurrHelper(
 						newTransaction._doc.portfolio,
@@ -459,6 +459,196 @@ async function createExpense(req, res) {
 		res
 			.status(200)
 			.send({ transaction: newTransaction, portfolio: newPortfolio[0] });
+	} catch (err) {
+		console.error(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
+	} finally {
+		if (session) await session.endSession();
+	}
+}
+
+async function correctExpense(req, res) {
+	let session;
+	try {
+		await objectIdSchema.validateAsync(req.body.id);
+
+		req.body.date && (req.body.date = new Date(req.body.date));
+
+		await correctExpenseTransactionSchema.validateAsync(req.body, {
+			convert: false,
+		});
+
+		// Getting old transaction (pre-edit)
+		const transactionToCorrect = await TransactionSchema.findOne({
+			_id: mongoose.Types.ObjectId(req.body.id),
+			user: mongoose.Types.ObjectId(req.headers.userId),
+			deletedAt: { $exists: 0 },
+			correctedAt: { $exists: 0 },
+			correctedBy: { $exists: 0 },
+		});
+		if (transactionToCorrect === null)
+			throw new Error(
+				"Transaction you are trying to correct could not be found"
+			);
+
+		// New Transaction Amount
+		const NTA = new BigNumber(req.body.amount);
+		// Old Transaction Amount
+		const OTA = new BigNumber(transactionToCorrect._doc.amount);
+
+		// Getting Portfolios (Old and new)
+		const portfoliosArray = Array.from(
+			new Set([
+				transactionToCorrect._doc.portfolio.toString(),
+				req.body.portfolio,
+			])
+		);
+
+		const samePortfolio = compareIds(
+			req.body.portfolio,
+			transactionToCorrect._doc.portfolio
+		);
+
+		// Validating portfolio
+		const affectedPortfolios = await validatePortfolios(
+			req.headers.userId,
+			...portfoliosArray
+		);
+
+		// Getting old portfolio data
+		const oldPortfolio = affectedPortfolios.find((portfolio) =>
+			compareIds(portfolio._id, transactionToCorrect._doc.portfolio)
+		);
+
+		// Old Portfolio Amount In Old Currency
+		const OPAIOC = new BigNumber(
+			getPortfolioAmountOfCurrency(
+				oldPortfolio,
+				transactionToCorrect._doc.currency
+			)?.amount ?? 0
+		);
+
+		// Getting new portfolio data
+		const newPortfolio = affectedPortfolios.find((portfolio) =>
+			compareIds(portfolio._id, req.body.portfolio)
+		);
+		// New Portfolio Amount In New Currency
+		const NPAINC = getPortfolioAmountOfCurrency(
+			newPortfolio,
+			req.body.currency
+		);
+
+		// Validating Type
+		await validateTransactionTypeHelper(
+			transactionToCorrect._doc.type,
+			"earning"
+		);
+
+		// Validating Category (if different from original)
+		const sameCategory = compareIds(
+			req.body.category,
+			transactionToCorrect._doc.category
+		);
+		if (sameCategory === false)
+			await validateSource(req.headers.userId, req.body.source);
+
+		// Validating Currency (if different from original)
+		const sameCurrency = compareIds(
+			req.body.currency,
+			transactionToCorrect._doc.currency
+		);
+		if (sameCurrency === false) await validateCurrency(req.body.currency);
+
+		// Calculating the remaining amount in the new portfolio.
+		const amountAfter =
+			sameCurrency && samePortfolio
+				? NPAINC.plus(OTA).minus(NTA)
+				: NPAINC.minus(NTA);
+
+		// Do not allow correction if the portfolio amount will go negative
+		validateAmount(oldPortfolio._doc.description, amountAfter, false);
+
+		const NOW = new Date();
+
+		const amountToSubtract = mongoose.Types.Decimal128(
+			new BigNumber(req.body.amount).negated().toString()
+		);
+
+		const { _id, ...transactionToCorrectData } = transactionToCorrect._doc;
+		const { id, ...newTransactionData } = req.body;
+
+		session = await mongoose.startSession();
+
+		let populatedNewTransaction, populatedAffectedPortfolios;
+
+		await session.withTransaction(async () => {
+			// Adding New Transaction
+			const newTransaction = await TransactionSchema.create({
+				...transactionToCorrectData,
+				...newTransactionData,
+				createdAt: NOW,
+			});
+
+			// Decrementing Old Portfolio Amount
+			amountAfter.isZero()
+				? await removeCurrencyEntryHelper(
+						newTransaction._doc.portfolio,
+						newTransaction._doc.user,
+						newTransaction._doc.currency
+				  )
+				: await addInExistingCurrHelper(
+						newTransaction._doc.portfolio,
+						newTransaction._doc.user,
+						amountToSubtract,
+						newTransaction._doc.currency
+				  );
+
+			// Correcting previous transaction
+			await TransactionSchema.findByIdAndUpdate(transactionToCorrect._doc._id, {
+				$set: {
+					correctedBy: newTransaction._doc._id,
+					correctedAt: NOW,
+				},
+			});
+
+			// Refund the previous transactions cost
+			OPAIOC
+				? await addInExistingCurrHelper(
+						transactionToCorrect._doc.portfolio,
+						transactionToCorrect._doc.user,
+						transactionToCorrect._doc.amount,
+						transactionToCorrect._doc.currency
+				  )
+				: await createCurrencyEntryHelper(
+						transactionToCorrect._doc.portfolio,
+						transactionToCorrect._doc.user,
+						transactionToCorrect._doc.amount,
+						transactionToCorrect._doc.currency
+				  );
+
+			// Fetching updated data to send back to client
+			populatedNewTransaction = await getTransactionByIdHelper(
+				newTransaction._doc._id,
+				newTransaction._doc.user
+			);
+			populatedAffectedPortfolios = await getPortfolioAmountsHelper(
+				req.headers.userId,
+				...portfoliosArray
+			);
+		});
+
+		await session.commitTransaction();
+
+		res.status(200).send({
+			correctedId: transactionToCorrect._doc._id,
+			transaction: populatedNewTransaction,
+			portfolios: populatedAffectedPortfolios,
+		});
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({
@@ -1127,9 +1317,10 @@ async function getHomeStatistics(req, res) {
 }
 
 export {
-	correctEarning,
 	createEarning,
+	correctEarning,
 	createExpense,
+	correctExpense,
 	createTransfer,
 	deleteTransaction,
 	getHomeStatistics,
