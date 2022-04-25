@@ -65,6 +65,7 @@ const populateRates = [
 								input: "$rates",
 								as: "rate",
 								in: {
+									_id: "$$rate._id",
 									acronym: "$$rate.acronym",
 									rate: { $toDouble: "$$rate.rate" },
 								},
@@ -266,7 +267,7 @@ const homeStatisticsAggregation = (data) => {
 		{
 			$set: {
 				amountInDefault: {
-					$multiply: ["$amount", "$rateToDefault.rate"],
+					$multiply: ["$amount", "$rateToDefault"],
 				},
 			},
 		},

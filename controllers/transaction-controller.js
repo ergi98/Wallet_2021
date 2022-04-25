@@ -1084,6 +1084,7 @@ async function getHomeStatistics(req, res) {
 				prevEnd,
 				boundaries,
 				expenseTypeId,
+				userId: req.headers.userId,
 			})
 		);
 
