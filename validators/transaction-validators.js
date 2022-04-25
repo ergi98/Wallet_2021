@@ -7,7 +7,7 @@ const earliestTransactionDate = new Date(Date.UTC(2012, 0, 1, 0, 0, 0, 0));
 
 const homeStatisticsSchema = Joi.object({
 	start: Joi.date().iso().greater(earliestTransactionDate).required(),
-	end: Joi.date().iso().less("now").greater(Joi.ref("start")).required(),
+	end: Joi.date().iso().greater(Joi.ref("start")).required(),
 });
 
 const baseTransactionSchema = Joi.object({

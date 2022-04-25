@@ -13,7 +13,10 @@ import {
 import { objectIdSchema } from "../validators/general-validators.js";
 
 // Aggregations
-import { getTransactionsAggregation } from "../aggregations/transaction-aggregations.js";
+import {
+	getTransactionsAggregation,
+	homeStatisticsAggregation,
+} from "../aggregations/transaction-aggregations.js";
 
 // Helpers
 import {
@@ -1041,18 +1044,20 @@ async function getHomeStatistics(req, res) {
 	try {
 		await homeStatisticsSchema.validateAsync(req.query);
 
-		let end = new Date(req.query.end);
-		let start = new Date(req.query.start);
+		const end = new Date(req.query.end);
+		const start = new Date(req.query.start);
 
 		// EOD = End of day
-		let EODTimestamp = new Date(req.query.end).setUTCDate(end.getUTCDate() - 1);
+		const EODTimestamp = new Date(req.query.end).setUTCDate(
+			end.getUTCDate() - 1
+		);
 		// SOD = Start of day
-		let SODTimestamp = new Date(req.query.start).setUTCDate(
+		const SODTimestamp = new Date(req.query.start).setUTCDate(
 			start.getUTCDate() - 1
 		);
 
-		let prevEnd = new Date(EODTimestamp);
-		let prevStart = new Date(SODTimestamp);
+		const prevEnd = new Date(EODTimestamp);
+		const prevStart = new Date(SODTimestamp);
 
 		const getBoundaries = (start) => {
 			let arr = [];
@@ -1065,197 +1070,22 @@ async function getHomeStatistics(req, res) {
 
 		const boundaries = getBoundaries(start);
 
-		const otherStages = [
-			{
-				$lookup: {
-					from: "transaction-types",
-					localField: "type",
-					foreignField: "_id",
-					as: "typeData",
-				},
-			},
-			{
-				$set: {
-					type: { $arrayElemAt: ["$typeData", 0] },
-				},
-			},
-			{
-				$group: {
-					_id: "$type.type",
-					amount: { $sum: "$amountInDefault" },
-				},
-			},
-			{
-				$set: {
-					type: "$_id",
-					amount: { $toDouble: "$amount" },
-				},
-			},
-			{
-				$project: {
-					_id: 0,
-				},
-			},
-		];
-
 		const transactionTypes = await TransactionTypesSchema.find({});
 
-		let data = await TransactionSchema.aggregate([
-			{
-				$facet: {
-					previous: [
-						{
-							$match: {
-								user: mongoose.Types.ObjectId(req.headers.userId),
-								date: {
-									$gte: prevStart,
-									$lte: prevEnd,
-								},
-								deletedAt: { $exists: 0 },
-								correctedAt: { $exists: 0 },
-								correctedBy: { $exists: 0 },
-							},
-						},
-						...otherStages,
-					],
-					today: [
-						{
-							$match: {
-								user: mongoose.Types.ObjectId(req.headers.userId),
-								date: {
-									$gte: start,
-									$lte: end,
-								},
-								deletedAt: { $exists: 0 },
-								correctedAt: { $exists: 0 },
-								correctedBy: { $exists: 0 },
-							},
-						},
-						...otherStages,
-					],
-					expenseChart: [
-						{
-							$match: {
-								user: mongoose.Types.ObjectId(req.headers.userId),
-								type: mongoose.Types.ObjectId(
-									transactionTypes.find((el) => el.type === "expense")._id
-								),
-								deletedAt: { $exists: 0 },
-								correctedAt: { $exists: 0 },
-								correctedBy: { $exists: 0 },
-							},
-						},
-						// Test this
-						{
-							$bucket: {
-								groupBy: "$date",
-								boundaries: boundaries,
-								default: "other",
-								output: {},
-							},
-						},
-					],
-					transactions: [
-						{
-							$match: {
-								user: mongoose.Types.ObjectId(req.headers.userId),
-								date: {
-									$gte: start,
-									$lte: end,
-								},
-								deletedAt: { $exists: 0 },
-								correctedAt: { $exists: 0 },
-								correctedBy: { $exists: 0 },
-							},
-						},
-						{
-							$sort: { date: -1 },
-						},
-						{
-							$limit: 20,
-						},
-						{
-							$set: {
-								amount: {
-									$toDouble: "$amount",
-								},
-								amountInDefault: {
-									$toDouble: "$amountInDefault",
-								},
-								currencyRate: {
-									$toDouble: "$currencyRate",
-								},
-							},
-						},
-						{
-							$project: {
-								journals: 0,
-								user: 0,
-							},
-						},
-						{
-							$lookup: {
-								from: "transactionTypes",
-								foreignField: "_id",
-								localField: "type",
-								as: "type",
-							},
-						},
-						{
-							$set: {
-								type: { $arrayElemAt: ["$type", 0] },
-							},
-						},
-						{
-							$lookup: {
-								from: "sources",
-								foreignField: "_id",
-								localField: "source",
-								as: "source",
-							},
-						},
-						{
-							$set: {
-								source: { $arrayElemAt: ["$source", 0] },
-							},
-						},
-						{
-							$lookup: {
-								from: "portfolios",
-								foreignField: "_id",
-								localField: "portfolio",
-								as: "portfolio",
-							},
-						},
-						{
-							$set: {
-								portfolio: { $arrayElemAt: ["$portfolio", 0] },
-							},
-						},
-						{
-							$lookup: {
-								from: "currencies",
-								foreignField: "_id",
-								localField: "currency",
-								as: "currency",
-							},
-						},
-						{
-							$set: {
-								currency: { $arrayElemAt: ["$currency", 0] },
-							},
-						},
-						{
-							$set: {
-								type: "$type.type",
-								source: "$source.name",
-								portfolio: "$portfolio.description",
-							},
-						},
-					],
-				},
-			},
-		]);
+		const expenseTypeId = transactionTypes.find(
+			(el) => el.type === "expense"
+		)._id;
+
+		let data = await TransactionSchema.aggregate(
+			homeStatisticsAggregation({
+				start,
+				end,
+				prevStart,
+				prevEnd,
+				boundaries,
+				expenseTypeId,
+			})
+		);
 
 		data = data[0];
 

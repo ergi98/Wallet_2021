@@ -1,5 +1,107 @@
 import mongoose from "mongoose";
 
+const populateRates = [
+	{
+		$set: {
+			year: { $year: "$date" },
+			month: { $month: "$date" },
+			day: { $dayOfMonth: "$date" },
+			amount: { $toDouble: "$amount" },
+		},
+	},
+	{
+		$lookup: {
+			from: "currencies",
+			localField: "currency",
+			foreignField: "_id",
+			let: {
+				day: "$day",
+				year: "$year",
+				month: "$month",
+			},
+			pipeline: [
+				{
+					$lookup: {
+						from: "currency-rates",
+						localField: "_id",
+						foreignField: "currency",
+						pipeline: [
+							{
+								$set: {
+									year: { $year: "$createdAt" },
+									month: { $month: "$createdAt" },
+									day: { $dayOfMonth: "$createdAt" },
+								},
+							},
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{ $eq: ["$day", "$$day"] },
+											{ $eq: ["$year", "$$year"] },
+											{ $eq: ["$month", "$$month"] },
+										],
+									},
+								},
+							},
+						],
+						as: "rates",
+					},
+				},
+				{
+					$set: {
+						rates: { $arrayElemAt: ["$rates", 0] },
+					},
+				},
+				{
+					$set: {
+						rates: "$rates.rates",
+					},
+				},
+				{
+					$set: {
+						rates: {
+							$map: {
+								input: "$rates",
+								as: "rate",
+								in: {
+									acronym: "$$rate.acronym",
+									rate: { $toDouble: "$$rate.rate" },
+								},
+							},
+						},
+					},
+				},
+			],
+			as: "currency",
+		},
+	},
+];
+
+const populateUserCurrency = [
+	{
+		$lookup: {
+			from: "users",
+			localField: "user",
+			foreignField: "_id",
+			as: "user",
+			pipeline: [
+				{
+					$project: {
+						_id: 0,
+						defaultCurrency: 1,
+					},
+				},
+			],
+		},
+	},
+	{
+		$set: {
+			user: { $arrayElemAt: ["$user", 0] },
+		},
+	},
+];
+
 const getTransactionsAggregation = (transactionId, userId) => {
 	let match = {
 		user: mongoose.Types.ObjectId(userId),
@@ -15,81 +117,7 @@ const getTransactionsAggregation = (transactionId, userId) => {
 		{
 			$match: match,
 		},
-		{
-			$set: {
-				year: { $year: "$date" },
-				month: { $month: "$date" },
-				day: { $dayOfMonth: "$date" },
-				amount: { $toDouble: "$amount" },
-			},
-		},
-		{
-			$lookup: {
-				from: "currencies",
-				localField: "currency",
-				foreignField: "_id",
-				let: {
-					day: "$day",
-					year: "$year",
-					month: "$month",
-				},
-				pipeline: [
-					{
-						$lookup: {
-							from: "currency-rates",
-							localField: "_id",
-							foreignField: "currency",
-							pipeline: [
-								{
-									$set: {
-										year: { $year: "$createdAt" },
-										month: { $month: "$createdAt" },
-										day: { $dayOfMonth: "$createdAt" },
-									},
-								},
-								{
-									$match: {
-										$expr: {
-											$and: [
-												{ $eq: ["$day", "$$day"] },
-												{ $eq: ["$year", "$$year"] },
-												{ $eq: ["$month", "$$month"] },
-											],
-										},
-									},
-								},
-							],
-							as: "rates",
-						},
-					},
-					{
-						$set: {
-							rates: { $arrayElemAt: ["$rates", 0] },
-						},
-					},
-					{
-						$set: {
-							rates: "$rates.rates",
-						},
-					},
-					{
-						$set: {
-							rates: {
-								$map: {
-									input: "$rates",
-									as: "rate",
-									in: {
-										acronym: "$$rate.acronym",
-										rate: { $toDouble: "$$rate.rate" },
-									},
-								},
-							},
-						},
-					},
-				],
-				as: "currency",
-			},
-		},
+		...populateRates,
 		{
 			$lookup: {
 				from: "transaction-types",
@@ -197,4 +225,129 @@ const getTransactionsAggregation = (transactionId, userId) => {
 	return aggregation;
 };
 
-export { getTransactionsAggregation };
+const homeStatisticsAggregation = (data) => {
+	const otherStages = [
+		{
+			$lookup: {
+				from: "transaction-types",
+				localField: "type",
+				foreignField: "_id",
+				as: "type",
+			},
+		},
+		...populateRates,
+		{
+			$set: {
+				type: { $arrayElemAt: ["$type", 0] },
+				currency: { $arrayElemAt: ["$currency", 0] },
+			},
+		},
+		{
+			$set: {
+				rateToDefault: {
+					$filter: {
+						input: "$currency.rates",
+						as: "rate",
+						cond: { $eq: ["$$rate._id", "$user.defaultCurrency"] },
+					},
+				},
+			},
+		},
+		{
+			$set: {
+				rateToDefault: { $arrayElemAt: ["$rateToDefault", 0] },
+			},
+		},
+		{
+			$set: {
+				rateToDefault: { $ifNull: [{ $toDouble: "$rateToDefault.rate" }, 1] },
+			},
+		},
+		{
+			$set: {
+				amountInDefault: {
+					$multiply: ["$amount", "$rateToDefault.rate"],
+				},
+			},
+		},
+		{
+			$group: {
+				_id: "$type.type",
+				amount: { $sum: "$amountInDefault" },
+			},
+		},
+		{
+			$set: {
+				type: "$_id",
+				amount: { $toDouble: "$amount" },
+			},
+		},
+		{
+			$project: {
+				_id: 0,
+			},
+		},
+	];
+	const aggregation = [
+		{
+			$facet: {
+				previous: [
+					{
+						$match: {
+							user: mongoose.Types.ObjectId(data.userId),
+							date: {
+								$gte: data.prevStart,
+								$lte: data.prevEnd,
+							},
+							deletedAt: { $exists: 0 },
+							correctedAt: { $exists: 0 },
+							correctedBy: { $exists: 0 },
+						},
+					},
+					...populateUserCurrency,
+					...otherStages,
+				],
+				today: [
+					{
+						$match: {
+							user: mongoose.Types.ObjectId(data.userId),
+							date: {
+								$gte: data.start,
+								$lte: data.end,
+							},
+							deletedAt: { $exists: 0 },
+							correctedAt: { $exists: 0 },
+							correctedBy: { $exists: 0 },
+						},
+					},
+					...populateUserCurrency,
+					...otherStages,
+				],
+				expenseChart: [
+					{
+						$match: {
+							user: mongoose.Types.ObjectId(data.userId),
+							type: mongoose.Types.ObjectId(data.expenseTypeId),
+							deletedAt: { $exists: 0 },
+							correctedAt: { $exists: 0 },
+							correctedBy: { $exists: 0 },
+						},
+					},
+					// Test this
+					{
+						$bucket: {
+							groupBy: "$date",
+							boundaries: data.boundaries,
+							default: "other",
+							output: {},
+						},
+					},
+				],
+			},
+		},
+	];
+
+	return aggregation;
+};
+
+export { getTransactionsAggregation, homeStatisticsAggregation };
