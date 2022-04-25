@@ -102,12 +102,16 @@ async function populateRatesFromBOA(req, res) {
 				if (fromEntry.rates === undefined) {
 					fromEntry.rates = [
 						{
+							_id: mongoose.Types.ObjectId(
+								availableCurrencies[toEntry.acronym]
+							),
 							acronym: toEntry.acronym,
 							rate: fromRateToALL.dividedBy(toRateToALL).toString(),
 						},
 					];
 				} else {
 					fromEntry.rates.push({
+						_id: mongoose.Types.ObjectId(availableCurrencies[toEntry.acronym]),
 						acronym: toEntry.acronym,
 						rate: fromRateToALL.dividedBy(toRateToALL).toString(),
 					});

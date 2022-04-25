@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const SingleCurrencySchema = new mongoose.Schema(
 	{
+		_id: { type: "ObjectId", ref: "currencies" },
 		acronym: { type: String, required: true },
 		rate: { type: mongoose.Decimal128, required: true },
 	},
