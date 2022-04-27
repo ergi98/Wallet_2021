@@ -1078,10 +1078,10 @@ async function getHomeStatistics(req, res) {
 
 		let data = await TransactionSchema.aggregate(
 			homeStatisticsAggregation({
-				start,
 				end,
-				prevStart,
+				start,
 				prevEnd,
+				prevStart,
 				boundaries,
 				expenseTypeId,
 				userId: req.headers.userId,
