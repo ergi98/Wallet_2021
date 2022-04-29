@@ -178,7 +178,7 @@ async function refreshToken(req, res) {
 		const decodedToken = await verifyRefreshToken(req.cookies.refresh);
 
 		// Verifying if it is the same as the one stored in DB
-		const user = await UserSchema.find({
+		const user = await UserSchema.findOne({
 			user: mongoose.Types.ObjectId(decodedToken.payload.userId),
 			deletedAt: { $exists: 0 },
 		});
