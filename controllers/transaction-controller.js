@@ -9,6 +9,7 @@ import {
 	transferTransactionSchema,
 	correctEarningTransactionSchema,
 	correctExpenseTransactionSchema,
+	getTransactionsSchema,
 } from "../validators/transaction-validators.js";
 import { objectIdSchema } from "../validators/general-validators.js";
 
@@ -1147,12 +1148,176 @@ async function getHomeStatistics(req, res) {
 	}
 }
 
+async function getTransactions(req, res) {
+	try {
+		// Converting dates
+		if (
+			req.body &&
+			req.body.dateRange &&
+			req.body.dateRange.to &&
+			req.body.dateRange.from
+		) {
+			req.body.dateRange.to = new Date(req.body.dateRange.to);
+			req.body.dateRange.from = new Date(req.body.dateRange.from);
+		}
+		// Trimming description search
+		if (req.body && req.body.description) {
+			req.body.description = req.body.description.trim();
+		}
+		await getTransactionsSchema.validateAsync(req.body, { convert: false });
+
+		const match = {
+			user: mongoose.Types.ObjectId(req.headers.userId),
+		};
+
+		const sort = {
+			[req.body.sortBy]: req.body.direction === "ascending" ? 1 : -1,
+		};
+
+		if (req.body.sortBy !== "date") {
+			sort["date"] = req.body.direction === "ascending" ? 1 : -1;
+		}
+
+		// Return only 50 results at a time
+		const limit = 50;
+
+		// The if clauses below add further filtering based on the fields provided
+		if (req.body.description) {
+			match["$text"] = {
+				$search: `\"${req.body.description}\"`,
+			};
+		}
+		if (req.body.types) {
+			match["type"] = {
+				$in: req.body.types.map((type) => mongoose.Types.ObjectId(type)),
+			};
+		}
+		if (req.body.sources) {
+			match["source"] = {
+				$in: req.body.sources.map((source) => mongoose.Types.ObjectId(source)),
+			};
+		}
+		if (req.body.categories) {
+			match["category"] = {
+				$in: req.body.categories.map((category) =>
+					mongoose.Types.ObjectId(category)
+				),
+			};
+		}
+		if (match["source"] && match["category"]) {
+			match["$or"] = [
+				{ source: match["source"] },
+				{ category: match["category"] },
+			];
+			delete match["source"];
+			delete match["category"];
+		}
+		if (req.body.portfolios) {
+			const portfolioMatch = req.body.portfolios.map((portfolio) =>
+				mongoose.Types.ObjectId(portfolio)
+			);
+			match["$or"] = [
+				{ portfolio: { $in: portfolioMatch } },
+				{ from: { $in: portfolioMatch } },
+				{ from: { $in: portfolioMatch } },
+			];
+		}
+		if (req.body.status && req.body.status.length !== 3) {
+			const includeActive = req.body.status.includes("active");
+			const includeDeleted = req.body.status.includes("deleted");
+			const includeCorrected = req.body.status.includes("corrected");
+			if (req.body.status.length === 1) {
+				switch (req.body.status[0]) {
+					case "active":
+						match["deletedAt"] = { $exists: 0 };
+						match["correctedAt"] = { $exists: 0 };
+						match["correctedBy"] = { $exists: 0 };
+						break;
+					case "deleted":
+						match["deletedAt"] = { $exists: 1 };
+						match["correctedAt"] = { $exists: 0 };
+						match["correctedBy"] = { $exists: 0 };
+						break;
+					case "corrected":
+						match["deletedAt"] = { $exists: 0 };
+						match["correctedAt"] = { $exists: 1 };
+						match["correctedBy"] = { $exists: 1 };
+						break;
+				}
+			} else if (req.body.status.length === 2) {
+				if (includeActive && includeDeleted) {
+					match["correctedAt"] = { $exists: 0 };
+					match["correctedBy"] = { $exists: 0 };
+				} else if (includeActive && includeCorrected) {
+					match["deletedAt"] = { $exists: 0 };
+				} else if (includeDeleted && includeCorrected) {
+					match["$or"] = [
+						{ deletedAt: { $exists: 1 } },
+						{
+							$and: [
+								{ correctedAt: { $exists: 1 } },
+								{ correctedBy: { $exists: 1 } },
+							],
+						},
+					];
+				}
+			}
+		}
+		if (
+			req.body.dateRange &&
+			req.body.dateRange.to &&
+			req.body.dateRange.from
+		) {
+			match["date"] = {
+				$gte: new Date(req.body.dateRange.from),
+				$lte: new Date(req.body.dateRange.to),
+			};
+		}
+		if (
+			req.body.amountRange &&
+			req.body.amountRange.to &&
+			req.body.amountRange.from
+		) {
+			match["amount"] = {
+				$gte: mongoose.Types.Decimal128(req.body.amountRange.from),
+				$lte: mongoose.Types.Decimal128(req.body.amountRange.to),
+			};
+		}
+		/**
+		 * Fetched until is used to paginate the results
+		 * If i have fetched 20transaction and the earliest was 20January
+		 * The fetchedUntil will be 20January
+		 * Next request will have a limit of 20January and later
+		 */
+		if (req.body.fetchedUntil) {
+			match["createdAt"] = {
+				$lt: new Date(req.body.fetchedUntil),
+			};
+		}
+
+		const transactions = await TransactionSchema.aggregate(
+			getTransactionsAggregation("", "", { match, sort, limit })
+		);
+
+		res.status(200).send(transactions);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
+	}
+}
+
 export {
 	createEarning,
-	correctEarning,
 	createExpense,
 	correctExpense,
 	createTransfer,
+	correctEarning,
+	getTransactions,
 	deleteTransaction,
 	getHomeStatistics,
 };

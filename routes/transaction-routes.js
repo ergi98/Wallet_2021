@@ -7,6 +7,7 @@ import {
 	createTransfer,
 	correctEarning,
 	correctExpense,
+  getTransactions,
 	deleteTransaction,
 	getHomeStatistics,
 } from "../controllers/transaction-controller.js";
@@ -14,6 +15,7 @@ import {
 const router = express.Router();
 
 // GET
+router.route("/get-all").get(getTransactions);
 router.route("/home-statistics").get(getHomeStatistics);
 
 // POST

@@ -81,8 +81,34 @@ const transferTransactionSchema = Joi.object({
 	currency: Joi.string().hex().length(24).required(),
 }).concat(baseTransactionSchema);
 
+const getTransactionsSchema = Joi.object({
+	fetchedUntil: Joi.date().iso(),
+	description: Joi.string().trim(),
+	types: Joi.array().items(Joi.string().hex().length(24)).unique(),
+	sources: Joi.array().items(Joi.string().hex().length(24)).unique(),
+	categories: Joi.array().items(Joi.string().hex().length(24)).unique(),
+	currencies: Joi.array().items(Joi.string().hex().length(24)).unique(),
+	portfolios: Joi.array().items(Joi.string().hex().length(24)).unique(),
+	status: Joi.array()
+		.items(Joi.string().valid("active", "deleted", "corrected").required())
+		.unique(),
+	dateRange: Joi.object({
+		from: Joi.date().iso(),
+		to: Joi.date().iso(),
+	}).and("from", "to"),
+	amountRange: Joi.object({
+		from: Joi.number().precision(2).positive(),
+		to: Joi.number().precision(2).positive().greater(Joi.ref("from")),
+	}).and("from", "to"),
+	sortBy: Joi.string().default("date"),
+	direction: Joi.string()
+		.valid("descending", "ascending")
+		.default("descending"),
+});
+
 export {
 	homeStatisticsSchema,
+	getTransactionsSchema,
 	expenseTransactionSchema,
 	earningTransactionSchema,
 	transferTransactionSchema,

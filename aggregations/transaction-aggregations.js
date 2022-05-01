@@ -103,8 +103,12 @@ const populateUserCurrency = [
 	},
 ];
 
-const getTransactionsAggregation = (transactionId, userId) => {
-	let match = {
+const getTransactionsAggregation = (
+	transactionId,
+	userId,
+	pagination = null
+) => {
+	const match = {
 		user: mongoose.Types.ObjectId(userId),
 	};
 
@@ -116,8 +120,9 @@ const getTransactionsAggregation = (transactionId, userId) => {
 
 	let aggregation = [
 		{
-			$match: match,
+			$match: pagination?.match ?? match,
 		},
+		fetchLimit && { $limit: fetchLimit },
 		...populateRates,
 		{
 			$lookup: {
@@ -221,7 +226,7 @@ const getTransactionsAggregation = (transactionId, userId) => {
 				month: 0,
 			},
 		},
-	];
+	].filter(Boolean);
 
 	return aggregation;
 };
