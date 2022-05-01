@@ -1,11 +1,11 @@
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 
 // Interfaces
-import { Location } from "../../interfaces/transactions-interface";
+import { TransactionLocation } from "../../interfaces/transactions-interface";
 
 interface PropsInterface {
   className: string;
-  location: Location;
+  location: TransactionLocation;
   zoom?: number;
 }
 

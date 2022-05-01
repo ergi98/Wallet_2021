@@ -1,23 +1,63 @@
-interface TransactionInterface {
-  _id: string;
-  date: string;
-  type: string;
-  title: string;
-  amount: number;
-  currency: string;
-  source?: string;
-  category?: string;
-  portfolio: string;
-  location?: Location;
-  description: string;
-  currencyRate: number;
-  deleted: boolean;
-  correctedBy?: string;
+interface BaseTransaction {
+	amount: number;
+	type: string;
 }
 
-interface Location {
-  longitude: number;
-  latitude: number;
+interface SourceOrCategory {
+	_id: string;
+	name: string;
 }
 
-export type { TransactionInterface, Location };
+interface TransactionCurrency {
+	_id: string;
+	name: string;
+	symbol: string;
+	acronym: string;
+	rates: Array<CurrencyRates> | null;
+}
+
+interface CurrencyRates {
+	_id: string;
+	rate: number;
+	acronym: string;
+}
+
+interface TransactionPortfolio {
+	_id: string;
+	description: string;
+}
+
+interface EarningTransaction extends BaseTransaction {
+	date: string;
+	description: string;
+	source: SourceOrCategory;
+	currency: TransactionCurrency;
+	portfolio: TransactionPortfolio;
+}
+
+interface ExpenseTransaction extends BaseTransaction {
+	date: string;
+	description: string;
+	category: SourceOrCategory;
+	location: TransactionLocation;
+	currency: TransactionCurrency;
+	portfolio: TransactionPortfolio;
+}
+
+interface TransferTransaction extends BaseTransaction {
+	to: TransactionPortfolio;
+	from: TransactionPortfolio;
+	currency: TransactionCurrency;
+}
+
+interface TransactionLocation {
+	longitude: number;
+	latitude: number;
+}
+
+export type {
+	EarningTransaction,
+	ExpenseTransaction,
+	TransferTransaction,
+	TransactionLocation,
+};

@@ -5,6 +5,7 @@ import { Alert, Slide, Snackbar, SnackbarCloseReason } from "@mui/material";
 
 // Hooks
 import useError from "../../hooks/useError";
+import { useLocation } from "react-router-dom";
 
 interface Message {
 	show: boolean;
@@ -12,6 +13,7 @@ interface Message {
 }
 
 function ErrorDisplay() {
+	const location = useLocation();
 	const { error, handleError } = useError();
 	const [message, setMessage] = useState<Message>({
 		show: false,
@@ -19,10 +21,11 @@ function ErrorDisplay() {
 	});
 
 	useEffect(() => {
-		setMessage({
-			show: Boolean(error),
-			content: error,
-		});
+		location.pathname !== "/" &&
+			setMessage({
+				show: Boolean(error),
+				content: error,
+			});
 	}, [error]);
 
 	function clearError(_: any, reason: SnackbarCloseReason) {

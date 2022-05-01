@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 // Interfaces
-import { TransactionInterface } from "../../../interfaces/transactions-interface";
+// import { any } from "../../../interfaces/transactions-interface";
 
 // Components
 import VerticalTransactions from "./VerticalTransactions";
@@ -10,12 +10,12 @@ import TransactionDetailsDialog from "./TransactionDetailsDialog";
 
 interface PropsInterface {
 	flow: string;
-	transactions: Array<TransactionInterface>;
+	transactions: Array<any>;
 }
 
 interface Details {
 	show: boolean;
-	transaction: TransactionInterface | null;
+	transaction: any | null;
 }
 
 function TransactionsList(props: PropsInterface) {
@@ -26,7 +26,7 @@ function TransactionsList(props: PropsInterface) {
 
 	function setTransactionDetails(
 		show: boolean,
-		transaction: TransactionInterface | null
+		transaction: any | null
 	) {
 		setDetails({
 			show,

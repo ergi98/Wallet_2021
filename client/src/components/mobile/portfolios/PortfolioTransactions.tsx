@@ -1,9 +1,9 @@
 // Interfaces
 import { Typography } from "@mui/material";
-import { TransactionInterface } from "../../../interfaces/transactions-interface";
+// import { TransactionInterface } from "../../../interfaces/transactions-interface";
 
 interface PropsInterface {
-  transactions: Array<TransactionInterface>;
+  transactions: Array<any>;
 }
 
 function PortfolioTransactions(props: PropsInterface) {

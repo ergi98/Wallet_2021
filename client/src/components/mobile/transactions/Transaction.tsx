@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 // Interfaces
-import { TransactionInterface } from "../../../interfaces/transactions-interface";
+// import { any } from "../../../interfaces/transactions-interface";
 
 // MUI
 import { Grid, Stack, Typography } from "@mui/material";
@@ -13,8 +13,8 @@ import { getTimeFromDateString } from "../../../utilities/date-utilities";
 import AmountDisplay from "../../general/AmountDisplay";
 
 interface PropsInterface {
-  onClick: (a: boolean, b: TransactionInterface | null) => void;
-  transaction: TransactionInterface;
+  onClick: (a: boolean, b: any | null) => void;
+  transaction: any;
 }
 
 function Transaction(props: PropsInterface) {

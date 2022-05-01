@@ -1,4 +1,4 @@
-import { TransactionInterface } from "./transactions-interface";
+// import { any } from "./transactions-interface";
 
 interface PortfolioInterface {
   _id: string;
@@ -25,7 +25,7 @@ interface PortfolioDetailsInterface {
   // TODO: Replace any
   topSources: Array<any>;
   topCategories: Array<any>;
-  transactions: Array<TransactionInterface>;
+  transactions: Array<any>;
 }
 
 interface ForTypesInterface {

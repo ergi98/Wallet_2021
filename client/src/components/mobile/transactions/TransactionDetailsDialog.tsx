@@ -15,7 +15,7 @@ import {
 import { CloseOutlined, Delete, Edit } from "@mui/icons-material";
 
 // Interface
-import { TransactionInterface } from "../../../interfaces/transactions-interface";
+// import { any } from "../../../interfaces/transactions-interface";
 
 // Utilities
 import { formatDate } from "../../../utilities/date-utilities";
@@ -26,8 +26,8 @@ import AmountDisplay from "../../general/AmountDisplay";
 
 interface PropsInterface {
   show: boolean;
-  transaction: TransactionInterface | null;
-  onClose: (a: boolean, b: TransactionInterface | null) => void;
+  transaction: any | null;
+  onClose: (a: boolean, b: any | null) => void;
 }
 
 function TransactionDetailsDialog(props: PropsInterface) {
