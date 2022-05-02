@@ -1,10 +1,10 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 
 // MUI
 import { Stack, Typography } from "@mui/material";
 
 // Navigation
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 // Interfaces
 import {
@@ -26,9 +26,6 @@ const transaction: Array<
 > = [];
 
 function Home(props: PropsInterface) {
-	const navigate = useNavigate();
-	const goTo = (url: string) => navigate(url);
-
 	return (
 		<div className="app-height relative overflow-x-hidden overflow-y-auto">
 			{props.children}
