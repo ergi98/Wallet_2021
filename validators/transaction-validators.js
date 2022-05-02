@@ -82,7 +82,14 @@ const transferTransactionSchema = Joi.object({
 }).concat(baseTransactionSchema);
 
 const getTransactionsSchema = Joi.object({
-	fetchedUntil: Joi.date().iso(),
+	last: Joi.object({
+		value: Joi.alternatives().conditional("sortBy", {
+			is: "date",
+			then: Joi.date().iso(),
+			otherwise: Joi.number().precision(2).positive(),
+		}),
+		date: Joi.date().iso(),
+	}),
 	description: Joi.string().trim(),
 	types: Joi.array().items(Joi.string().hex().length(24)).unique(),
 	sources: Joi.array().items(Joi.string().hex().length(24)).unique(),
@@ -100,7 +107,7 @@ const getTransactionsSchema = Joi.object({
 		from: Joi.number().precision(2).positive(),
 		to: Joi.number().precision(2).positive().greater(Joi.ref("from")),
 	}).and("from", "to"),
-	sortBy: Joi.string().default("date"),
+	sortBy: Joi.string().default("date").valid("date", "amount"),
 	direction: Joi.string()
 		.valid("descending", "ascending")
 		.default("descending"),

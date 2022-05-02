@@ -1174,8 +1174,9 @@ async function getTransactions(req, res) {
 			[req.body.sortBy]: req.body.direction === "ascending" ? 1 : -1,
 		};
 
+		// Always sort in descending order for date (if second sort)
 		if (req.body.sortBy !== "date") {
-			sort["date"] = req.body.direction === "ascending" ? 1 : -1;
+			sort["date"] = -1;
 		}
 
 		// Return only 50 results at a time
@@ -1283,23 +1284,46 @@ async function getTransactions(req, res) {
 				$lte: mongoose.Types.Decimal128(req.body.amountRange.to),
 			};
 		}
-		/**
-		 * Fetched until is used to paginate the results
-		 * If i have fetched 20transaction and the earliest was 20January
-		 * The fetchedUntil will be 20January
-		 * Next request will have a limit of 20January and later
-		 */
-		if (req.body.fetchedUntil) {
-			match["createdAt"] = {
-				$lt: new Date(req.body.fetchedUntil),
-			};
+
+		if (req.body.last && req.body.last.value && req.body.last.date) {
+			const objKey = req.body.direction === "ascending" ? "$gte" : "$lte";
+			// The gte date will be replaced with the date of the last fetched document
+			match["date"]
+				? (match["date"][objKey] = new Date(req.body.last.date))
+				: (match["date"] = {
+						[objKey]: new Date(req.body.last.date),
+				  });
+			if (req.body.sortBy === "amount") {
+				const lastAmount = mongoose.Types.Decimal128(req.body.last.value);
+				match["$or"] = [
+					{ [req.body.sortBy]: { [objKey]: lastAmount } },
+					{
+						[req.body.sortBy]: { [objKey]: lastAmount },
+						date: {
+							[objKey]: new Date(req.body.last.date),
+						},
+					},
+				];
+			} else {
+			}
 		}
 
 		const transactions = await TransactionSchema.aggregate(
 			getTransactionsAggregation("", "", { match, sort, limit })
 		);
 
-		res.status(200).send(transactions);
+		const lastFetchedTransaction = transactions.at(-1) ?? {};
+
+		const lastFetchedValue = lastFetchedTransaction[req.body.sortBy];
+		const lastFetchedDate = lastFetchedTransaction.date;
+
+		res.status(200).send({
+			last: {
+				value: lastFetchedValue,
+				date: lastFetchedDate,
+			},
+			transactions: transactions,
+		});
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({
