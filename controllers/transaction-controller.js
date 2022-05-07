@@ -1151,7 +1151,6 @@ async function getTransactions(req, res) {
 	try {
 		// Converting dates
 		if (
-			req.body &&
 			req.body.dateRange &&
 			req.body.dateRange.to &&
 			req.body.dateRange.from
@@ -1160,8 +1159,11 @@ async function getTransactions(req, res) {
 			req.body.dateRange.from = new Date(req.body.dateRange.from);
 		}
 		// Trimming description search
-		if (req.body && req.body.description) {
+		if (req.body.description) {
 			req.body.description = req.body.description.trim();
+		}
+		if (req.body.last && req.body.last && req.body.last.date) {
+			req.body.last.date = new Date(req.body.last.date);
 		}
 		await getTransactionsSchema.validateAsync(req.body, { convert: false });
 
@@ -1170,11 +1172,11 @@ async function getTransactions(req, res) {
 		};
 
 		const sort = {
-			[req.body.sortBy]: req.body.direction === "ascending" ? 1 : -1,
+			[req.body.sortBy]: req.body.direction === "asc" ? 1 : -1,
 		};
 
-		// Always sort in descending order for date (if second sort)
-		if (req.body.sortBy !== "date") {
+		// Always sort in descending order for date (if second sort or sort is not specified) (a.k.a most recent to earliest)
+		if (req.body.sortBy !== "date" || req.body.sortBy === undefined) {
 			sort["date"] = -1;
 		}
 
@@ -1182,9 +1184,14 @@ async function getTransactions(req, res) {
 		const limit = 50;
 
 		// The if clauses below add further filtering based on the fields provided
-		if (req.body.description) {
-			match["$text"] = {
-				$search: `\"${req.body.description}\"`,
+		if (
+			req.body.dateRange &&
+			req.body.dateRange.to &&
+			req.body.dateRange.from
+		) {
+			match["date"] = {
+				$gte: new Date(req.body.dateRange.from),
+				$lte: new Date(req.body.dateRange.to),
 			};
 		}
 		if (req.body.types) {
@@ -1222,90 +1229,65 @@ async function getTransactions(req, res) {
 				{ from: { $in: portfolioMatch } },
 			];
 		}
-		if (req.body.status && req.body.status.length !== 3) {
-			const includeActive = req.body.status.includes("active");
-			const includeDeleted = req.body.status.includes("deleted");
-			const includeCorrected = req.body.status.includes("corrected");
-			if (req.body.status.length === 1) {
-				switch (req.body.status[0]) {
-					case "active":
-						match["deletedAt"] = { $exists: 0 };
-						match["correctedAt"] = { $exists: 0 };
-						match["correctedBy"] = { $exists: 0 };
-						break;
-					case "deleted":
-						match["deletedAt"] = { $exists: 1 };
-						match["correctedAt"] = { $exists: 0 };
-						match["correctedBy"] = { $exists: 0 };
-						break;
-					case "corrected":
-						match["deletedAt"] = { $exists: 0 };
-						match["correctedAt"] = { $exists: 1 };
-						match["correctedBy"] = { $exists: 1 };
-						break;
-				}
-			} else if (req.body.status.length === 2) {
-				if (includeActive && includeDeleted) {
-					match["correctedAt"] = { $exists: 0 };
-					match["correctedBy"] = { $exists: 0 };
-				} else if (includeActive && includeCorrected) {
-					match["deletedAt"] = { $exists: 0 };
-				} else if (includeDeleted && includeCorrected) {
-					match["$or"] = [
-						{ deletedAt: { $exists: 1 } },
-						{
-							$and: [
-								{ correctedAt: { $exists: 1 } },
-								{ correctedBy: { $exists: 1 } },
-							],
-						},
-					];
-				}
-			}
-		}
-		if (
-			req.body.dateRange &&
-			req.body.dateRange.to &&
-			req.body.dateRange.from
-		) {
-			match["date"] = {
-				$gte: new Date(req.body.dateRange.from),
-				$lte: new Date(req.body.dateRange.to),
-			};
-		}
 		if (
 			req.body.amountRange &&
 			req.body.amountRange.to &&
 			req.body.amountRange.from
 		) {
 			match["amount"] = {
-				$gte: mongoose.Types.Decimal128(req.body.amountRange.from),
-				$lte: mongoose.Types.Decimal128(req.body.amountRange.to),
+				$gte: mongoose.Types.Decimal128(req.body.amountRange.from.toString()),
+				$lte: mongoose.Types.Decimal128(req.body.amountRange.to.toString()),
+			};
+		}
+		if (req.body.description) {
+			match["$text"] = {
+				$search: `\"${req.body.description}\"`,
 			};
 		}
 
 		if (req.body.last && req.body.last.value && req.body.last.date) {
-			const objKey = req.body.direction === "ascending" ? "$gte" : "$lte";
-			// The gte date will be replaced with the date of the last fetched document
-			match["date"]
-				? (match["date"][objKey] = new Date(req.body.last.date))
-				: (match["date"] = {
+			const objKey = req.body.direction === "asc" ? "$gt" : "$lt";
+			if (req.body.sortBy === "date") {
+				if (match["date"]) {
+					// Delete the $gte or $lte clause as it will be replaced with $gt and $lt respectively
+					delete match["date"][`${objKey}e`];
+					match["date"][objKey] = new Date(req.body.last.date);
+				} else {
+					match["date"] = {
 						[objKey]: new Date(req.body.last.date),
-				  });
-			if (req.body.sortBy === "amount") {
-				const lastAmount = mongoose.Types.Decimal128(req.body.last.value);
+					};
+				}
+			}
+			// If sorting is done by any other field (in our case amount)
+			else {
+				if (match["date"]) delete match["date"][`${objKey}e`];
 				match["$or"] = [
-					{ [req.body.sortBy]: { [objKey]: lastAmount } },
 					{
-						[req.body.sortBy]: { [objKey]: lastAmount },
-						date: {
-							[objKey]: new Date(req.body.last.date),
+						[req.body.sortBy]: {
+							$lt: mongoose.Types.Decimal128(req.body.last.value.toString()),
 						},
 					},
+					{
+						[req.body.sortBy]: mongoose.Types.Decimal128(
+							req.body.last.value.toString()
+						),
+						date: match["date"]
+							? {
+									...match["date"],
+									[objKey]: new Date(req.body.last.date),
+							  }
+							: {
+									[objKey]: new Date(req.body.last.date),
+							  },
+					},
 				];
-			} else {
+				delete match["date"];
 			}
 		}
+
+		match["deletedAt"] = { $exists: 0 };
+		match["correctedAt"] = { $exists: 0 };
+		match["correctedBy"] = { $exists: 0 };
 
 		const transactions = await TransactionSchema.aggregate(
 			getTransactionsAggregation("", "", { match, sort, limit })
@@ -1313,7 +1295,7 @@ async function getTransactions(req, res) {
 
 		const lastFetchedTransaction = transactions.at(-1) ?? {};
 
-		const lastFetchedValue = lastFetchedTransaction[req.body.sortBy];
+		const lastFetchedValue = lastFetchedTransaction[req.body.sortBy ?? "date"];
 		const lastFetchedDate = lastFetchedTransaction.date;
 
 		res.status(200).send({

@@ -96,9 +96,6 @@ const getTransactionsSchema = Joi.object({
 	categories: Joi.array().items(Joi.string().hex().length(24)).unique(),
 	currencies: Joi.array().items(Joi.string().hex().length(24)).unique(),
 	portfolios: Joi.array().items(Joi.string().hex().length(24)).unique(),
-	status: Joi.array()
-		.items(Joi.string().valid("active", "deleted", "corrected").required())
-		.unique(),
 	dateRange: Joi.object({
 		from: Joi.date().iso(),
 		to: Joi.date().iso(),
@@ -108,9 +105,7 @@ const getTransactionsSchema = Joi.object({
 		to: Joi.number().precision(2).positive().greater(Joi.ref("from")),
 	}).and("from", "to"),
 	sortBy: Joi.string().default("date").valid("date", "amount"),
-	direction: Joi.string()
-		.valid("descending", "ascending")
-		.default("descending"),
+	direction: Joi.string().valid("dsc", "asc").default("dsc"),
 });
 
 export {

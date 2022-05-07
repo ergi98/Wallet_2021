@@ -108,20 +108,30 @@ const getTransactionsAggregation = (
 	userId,
 	pagination = null
 ) => {
-	const match = {
-		user: mongoose.Types.ObjectId(userId),
-	};
+	const match =
+		pagination === null
+			? {
+					user: mongoose.Types.ObjectId(userId),
+			  }
+			: pagination.match;
 
-	if (transactionId) match["_id"] = mongoose.Types.ObjectId(transactionId);
+	// If no pagination is provided fill the necessary fields to the match object
+	// Pagination is populated and provides its own filtering
+	if (pagination === null) {
+		if (transactionId) match["_id"] = mongoose.Types.ObjectId(transactionId);
 
-	match["deletedAt"] = { $exists: 0 };
-	match["correctedBy"] = { $exists: 0 };
-	match["correctedAt"] = { $exists: 0 };
+		match["deletedAt"] = { $exists: 0 };
+		match["correctedBy"] = { $exists: 0 };
+		match["correctedAt"] = { $exists: 0 };
+	}
 
 	let aggregation = [
 		{
-			$match: pagination?.match ?? match,
+			$match: match,
 		},
+		pagination?.sort && { $sort: pagination.sort },
+		// Sort by the given condition
+		// Limit the returned results
 		pagination?.limit && { $limit: pagination.limit },
 		...populateRates,
 		{
