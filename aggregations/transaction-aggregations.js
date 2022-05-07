@@ -122,7 +122,7 @@ const getTransactionsAggregation = (
 		{
 			$match: pagination?.match ?? match,
 		},
-		fetchLimit && { $limit: fetchLimit },
+		pagination?.limit && { $limit: pagination.limit },
 		...populateRates,
 		{
 			$lookup: {

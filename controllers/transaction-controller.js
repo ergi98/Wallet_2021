@@ -542,15 +542,14 @@ async function correctExpense(req, res) {
 			compareIds(portfolio._id, req.body.portfolio)
 		);
 		// New Portfolio Amount In New Currency
-		const NPAINC = getPortfolioAmountOfCurrency(
-			newPortfolio,
-			req.body.currency
+		const NPAINC = new BigNumber(
+			getPortfolioAmountOfCurrency(newPortfolio, req.body.currency)?.amount ?? 0
 		);
 
 		// Validating Type
 		await validateTransactionTypeHelper(
 			transactionToCorrect._doc.type,
-			"earning"
+			"expense"
 		);
 
 		// Validating Category (if different from original)
