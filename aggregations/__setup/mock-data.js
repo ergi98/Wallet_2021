@@ -93,8 +93,6 @@ const transactions = [
 		rate: 1,
 		category: "Entertainment",
 		type: "6241a7b25fd5a56d6f4f0872", // EXPENSE
-		source: "Job B",
-		type: "6241a7d75fd5a56d6f4f0874", // EARNING
 		day: 7,
 		month: 4,
 		year: 2022,
@@ -106,8 +104,6 @@ const transactions = [
 		rate: 1,
 		category: "Entertainment",
 		type: "6241a7b25fd5a56d6f4f0872", // EXPENSE
-		source: "Job B",
-		type: "6241a7d75fd5a56d6f4f0874", // EARNING
 		day: 7,
 		month: 4,
 		year: 2022,
@@ -119,8 +115,6 @@ const transactions = [
 		rate: 1,
 		category: "Entertainment",
 		type: "6241a7b25fd5a56d6f4f0872", // EXPENSE
-		source: "Job B",
-		type: "6241a7d75fd5a56d6f4f0874", // EARNING
 		day: 7,
 		month: 4,
 		year: 2022,
