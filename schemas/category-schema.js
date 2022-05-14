@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const sourcesSchema = new mongoose.Schema(
+const categorySchema = new mongoose.Schema(
 	{
 		user: {
 			ref: "users",
@@ -23,4 +23,4 @@ const sourcesSchema = new mongoose.Schema(
 	{ versionKey: false }
 );
 
-export default mongoose.model("categories", sourcesSchema);
+export default mongoose.model("categories", categorySchema);

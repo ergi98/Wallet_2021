@@ -19,6 +19,7 @@
 	},
 	"homepage": "https://github.com/ergi98/Wallet_2021#readme",
 	"dependencies": {
+		"axios": "^0.27.2",
 		"bcrypt": "^5.0.1",
 		"bignumber.js": "^9.0.2",
 		"cookie-parser": "^1.4.6",
