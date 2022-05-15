@@ -1131,8 +1131,37 @@ async function getHomeStatistics(req, res) {
 			}
 		};
 
+		const populateChart = (chartEntries) => {
+			for (const boundary of boundaries) {
+				const hasRecord = chartEntries.find((entry) => {
+					const entryDate = new Date(entry._id).getTime();
+					const boundaryDate = boundary.getTime();
+					return entryDate === boundaryDate;
+				});
+				if (hasRecord === undefined) {
+					chartEntries.push({
+						amount: 0,
+						_id: boundary.toISOString(),
+					});
+				}
+			}
+		};
+
+		const sortChart = (chartEntries) => {
+			chartEntries.sort(
+				(a, b) => new Date(a._id).getTime() - new Date(b._id).getTime()
+			);
+		};
+
 		data.today = format(data.today);
 		data.previous = format(data.previous);
+
+		populateChart(data.expenseChart);
+		sortChart(data.expenseChart);
+
+		// Remove the last array element of expense chart as it was only needed for bucketing
+		data.expenseChart.pop();
+
 		calculatePercentChange(data.today, data.previous);
 
 		res.status(200).send(data);
