@@ -295,7 +295,7 @@ const homeStatisticsAggregation = (data) => {
 		{
 			$set: {
 				type: "$_id",
-				amount: { $toDouble: "$amount" },
+				amount: { $round: [{ $toDouble: "$amount" }, 2] },
 			},
 		},
 		{
@@ -344,18 +344,71 @@ const homeStatisticsAggregation = (data) => {
 						$match: {
 							user: mongoose.Types.ObjectId(data.userId),
 							type: mongoose.Types.ObjectId(data.expenseTypeId),
+							date: {
+								// Already at start of day
+								$gte: new Date(data.boundaries[0]),
+								// Setting to end of day
+								$lte: new Date(data.boundaries[data.boundaries.length - 1]),
+							},
 							deletedAt: { $exists: 0 },
 							correctedAt: { $exists: 0 },
 							correctedBy: { $exists: 0 },
+							// Expenses have category
+							category: { $exists: 1 },
+							// Expenses do not have source
+							source: { $exists: 0 },
 						},
 					},
-					// Test this
+					...populateUserCurrency,
+					...populateRates,
+					{
+						$set: {
+							currency: { $arrayElemAt: ["$currency", 0] },
+						},
+					},
+					{
+						$set: {
+							rateToDefault: {
+								$filter: {
+									input: "$currency.rates",
+									as: "rate",
+									cond: { $eq: ["$$rate._id", "$user.defaultCurrency"] },
+								},
+							},
+						},
+					},
+					{
+						$set: {
+							rateToDefault: { $arrayElemAt: ["$rateToDefault", 0] },
+						},
+					},
+					{
+						$set: {
+							rateToDefault: {
+								$ifNull: [{ $toDouble: "$rateToDefault.rate" }, 1],
+							},
+						},
+					},
+					{
+						$set: {
+							amountInDefault: {
+								$multiply: ["$amount", "$rateToDefault"],
+							},
+						},
+					},
 					{
 						$bucket: {
 							groupBy: "$date",
 							boundaries: data.boundaries,
 							default: "other",
-							output: {},
+							output: {
+								amount: { $sum: "$amountInDefault" },
+							},
+						},
+					},
+					{
+						$set: {
+							amount: { $round: ["$amount", 2] },
 						},
 					},
 				],
