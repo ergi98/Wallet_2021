@@ -10,12 +10,15 @@ import { isDate } from "date-fns/esm";
 interface PropsInterface {
 	value: string;
 	label: string;
-	onChange: (a: any, b: boolean) => void;
+	view?: CalendarPickerView;
+	onChange: (a: Date | null, b: boolean) => void;
 }
 
 function MobileDatePicker(props: PropsInterface) {
 	const [localValue, setLocalValue] = useState<Date | null>(null);
-	const [currentView, setCurrentView] = useState<CalendarPickerView>("year");
+	const [currentView, setCurrentView] = useState<CalendarPickerView>(
+		props.view ?? "year"
+	);
 
 	useEffect(() => {
 		function initialSetup() {

@@ -55,7 +55,13 @@ interface TransactionLocation {
 	latitude: number;
 }
 
+type Transaction =
+	| EarningTransaction
+	| ExpenseTransaction
+	| TransferTransaction;
+
 export type {
+	Transaction,
 	EarningTransaction,
 	ExpenseTransaction,
 	TransferTransaction,

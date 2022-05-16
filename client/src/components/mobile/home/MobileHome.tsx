@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 
 // MUI
 import { Stack, Typography } from "@mui/material";
@@ -7,11 +7,7 @@ import { Stack, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 
 // Interfaces
-import {
-	EarningTransaction,
-	ExpenseTransaction,
-	TransferTransaction,
-} from "../../../interfaces/transactions-interface";
+import { Transaction } from "../../../interfaces/transactions-interface";
 
 // Components
 import TransactionsList from "../transactions/TransactionsList";
@@ -21,9 +17,7 @@ interface PropsInterface {
 	children: ReactNode;
 }
 
-const transaction: Array<
-	EarningTransaction | ExpenseTransaction | TransferTransaction
-> = [];
+const transaction: Array<Transaction> = [];
 
 function Home(props: PropsInterface) {
 	return (

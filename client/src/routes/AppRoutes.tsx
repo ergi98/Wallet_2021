@@ -56,6 +56,7 @@ import MobileHomeEarnings from "../views/mobile/home/MobileHomeEarnings";
 import MobileSettings from "../views/mobile/settings/MobileSettings";
 
 import MobilePortfolios from "../views/mobile/portfolios/MobilePortfolios";
+import RedirectMobileHome from "../components/mobile/home/RedirectMobileHome";
 
 const desktopRoutes = [
 	{
@@ -132,6 +133,12 @@ const mobileRoutes = [
 				element: <NotFound />,
 			},
 		],
+	},
+	{
+		path: "/home",
+		element: <RedirectMobileHome />,
+		private: true,
+		index: false,
 	},
 	{
 		path: "/home/expenses",

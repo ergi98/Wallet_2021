@@ -55,7 +55,7 @@ function AppNavigation() {
 						{activePath === 2 ? <RiHome2Fill /> : <RiHome2Line />}
 					</SvgIcon>
 				),
-				path: "/home/expenses",
+				path: "/home",
 			},
 			{
 				key: "analysis",

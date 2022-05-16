@@ -1,5 +1,6 @@
 // MUI
 import { Stack, Typography } from "@mui/material";
+import { useAppSelector } from "../../../redux_store/hooks";
 
 // Utilities
 import { formatDate, isTodayDate } from "../../../utilities/date-utilities";
@@ -8,23 +9,24 @@ import { formatDate, isTodayDate } from "../../../utilities/date-utilities";
 import AmountDisplay from "../../general/AmountDisplay";
 
 interface PropsInterface {
-	date: string;
+	// date: string;
 	label: String;
 	amount: number;
 	percent: number;
 }
 
 function HomeTitle(props: PropsInterface) {
+	const currentDate = useAppSelector((state) => state.home.date);
 	return (
 		<div className="p-3">
 			<Stack>
 				<div className="pb-3">
 					<Typography variant="h6">
-						{isTodayDate(props.date)
+						{isTodayDate(currentDate)
 							? `Today's ${props.label}`
 							: `${props.label}`}
 					</Typography>
-					<Typography variant="subtitle2">{formatDate(props.date)}</Typography>
+					<Typography variant="subtitle2">{formatDate(currentDate)}</Typography>
 				</div>
 				<AmountDisplay amount={props.amount} className="self-center" />
 				<AmountDisplay
