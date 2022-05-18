@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 
 // MUI
 import { Stack, Typography } from "@mui/material";
@@ -9,9 +9,14 @@ import { Link } from "react-router-dom";
 // Interfaces
 import { Transaction } from "../../../interfaces/transactions-interface";
 
+// Redux
+import { fetchHomeData } from "../../../features/home/home-slice";
+import { useAppDispatch, useAppSelector } from "../../../redux_store/hooks";
+
 // Components
 import TransactionsList from "../transactions/TransactionsList";
 import SelectTransactionTypeMenu from "./SelectTransactionTypeMenu";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 interface PropsInterface {
 	children: ReactNode;
@@ -20,6 +25,14 @@ interface PropsInterface {
 const transaction: Array<Transaction> = [];
 
 function Home(props: PropsInterface) {
+	const dispatch = useAppDispatch();
+	const axios = useAxiosPrivate();
+	const date = useAppSelector((state) => state.home.date);
+
+	useEffect(() => {
+		dispatch(fetchHomeData(axios));
+	}, [date]);
+
 	return (
 		<div className="app-height relative overflow-x-hidden overflow-y-auto">
 			{props.children}

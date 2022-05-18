@@ -12,7 +12,9 @@ interface TooltipProps {
 }
 
 interface PropsInterface {
-	data: Array<any>;
+	data: Array<{
+		[key: string]: string | number;
+	}>;
 	labelKey?: string;
 	valueKey?: string;
 }

@@ -11,22 +11,32 @@ import { setPath, setDate } from "../../../features/home/home-slice";
 import { useAppDispatch, useAppSelector } from "../../../redux_store/hooks";
 
 // Navigation
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // Components
 import MobileDatePicker from "../date-picker/MobileDatePicker";
 
+function getNextRoute(pathname: string): string | undefined {
+	switch (pathname) {
+		case "/home/expenses":
+			return "earnings";
+		case "/home/earnings":
+			return "expenses";
+	}
+}
+
 function HomeTopActions() {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const dispatch = useAppDispatch();
 
 	const [showDateFilter, setShowDateFilter] = useState<boolean>(false);
 
 	const currentDate = useAppSelector((state) => state.home.date);
-	const currentPath = useAppSelector((state) => state.home.path);
 
 	const swapClick = () => {
-		const nextPath = currentPath === "expenses" ? "earnings" : "expenses";
+		const nextPath = getNextRoute(location.pathname);
+		if (!nextPath) return;
 		dispatch(setPath(nextPath));
 		navigate(`/home/${nextPath}`);
 	};

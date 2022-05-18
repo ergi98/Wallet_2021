@@ -31,7 +31,7 @@ function parseDateString(parsedValue: Object, value: string) {
 function formatDate(date: string, format: string = "short"): string {
 	let dateObject = new Date(date);
 	if (isDate(dateObject)) {
-		let day = getDate(dateObject);
+		let day = getDate(dateObject).toString().padStart(2, "0");
 		let month = getMonth(dateObject);
 		let year = getYear(dateObject);
 

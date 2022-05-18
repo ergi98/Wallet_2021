@@ -12,19 +12,17 @@ const useRefreshToken = () => {
 				withCredentials: true,
 			})
 		);
-		if (data) {
-			setAuthState &&
-				setAuthState((prev) => {
-					return {
-						...prev,
-						isAuthenticated: true,
-						token: data.data.token,
-					};
-				});
+		if (data && setAuthState) {
+			setAuthState((prev) => {
+				return {
+					...prev,
+					isAuthenticated: true,
+					token: data.data.token,
+				};
+			});
 			return data.data.token;
 		}
 	};
-
 	return refresh;
 };
 
