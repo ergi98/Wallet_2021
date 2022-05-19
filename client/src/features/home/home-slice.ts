@@ -1,6 +1,5 @@
 import { Axios } from "axios";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "../../redux_store/store";
 
 interface ApiData {
 	previous: {
@@ -81,7 +80,6 @@ const HomeSlice = createSlice({
 			state.expenseChart = action.payload.expenseChart;
 		});
 		builder.addCase(fetchHomeData.rejected, (state, error) => {
-			console.log(error);
 			state.error = "An error occurred while fetching data.";
 			state.loading = false;
 		});

@@ -1,13 +1,10 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 
 // MUI
 import { Stack, Typography } from "@mui/material";
 
 // Navigation
 import { Link } from "react-router-dom";
-
-// Interfaces
-import { Transaction } from "../../../interfaces/transactions-interface";
 
 // Redux
 import {
@@ -16,6 +13,10 @@ import {
 	setFetchedDate,
 } from "../../../features/home/home-slice";
 import { useAppDispatch, useAppSelector } from "../../../redux_store/hooks";
+
+// Date
+import { isToday } from "date-fns";
+import { formatDate } from "../../../utilities/date-utilities";
 
 // Components
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
@@ -26,8 +27,6 @@ import SelectTransactionTypeMenu from "./SelectTransactionTypeMenu";
 interface PropsInterface {
 	children: ReactNode;
 }
-
-const transaction: Array<Transaction> = [];
 
 interface HomeCTX {
 	date: string;
@@ -48,6 +47,15 @@ function Home(props: PropsInterface) {
 		date,
 		path,
 	});
+
+	const transactionsTitle = useMemo(() => {
+		if (isToday(new Date(date))) {
+			return "Today's Transactions";
+		} else {
+			const formattedDate = formatDate(date).split(" ");
+			return `${formattedDate[0]} ${formattedDate[1]} Transactions`;
+		}
+	}, [date]);
 
 	useEffect(() => {
 		localContext.date !== date && dispatch(setDate(localContext.date));
@@ -73,7 +81,7 @@ function Home(props: PropsInterface) {
 						justifyContent="space-between"
 					>
 						<div>
-							<Typography variant="h6">Today's Transactions</Typography>
+							<Typography variant="h6">{transactionsTitle}</Typography>
 							<Link
 								className="text-sm underline underline-offset-2"
 								to="/transactions"
@@ -84,7 +92,7 @@ function Home(props: PropsInterface) {
 						<SelectTransactionTypeMenu />
 					</Stack>
 				</div>
-				<TransactionsList transactions={transaction} flow="horizontal" />
+				<TransactionsList transactions={[]} flow="horizontal" />
 			</div>
 		</div>
 	);
