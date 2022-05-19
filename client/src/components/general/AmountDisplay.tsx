@@ -29,7 +29,6 @@ function AmountDisplay(props: PropsInterface) {
 	useEffect(() => {
 		function storeElementHeight() {
 			if (!amountRef.current) return;
-			console.dir(amountRef.current);
 			setDimensions({
 				height: amountRef.current.clientHeight,
 				width: amountRef.current.clientWidth,

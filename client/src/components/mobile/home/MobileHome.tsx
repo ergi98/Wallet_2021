@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 // MUI
 import { Stack, Typography } from "@mui/material";
@@ -10,13 +10,18 @@ import { Link } from "react-router-dom";
 import { Transaction } from "../../../interfaces/transactions-interface";
 
 // Redux
-import { fetchHomeData } from "../../../features/home/home-slice";
+import {
+	setDate,
+	fetchHomeData,
+	setFetchedDate,
+} from "../../../features/home/home-slice";
 import { useAppDispatch, useAppSelector } from "../../../redux_store/hooks";
 
 // Components
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import useLocalContext from "../../../hooks/useLocalContext";
 import TransactionsList from "../transactions/TransactionsList";
 import SelectTransactionTypeMenu from "./SelectTransactionTypeMenu";
-import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 interface PropsInterface {
 	children: ReactNode;
@@ -24,14 +29,38 @@ interface PropsInterface {
 
 const transaction: Array<Transaction> = [];
 
+interface HomeCTX {
+	date: string;
+	path: string;
+}
+
 function Home(props: PropsInterface) {
+	const [fetchedFromContext, setFetchedFromContext] = useState(false);
+
 	const dispatch = useAppDispatch();
 	const axios = useAxiosPrivate();
 	const date = useAppSelector((state) => state.home.date);
+	const path = useAppSelector((state) => state.home.path);
+
+	const fetchedDate = useAppSelector((state) => state.home.fetchedDate);
+
+	const [localContext, persistContext] = useLocalContext<HomeCTX>("home", {
+		date,
+		path,
+	});
 
 	useEffect(() => {
-		dispatch(fetchHomeData(axios));
-	}, [date]);
+		localContext.date !== date && dispatch(setDate(localContext.date));
+		setFetchedFromContext(true);
+	}, []);
+
+	useEffect(() => {
+		if (fetchedDate !== date && fetchedFromContext) {
+			dispatch(fetchHomeData({ axios, date }));
+			dispatch(setFetchedDate(date));
+			persistContext("home", { date, path });
+		}
+	}, [date, fetchedFromContext]);
 
 	return (
 		<div className="app-height relative overflow-x-hidden overflow-y-auto">

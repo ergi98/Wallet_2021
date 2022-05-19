@@ -24,6 +24,7 @@ interface HomeState extends ApiData {
 	scroll: number;
 	loading: boolean;
 	error: string;
+	fetchedDate: string;
 }
 
 const initialState: HomeState = {
@@ -32,6 +33,7 @@ const initialState: HomeState = {
 	error: "",
 	expenseChart: [],
 	path: "expenses",
+	fetchedDate: "",
 	date: new Date().toISOString(),
 	previous: {
 		earning: { amount: 0 },
@@ -55,6 +57,9 @@ const HomeSlice = createSlice({
 		setDate: (state, action: PayloadAction<string>) => {
 			state.date = action.payload;
 		},
+		setFetchedDate: (state, action: PayloadAction<string>) => {
+			state.fetchedDate = action.payload;
+		},
 		setPath: (state, action: PayloadAction<string>) => {
 			state.path = action.payload;
 		},
@@ -75,19 +80,23 @@ const HomeSlice = createSlice({
 			state.previous = action.payload.previous;
 			state.expenseChart = action.payload.expenseChart;
 		});
+		builder.addCase(fetchHomeData.rejected, (state, error) => {
+			console.log(error);
+			state.error = "An error occurred while fetching data.";
+			state.loading = false;
+		});
 	},
 });
 
 export const fetchHomeData = createAsyncThunk(
 	"home/fetchHomeData",
-	async (axiosInstance: Axios, { getState }) => {
-		const state = getState() as RootState;
+	async (args: { axios: Axios; date: string }) => {
 		try {
-			const date = new Date(state.home.date);
-			const result = await axiosInstance.get("transaction/home-statistics", {
+			const dateObj = new Date(args.date);
+			const result = await args.axios.get("transaction/home-statistics", {
 				params: {
-					start: new Date(date.setHours(0, 0, 0, 0)).toISOString(),
-					end: new Date(date.setHours(23, 59, 59, 999)).toISOString(),
+					start: new Date(dateObj.setHours(0, 0, 0, 0)).toISOString(),
+					end: new Date(dateObj.setHours(23, 59, 59, 999)).toISOString(),
 				},
 			});
 			return result.data;
@@ -98,4 +107,5 @@ export const fetchHomeData = createAsyncThunk(
 );
 
 export default HomeSlice.reducer;
-export const { setScroll, setDate, setPath, setHomeData } = HomeSlice.actions;
+export const { setScroll, setDate, setPath, setHomeData, setFetchedDate } =
+	HomeSlice.actions;
