@@ -23,6 +23,7 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import useLocalContext from "../../../hooks/useLocalContext";
 import TransactionsList from "../transactions/TransactionsList";
 import SelectTransactionTypeMenu from "./SelectTransactionTypeMenu";
+import { fetchTransactions } from "../../../features/transactions/transaction-slice";
 
 interface PropsInterface {
 	children: ReactNode;
@@ -40,6 +41,9 @@ function Home(props: PropsInterface) {
 	const axios = useAxiosPrivate();
 	const date = useAppSelector((state) => state.home.date);
 	const path = useAppSelector((state) => state.home.path);
+	const transactions = useAppSelector(
+		(state) => state.transaction.transactions
+	);
 
 	const fetchedDate = useAppSelector((state) => state.home.fetchedDate);
 
@@ -66,6 +70,19 @@ function Home(props: PropsInterface) {
 		if (fetchedDate !== date && fetchedFromContext) {
 			dispatch(fetchHomeData({ axios, date }));
 			dispatch(setFetchedDate(date));
+			dispatch(
+				fetchTransactions({
+					axios,
+					filters: {
+						dateRange: {
+							from: new Date(new Date(date).setHours(0, 0, 0, 0)).toISOString(),
+							to: new Date(
+								new Date(date).setHours(23, 59, 59, 999)
+							).toISOString(),
+						},
+					},
+				})
+			);
 			persistContext("home", { date, path });
 		}
 	}, [date, fetchedFromContext]);
@@ -92,7 +109,7 @@ function Home(props: PropsInterface) {
 						<SelectTransactionTypeMenu />
 					</Stack>
 				</div>
-				<TransactionsList transactions={[]} flow="horizontal" />
+				<TransactionsList transactions={transactions} flow="horizontal" />
 			</div>
 		</div>
 	);

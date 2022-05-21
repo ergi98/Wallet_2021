@@ -1,6 +1,6 @@
-interface BaseTransaction {
-	amount: number;
-	type: string;
+interface TransactionPortfolio {
+	_id: string;
+	description: string;
 }
 
 interface SourceOrCategory {
@@ -13,31 +13,33 @@ interface TransactionCurrency {
 	name: string;
 	symbol: string;
 	acronym: string;
-	rates: Array<CurrencyRates> | null;
 }
 
-interface CurrencyRates {
-	_id: string;
-	rate: number;
-	acronym: string;
+interface TransactionLocation {
+	longitude: number;
+	latitude: number;
 }
 
-interface TransactionPortfolio {
+interface BaseTransaction {
 	_id: string;
+	amount: number;
+	amountInDefault: number;
+	type: {
+		_id: string;
+		type: string;
+	};
+	date: string;
+	createdAt: string;
 	description: string;
 }
 
 interface EarningTransaction extends BaseTransaction {
-	date: string;
-	description: string;
 	source: SourceOrCategory;
 	currency: TransactionCurrency;
 	portfolio: TransactionPortfolio;
 }
 
 interface ExpenseTransaction extends BaseTransaction {
-	date: string;
-	description: string;
 	category: SourceOrCategory;
 	location: TransactionLocation;
 	currency: TransactionCurrency;
@@ -48,11 +50,6 @@ interface TransferTransaction extends BaseTransaction {
 	to: TransactionPortfolio;
 	from: TransactionPortfolio;
 	currency: TransactionCurrency;
-}
-
-interface TransactionLocation {
-	longitude: number;
-	latitude: number;
 }
 
 type Transaction =

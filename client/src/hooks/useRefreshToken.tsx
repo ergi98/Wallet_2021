@@ -1,28 +1,19 @@
+import { useLocation } from "react-router-dom";
 import axios from "../axios/axios";
-import useAuth from "./useAuth";
-import useTryCatch from "./useTryCatch";
+import { refreshToken } from "../features/auth/auth-slice";
+import { useAppDispatch } from "../redux_store/hooks";
 
 const useRefreshToken = () => {
-	const { setAuthState } = useAuth();
-	const tryCatch = useTryCatch();
+	const dispatch = useAppDispatch();
 
-	const refresh = async () => {
-		const { data } = await tryCatch(
-			axios.get("auth/refresh-token", {
-				withCredentials: true,
-			})
-		);
-		if (data && setAuthState) {
-			setAuthState((prev) => {
-				return {
-					...prev,
-					isAuthenticated: true,
-					token: data.data.token,
-				};
-			});
-			return data.data.token;
+	async function refresh() {
+		try {
+			const result = await dispatch(refreshToken(axios)).unwrap();
+			return result.token;
+		} catch (err) {
+			console.error(err);
 		}
-	};
+	}
 	return refresh;
 };
 

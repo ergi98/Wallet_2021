@@ -134,6 +134,7 @@ const getTransactionsAggregation = (
 		// Limit the returned results
 		pagination?.limit && { $limit: pagination.limit },
 		...populateRates,
+		...populateUserCurrency,
 		{
 			$lookup: {
 				from: "transaction-types",
@@ -229,11 +230,41 @@ const getTransactionsAggregation = (
 			},
 		},
 		{
+			$set: {
+				rateToDefault: {
+					$filter: {
+						input: "$currency.rates",
+						as: "rate",
+						cond: { $eq: ["$$rate._id", "$user.defaultCurrency"] },
+					},
+				},
+			},
+		},
+		{
+			$set: {
+				rateToDefault: { $arrayElemAt: ["$rateToDefault", 0] },
+			},
+		},
+		{
+			$set: {
+				rateToDefault: { $ifNull: [{ $toDouble: "$rateToDefault.rate" }, 1] },
+			},
+		},
+		{
+			$set: {
+				amountInDefault: {
+					$round: [{ $multiply: ["$amount", "$rateToDefault"] }, 2],
+				},
+			},
+		},
+		{
 			$project: {
 				day: 0,
 				user: 0,
 				year: 0,
 				month: 0,
+				rateToDefault: 0,
+				"currency.rates": 0,
 			},
 		},
 	].filter(Boolean);

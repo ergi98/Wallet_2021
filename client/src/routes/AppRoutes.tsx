@@ -10,7 +10,6 @@ import { AnimatePresence } from "framer-motion";
 import { isMobile } from "../utilities/mobile-utilities";
 
 // Hooks
-import useAuth from "../hooks/useAuth";
 import useRefreshToken from "../hooks/useRefreshToken";
 
 // General
@@ -57,6 +56,7 @@ import MobileSettings from "../views/mobile/settings/MobileSettings";
 
 import MobilePortfolios from "../views/mobile/portfolios/MobilePortfolios";
 import RedirectMobileHome from "../components/mobile/home/RedirectMobileHome";
+import { useAppSelector } from "../redux_store/hooks";
 
 const desktopRoutes = [
 	{
@@ -170,9 +170,10 @@ const appRoutes = isMobile ? mobileRoutes : desktopRoutes;
 
 function AppRoutes() {
 	const location = useLocation();
-
-	const { isAuthenticated, token } = useAuth();
 	const refreshToken = useRefreshToken();
+
+	const token = useAppSelector((state) => state.auth.token);
+	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
 	const [checkingToken, setCheckingToken] = useState<boolean>(true);
 

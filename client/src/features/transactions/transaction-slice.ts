@@ -77,9 +77,7 @@ export const fetchTransactions = createAsyncThunk(
 	"transaction/fetchTransactions",
 	async (args: { axios: Axios; filters: Filters }) => {
 		try {
-			const result = await args.axios.get("transaction/get-all", {
-				params: args.filters,
-			});
+			const result = await args.axios.post("transaction/get-all", args.filters);
 			return result.data;
 		} catch (err) {
 			console.log(err);

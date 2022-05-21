@@ -31,9 +31,11 @@ import ValidationHint from "../../general/ValidationHint";
 import ToggleVisibility from "../../general/ToggleVisibility";
 
 // Hooks
-import useAuth from "../../../hooks/useAuth";
-import useTryCatch from "../../../hooks/useTryCatch";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+
+// Redux
+import { loginUser } from "../../../features/auth/auth-slice";
+import { useAppDispatch, useAppSelector } from "../../../redux_store/hooks";
 
 interface LogInData {
 	username: string;
@@ -42,32 +44,28 @@ interface LogInData {
 
 function LoginForm() {
 	const navigate = useNavigate();
-	const tryCatch = useTryCatch();
 	const axios = useAxiosPrivate();
-	const { setAuthState } = useAuth();
+	const dispatch = useAppDispatch();
 
 	const [showPassword, setShowPassword] = useState<boolean>(false);
+
+	const token = useAppSelector((state) => state.auth.token);
+	const loading = useAppSelector((state) => state.auth.loading);
 
 	const navigateToSignUp = () => navigate("/sign-up/introduction");
 
 	const formik = useFormik({
 		initialValues: { username: "", password: "" },
 		validationSchema: loginSchema,
-		onSubmit: (values, { setSubmitting }) =>
-			handleUserLogin(values, setSubmitting),
+		onSubmit: (values) => handleUserLogin(values),
 	});
 
-	async function handleUserLogin(values: LogInData, setSubmitting: Function) {
-		setSubmitting(true);
-		let { data } = await tryCatch(axios.post("/auth/log-in", values));
-		setSubmitting(false);
-		if (data) {
-			setAuthState &&
-				setAuthState({
-					token: data.data.token,
-					isAuthenticated: true,
-				});
+	async function handleUserLogin(values: LogInData) {
+		try {
+			await dispatch(loginUser({ axios, data: values })).unwrap();
 			navigate("/home/expenses", { replace: true });
+		} catch (err) {
+			console.error(err);
 		}
 	}
 
@@ -165,7 +163,7 @@ function LoginForm() {
 				<Grid item>
 					<LoadingButton
 						type="submit"
-						loading={formik.isSubmitting}
+						loading={loading}
 						endIcon={<LoginOutlined />}
 						aria-label="login"
 						variant="contained"

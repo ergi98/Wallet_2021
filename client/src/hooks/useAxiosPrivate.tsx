@@ -7,13 +7,14 @@ import { axiosPrivate } from "../axios/axios";
 import rfdc from "rfdc";
 
 // Hooks
-import useAuth from "./useAuth";
 import useRefreshToken from "./useRefreshToken";
+import { useAppSelector } from "../redux_store/hooks";
 
 const useAxiosPrivate = () => {
-	const refreshToken = useRefreshToken();
 	const clone = rfdc();
-	const { token } = useAuth();
+	const refreshToken = useRefreshToken();
+
+	const token = useAppSelector((state) => state.auth.token);
 
 	useEffect(() => {
 		const requestIntercept = axiosPrivate.interceptors.request.use(

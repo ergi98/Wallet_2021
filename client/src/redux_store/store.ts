@@ -2,10 +2,16 @@ import { configureStore } from "@reduxjs/toolkit";
 
 // Reducers
 import HomeReducer from "../features/home/home-slice";
+import UserReducer from "../features/user/user-slice";
+import AuthReducer from "../features/auth/auth-slice";
+import TransactionReducer from "../features/transactions/transaction-slice";
 
 const store = configureStore({
 	reducer: {
+		auth: AuthReducer,
 		home: HomeReducer,
+		user: UserReducer,
+		transaction: TransactionReducer,
 	},
 });
 

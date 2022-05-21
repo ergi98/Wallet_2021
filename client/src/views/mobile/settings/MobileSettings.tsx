@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 // MUI
 import { LoadingButton } from "@mui/lab";
 import { Stack, Typography } from "@mui/material";
@@ -7,23 +5,24 @@ import { Stack, Typography } from "@mui/material";
 // Icons
 import { LogoutOutlined } from "@mui/icons-material";
 
-// Hooks
-import useLogout from "../../../hooks/useLogout";
+// Axios
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 // Components
 import TransactionsSettings from "../../../components/shared/settings/TransactionsSettings";
 import CategoryAndSourcesSettings from "../../../components/shared/settings/CategoryAndSourcesSettings";
 
+// Redux
+import { logoutUser } from "../../../features/auth/auth-slice";
+import { useAppDispatch, useAppSelector } from "../../../redux_store/hooks";
+
 function MobileSettings() {
-	const logout = useLogout();
+	const axios = useAxiosPrivate();
+	const dispatch = useAppDispatch();
 
-	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const loading = useAppSelector((state) => state.auth.loading);
 
-	async function logOut() {
-		setIsLoading(true);
-		await logout();
-		setIsLoading(false);
-	}
+	const logOut = () => dispatch(logoutUser(axios));
 
 	return (
 		<div className="app-height relative overflow-x-hidden overflow-y-auto p-3">
@@ -39,7 +38,7 @@ function MobileSettings() {
 				</div>
 				<LoadingButton
 					onClick={logOut}
-					loading={isLoading}
+					loading={loading}
 					startIcon={<LogoutOutlined />}
 					aria-label="logout"
 					variant="contained"
