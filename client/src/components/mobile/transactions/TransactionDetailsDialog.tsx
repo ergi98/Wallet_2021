@@ -1,177 +1,206 @@
+import React, { useMemo, useState } from "react";
+
 // MUI
 import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  Divider,
-  Grid,
-  IconButton,
-  Stack,
-  Typography,
+	Grid,
+	Button,
+	IconButton,
+	DialogActions,
+	DialogContent,
 } from "@mui/material";
 
 // Icons
-import { CloseOutlined, Delete, Edit } from "@mui/icons-material";
+import { Delete } from "@mui/icons-material";
 
 // Interface
-// import { any } from "../../../interfaces/transactions-interface";
+import { Transaction } from "../../../interfaces/transactions-interface";
 
 // Utilities
 import { formatDate } from "../../../utilities/date-utilities";
 
+// Navigation
+import { useNavigate } from "react-router-dom";
+
 // Components
 import Map from "../../general/Map";
+import BottomDialog from "../../general/BottomDialog";
 import AmountDisplay from "../../general/AmountDisplay";
+import ConfirmDialog from "../../general/ConfirmDialog";
 
 interface PropsInterface {
-  show: boolean;
-  transaction: any | null;
-  onClose: (a: boolean, b: any | null) => void;
+	show: boolean;
+	transaction: Transaction | null;
+	onClose: () => void;
 }
 
 function TransactionDetailsDialog(props: PropsInterface) {
-  const handleClose = () => props.onClose(false, null);
-  return (
-    <Dialog
-      className="px-env"
-      fullScreen
-      open={props.show}
-      onClose={handleClose}
-    >
-      <div className="pt-env"></div>
-      <Stack
-        direction="row"
-        alignItems="center"
-        className="p-3 w-full"
-        justifyContent="space-between"
-      >
-        <Typography
-          className="text-slate-900 text-ellipsis overflow-hidden whitespace-nowrap"
-          variant="h6"
-        >
-          Transaction Details
-        </Typography>
-        <IconButton size="small" onClick={handleClose} aria-label="close">
-          <CloseOutlined sx={{ fontSize: 20 }} />
-        </IconButton>
-      </Stack>
-      <DialogContent sx={{ padding: "2px 14px" }}>
-        <Grid className="pb-12" rowSpacing={1} container>
-          {props.transaction?.location && (
-            <Grid xs={12} item>
-              <Map
-              zoom={17}
-                className="w-full h-36 rounded-lg border-2"
-                location={props.transaction.location}
-              />
-            </Grid>
-          )}
-          <Grid xs={12} item>
-            <Divider className="py-2">
-              <span className="uppercase text-gray-400 text-xs">Amount</span>
-            </Divider>
-          </Grid>
-          {/* Amount */}
-          <Grid className="text-center" xs={12} item>
-            <AmountDisplay
-              className="self-center text-slate-900"
-              currency={props.transaction?.currency ?? ""}
-              amount={props.transaction?.amount ?? 0}
-            />
-          </Grid>
-          {/* Currency Rate */}
-          {props.transaction?.currencyRate !== 1 && (
-            <Grid className="text-gray-600" xs={5} item>
-              Currency Rate
-            </Grid>
-          )}
-          {props.transaction?.currencyRate !== 1 && (
-            <Grid className="break-all text-slate-900" xs={7} item>
-              {props.transaction?.currencyRate}
-            </Grid>
-          )}
-          <Grid xs={12} item>
-            <Divider className="py-2">
-              <span className="uppercase text-gray-400 text-xs">Time</span>
-            </Divider>
-          </Grid>
-          {/* Date & Time */}
-          <Grid className="text-gray-600" xs={5} item>
-            Date
-          </Grid>
-          <Grid className="break-all text-slate-900" xs={7} item>
-            {formatDate(props.transaction?.date ?? "", "long")}
-          </Grid>
-          <Grid xs={12} item>
-            <Divider className="py-2">
-              <span className="uppercase text-gray-400 text-xs">Specifics</span>
-            </Divider>
-          </Grid>
-          {/* Type */}
-          <Grid className="text-gray-600" xs={5} item>
-            Type
-          </Grid>
-          <Grid className="break-all text-slate-900" xs={7} item>
-            <span className="capitalize">{props.transaction?.type}</span>
-          </Grid>
-          {/* Source || Category */}
-          <Grid className="text-gray-600" xs={5} item>
-            {props.transaction?.type === "expense" ? "Category" : "Source"}
-          </Grid>
-          <Grid className="break-all text-slate-900" xs={7} item>
-            {props.transaction?.source || props.transaction?.category}
-          </Grid>
-          {/* Portfolio */}
-          <Grid className="text-gray-600" xs={5} item>
-            Portfolio
-          </Grid>
-          <Grid className="break-all text-slate-900" xs={7} item>
-            {props.transaction?.portfolio}
-          </Grid>
-          <Grid xs={12} item>
-            <Divider className="py-2">
-              <span className="uppercase text-gray-400 text-xs">
-                Information
-              </span>
-            </Divider>
-          </Grid>
-          {/* Title */}
-          <Grid className="text-gray-600" xs={5} item>
-            Title
-          </Grid>
-          <Grid className="break-all text-slate-900" xs={7} item>
-            {props.transaction?.title}
-          </Grid>
-          {/* Description */}
-          {props.transaction?.description && (
-            <Grid className="text-gray-600" xs={5} item>
-              Description
-            </Grid>
-          )}
-          {props.transaction?.description && (
-            <Grid className="break-all text-slate-900" xs={7} item>
-              {props.transaction?.description}
-            </Grid>
-          )}
-        </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button startIcon={<Delete />} color="error" fullWidth>
-          Remove
-        </Button>
-        <Button
-          startIcon={<Edit />}
-          variant="contained"
-          disableElevation
-          fullWidth
-        >
-          Edit
-        </Button>
-      </DialogActions>
-      <div className="pb-env"></div>
-    </Dialog>
-  );
+	const navigate = useNavigate();
+
+	const [showConfirm, setShowConfirm] = useState(false);
+
+	const TransactionSourceOrCategory = useMemo(() => {
+		if (!props.transaction) return "";
+		if ("source" in props.transaction) {
+			return props.transaction?.source?.name;
+		} else if ("category" in props.transaction) {
+			return props.transaction?.category?.name;
+		} else return "Transfer";
+	}, [props.transaction]);
+
+	const TransactionLocation = useMemo(() => {
+		if (!props.transaction) return "";
+		if ("location" in props.transaction) {
+			return (
+				<div className="py-4">
+					<Map
+						zoom={17}
+						className="w-full h-44 rounded-lg border-2"
+						location={props.transaction.location}
+					/>
+				</div>
+			);
+		} else return "";
+	}, [props.transaction]);
+
+	const TransactionPortfolio = useMemo(() => {
+		if (!props.transaction) return "";
+		if ("portfolio" in props.transaction)
+			return (
+				<Grid
+					className="break-all text-slate-900 bg-neutral-100 flex justify-between items-center"
+					sx={{ padding: "16px" }}
+					xs={12}
+					item
+				>
+					<span>Portfolio</span>
+					<span>{props.transaction?.portfolio?.description}</span>
+				</Grid>
+			);
+		else return "";
+	}, [props.transaction]);
+
+	const handleClose = () => props.onClose();
+
+	const toggleConfirmDelete = (val: boolean) => setShowConfirm(val);
+
+	// TODO: Determine edit path
+	const goToEdit = () => {
+		console.log("here");
+	};
+
+	function handleTransactionDelete() {
+		toggleConfirmDelete(false);
+		console.log("Deleting ...");
+	}
+
+	return (
+		<>
+			<BottomDialog open={props.show} closeOnSwipe={true} onClose={handleClose}>
+				<DialogContent sx={{ padding: "0px 0px 12px 0px" }}>
+					{/* Location */}
+					{TransactionLocation}
+					<Grid rowGap={2} container>
+						{/* Amount */}
+						<Grid className="text-center" xs={12} item>
+							<AmountDisplay
+								className="self-center text-slate-900"
+								amount={props.transaction?.amount ?? 0}
+								currency={props.transaction?.currency?.acronym ?? "ALL"}
+							/>
+						</Grid>
+						{/* Amount in default */}
+						<Grid
+							className="break-all text-slate-900 bg-neutral-100 flex justify-between items-center"
+							sx={{ padding: "16px" }}
+							xs={12}
+							item
+						>
+							<span>Amount in ALL</span>
+							<AmountDisplay
+								wholeClass=" text-md"
+								decimalClass="text-xs"
+								className="self-center text-slate-900"
+								amount={props.transaction?.amountInDefault ?? 0}
+								currency={"ALL"}
+							/>
+						</Grid>
+						{/* Date */}
+						<Grid
+							className="break-all text-slate-900 bg-neutral-100 flex justify-between items-center"
+							sx={{ padding: "16px" }}
+							xs={12}
+							item
+						>
+							<span>Date</span>
+							<span>{formatDate(props.transaction?.date ?? "", "long")}</span>
+						</Grid>
+						{/* Type */}
+						<Grid
+							className="break-all text-slate-900 bg-neutral-100 flex justify-between items-center"
+							sx={{ padding: "16px" }}
+							xs={12}
+							item
+						>
+							<span>Type</span>
+							<span className="capitalize">
+								{props.transaction?.type?.type}
+							</span>
+						</Grid>
+						{/* Source || Category */}
+						<Grid
+							className="break-all text-slate-900 bg-neutral-100 flex justify-between items-center"
+							sx={{ padding: "16px" }}
+							xs={12}
+							item
+						>
+							<span>
+								{props.transaction?.type?.type === "expense"
+									? "Category"
+									: "Source"}
+							</span>
+							<span>{TransactionSourceOrCategory}</span>
+						</Grid>
+						{/* Portfolio */}
+						{TransactionPortfolio}
+						{/* Title */}
+						<Grid
+							className="break-all text-slate-900 bg-neutral-100 flex justify-between items-center"
+							sx={{ padding: "16px" }}
+							xs={12}
+							item
+						>
+							<span>Title</span>
+							<span>{props.transaction?.description}</span>
+						</Grid>
+					</Grid>
+				</DialogContent>
+				<DialogActions>
+					<IconButton
+						onClick={() => toggleConfirmDelete(true)}
+						size="large"
+					>
+						<Delete />
+					</IconButton>
+					<Button
+						onClick={goToEdit}
+						variant="contained"
+						disableElevation
+						fullWidth
+						size="large"
+					>
+						Edit
+					</Button>
+				</DialogActions>
+				<div className="pb-env"></div>
+			</BottomDialog>
+			<ConfirmDialog
+				show={showConfirm}
+				text="Are you sure you want to delete this transaction?"
+				onConfirm={handleTransactionDelete}
+				onClose={() => toggleConfirmDelete(false)}
+			/>
+		</>
+	);
 }
 
 export default TransactionDetailsDialog;

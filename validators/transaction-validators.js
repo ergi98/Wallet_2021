@@ -28,7 +28,7 @@ const expenseTransactionSchema = Joi.object({
 	location: Joi.object({
 		longitude: Joi.number().required(),
 		latitude: Joi.number().required(),
-	}),
+	}).required(),
 }).concat(baseTransactionSchema);
 
 const earningTransactionSchema = Joi.object({

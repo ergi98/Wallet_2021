@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Interfaces
-// import { any } from "../../../interfaces/transactions-interface";
+import { Transaction } from "../../../interfaces/transactions-interface";
 
 // Components
 import VerticalTransactions from "./VerticalTransactions";
@@ -10,12 +10,12 @@ import TransactionDetailsDialog from "./TransactionDetailsDialog";
 
 interface PropsInterface {
 	flow: string;
-	transactions: Array<any>;
+	transactions: Array<Transaction>;
 }
 
 interface Details {
 	show: boolean;
-	transaction: any | null;
+	transaction: Transaction | null;
 }
 
 function TransactionsList(props: PropsInterface) {
@@ -26,13 +26,30 @@ function TransactionsList(props: PropsInterface) {
 
 	function setTransactionDetails(
 		show: boolean,
-		transaction: any | null
+		transaction: Transaction | null
 	) {
 		setDetails({
 			show,
 			transaction,
 		});
 	}
+
+	const closeDialog = () =>
+		setDetails((prev) => {
+			return { ...prev, show: false };
+		});
+
+	useEffect(() => {
+		function resetSelectedTransaction() {
+			setDetails((prev) => {
+				return {
+					...prev,
+					transaction: null,
+				};
+			});
+		}
+		details.show === false && resetSelectedTransaction();
+	}, [details.show]);
 
 	return (
 		<>
@@ -47,13 +64,11 @@ function TransactionsList(props: PropsInterface) {
 					transactions={props.transactions}
 				/>
 			)}
-			{details.show && (
-				<TransactionDetailsDialog
-					show={details.show}
-					transaction={details.transaction}
-					onClose={setTransactionDetails}
-				/>
-			)}
+			<TransactionDetailsDialog
+				show={details.show}
+				transaction={details.transaction}
+				onClose={closeDialog}
+			/>
 		</>
 	);
 }

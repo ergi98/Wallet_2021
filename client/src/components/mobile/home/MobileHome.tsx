@@ -1,10 +1,13 @@
 import { ReactNode, useEffect, useMemo, useState } from "react";
 
+// Icons
+import { RiAddFill } from "react-icons/ri";
+
 // MUI
-import { Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 
 // Navigation
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Redux
 import {
@@ -22,7 +25,8 @@ import { formatDate } from "../../../utilities/date-utilities";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import useLocalContext from "../../../hooks/useLocalContext";
 import TransactionsList from "../transactions/TransactionsList";
-import SelectTransactionTypeMenu from "./SelectTransactionTypeMenu";
+
+// Redux
 import { fetchTransactions } from "../../../features/transactions/transaction-slice";
 
 interface PropsInterface {
@@ -35,22 +39,24 @@ interface HomeCTX {
 }
 
 function Home(props: PropsInterface) {
-	const [fetchedFromContext, setFetchedFromContext] = useState(false);
-
-	const dispatch = useAppDispatch();
 	const axios = useAxiosPrivate();
+	const navigate = useNavigate();
+	const dispatch = useAppDispatch();
 	const date = useAppSelector((state) => state.home.date);
 	const path = useAppSelector((state) => state.home.path);
 	const transactions = useAppSelector(
 		(state) => state.transaction.transactions
 	);
 
+	const [fetchedFromContext, setFetchedFromContext] = useState(false);
 	const fetchedDate = useAppSelector((state) => state.home.fetchedDate);
 
 	const [localContext, persistContext] = useLocalContext<HomeCTX>("home", {
 		date,
 		path,
 	});
+
+	const goToAddTransaction = () => navigate("/new-transaction");
 
 	const transactionsTitle = useMemo(() => {
 		if (isToday(new Date(date))) {
@@ -106,7 +112,16 @@ function Home(props: PropsInterface) {
 								View all transactions
 							</Link>
 						</div>
-						<SelectTransactionTypeMenu />
+						<Button
+							onClick={goToAddTransaction}
+							endIcon={<RiAddFill className=" scale-75" />}
+							sx={{ color: "inherit", borderColor: "inherit !important" }}
+							className="border-neutral-50"
+							variant="outlined"
+							size="small"
+						>
+							New
+						</Button>
 					</Stack>
 				</div>
 				<TransactionsList transactions={transactions} flow="horizontal" />

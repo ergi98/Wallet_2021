@@ -1,4 +1,12 @@
-import { ReactChild, TouchEvent, useEffect, useRef, useState } from "react";
+import {
+	LegacyRef,
+	ReactNode,
+	TouchEvent,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
 
 // MUI
 import { Dialog } from "@mui/material";
@@ -8,7 +16,7 @@ import TouchArea from "./TouchArea";
 
 interface PropsInterface {
 	open: boolean;
-	children: ReactChild;
+	children: ReactNode;
 	closeOnSwipe?: boolean;
 	onClose: (a: boolean) => void;
 }
@@ -16,19 +24,19 @@ interface PropsInterface {
 function BottomDialog(props: PropsInterface) {
 	const touchArea = useRef<HTMLDivElement>(null);
 	const dialogArea = useRef<HTMLDivElement>(null);
+	const dialogPaper = useRef<HTMLDivElement>(null);
 
 	const [dialogHeight, setDialogHeight] = useState<number>(0);
 
 	useEffect(() => {
 		function initialSetup() {
-			if (dialogArea.current) {
-				let paperHeight =
-					dialogArea.current.children[2].children[0].clientHeight;
+			if (dialogPaper.current) {
+				let paperHeight = dialogPaper.current.clientHeight;
 				setDialogHeight(paperHeight);
 			}
 		}
 		initialSetup();
-	}, [dialogArea.current]);
+	}, [dialogPaper.current]);
 
 	let bottomPosition: number = 0;
 	let userTouchYPosition: number = 0;
@@ -83,6 +91,7 @@ function BottomDialog(props: PropsInterface) {
 			}}
 			ref={dialogArea}
 			open={props.open}
+			PaperProps={{ ref: dialogPaper }}
 			onClose={() => props.onClose(false)}
 			onBackdropClick={() => props.onClose(false)}
 		>
