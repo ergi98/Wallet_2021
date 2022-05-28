@@ -450,4 +450,8 @@ const homeStatisticsAggregation = (data) => {
 	return aggregation;
 };
 
-export { getTransactionsAggregation, homeStatisticsAggregation };
+export {
+	getTransactionsAggregation,
+	homeStatisticsAggregation,
+	populateUserCurrency,
+};

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { populateUserCurrency } from "./transaction-aggregations.js";
 
 const getPortfoliosAggregation = (userId, portfolioId) => {
 	const match = {
@@ -10,12 +11,6 @@ const getPortfoliosAggregation = (userId, portfolioId) => {
 	const aggregation = [
 		{
 			$match: match,
-		},
-		{
-			$project: {
-				user: 0,
-				updatedAt: 0,
-			},
 		},
 		{
 			$lookup: {
@@ -43,7 +38,14 @@ const getPortfoliosAggregation = (userId, portfolioId) => {
 				bank: { $arrayElemAt: ["$bank", 0] },
 			},
 		},
+		...populateUserCurrency,
 		...populatePortfolioAmounts,
+		{
+			$project: {
+				user: 0,
+				updatedAt: 0,
+			},
+		},
 	];
 	return aggregation;
 };
@@ -70,12 +72,13 @@ const portfolioAmountAggregation = (
 		{
 			$match: match,
 		},
+		...populateUserCurrency,
+		...populatePortfolioAmounts,
 		{
 			$project: {
 				amounts: 1,
 			},
 		},
-		...populatePortfolioAmounts,
 	];
 
 	return aggregation;
@@ -145,6 +148,7 @@ const populatePortfolioAmounts = [
 								input: "$rates",
 								as: "rate",
 								in: {
+									_id: "$$rate._id",
 									acronym: "$$rate.acronym",
 									rate: { $toDouble: "$$rate.rate" },
 								},
@@ -159,6 +163,40 @@ const populatePortfolioAmounts = [
 		$set: {
 			"amounts.currency": { $arrayElemAt: ["$amounts.currency", 0] },
 			"amounts.amount": { $ifNull: [{ $toDouble: "$amounts.amount" }, 0] },
+		},
+	},
+	{
+		$set: {
+			rateToDefault: {
+				$filter: {
+					input: "$amounts.currency.rates",
+					as: "rate",
+					cond: { $eq: ["$$rate._id", "$user.defaultCurrency"] },
+				},
+			},
+		},
+	},
+	{
+		$set: {
+			rateToDefault: { $arrayElemAt: ["$rateToDefault", 0] },
+		},
+	},
+	{
+		$set: {
+			rateToDefault: { $ifNull: [{ $toDouble: "$rateToDefault.rate" }, 1] },
+		},
+	},
+	{
+		$set: {
+			"amounts.amountInDefault": {
+				$round: [{ $multiply: ["$amounts.amount", "$rateToDefault"] }, 2],
+			},
+		},
+	},
+	{
+		$project: {
+			rateToDefault: 0,
+			"amounts.currency.rates": 0,
 		},
 	},
 	{

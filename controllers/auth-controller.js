@@ -43,7 +43,6 @@ async function fetchNecessaryUserData(userId) {
 	const categories = getCategoriesHelper(userId);
 	const portfolios = getPortfoliosHelper(userId);
 	const transactionTypes = getTransactionTypesHelper();
-	// TODO: Here (Checking this)
 	try {
 		const result = await Promise.all([
 			banks,
