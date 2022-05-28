@@ -1,8 +1,13 @@
 import TransactionTypesSchema from "../schemas/transaction-types-schema.js";
 
+async function getTransactionTypesHelper() {
+	const types = await TransactionTypesSchema.find({});
+	return types;
+}
+
 async function getTransactionTypes(req, res) {
 	try {
-		const types = await TransactionTypesSchema.find({});
+		const types = await getTransactionTypesHelper();
 		res.status(200).send(types);
 	} catch (err) {
 		console.error(err);
@@ -15,4 +20,4 @@ async function getTransactionTypes(req, res) {
 	}
 }
 
-export { getTransactionTypes };
+export { getTransactionTypes, getTransactionTypesHelper };

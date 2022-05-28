@@ -21,7 +21,52 @@ import {
 	generateRefreshToken,
 } from "../utilities/token-utilities.js";
 
+// Aggregations
+import { getUserAggregation } from "../aggregations/user-aggregations.js";
+
+// Helpers
+import { getSourcesHelper } from "./source-controller.js";
+import { getPortfoliosHelper } from "./portfolio-controller.js";
+import { getCategoriesHelper } from "./category-controller.js";
+import { getCurrenciesHelper } from "./currency-controller.js";
+import { getBanksHelper } from "./bank-controller.js";
+import { getPortfolioTypesHelper } from "./portfolio-types-controller.js";
+import { getTransactionTypesHelper } from "./transaction-types-controller.js";
+
 const hashPassword = async (password) => await bcrypt.hash(password, 10);
+
+async function fetchNecessaryUserData(userId) {
+	const banks = getBanksHelper();
+	const currencies = getCurrenciesHelper();
+	const sources = getSourcesHelper(userId);
+	const portfolioTypes = getPortfolioTypesHelper();
+	const categories = getCategoriesHelper(userId);
+	const portfolios = getPortfoliosHelper(userId);
+	const transactionTypes = getTransactionTypesHelper();
+	// TODO: Here (Checking this)
+	try {
+		const result = await Promise.all([
+			banks,
+			currencies,
+			sources,
+			portfolioTypes,
+			categories,
+			portfolios,
+			transactionTypes,
+		]);
+		return {
+			banks: result[0],
+			currencies: result[1],
+			sources: result[2],
+			portfolioTypes: result[3],
+			categories: result[4],
+			portfolios: result[5],
+			transactionTypes: result[6],
+		};
+	} catch (err) {
+		throw new Error("Initial fetch error");
+	}
+}
 
 async function signUp(req, res) {
 	try {
@@ -58,13 +103,21 @@ async function signUp(req, res) {
 			},
 		});
 
+		const updatedUser = await UserSchema.aggregate(
+			getUserAggregation(user._doc._id)
+		);
+
+		if (updatedUser.length !== 1) throw new Error("Server Error.");
+
+		const necessaryData = await fetchNecessaryUserData(user._doc._id);
+
 		res.cookie("refresh", refresh, {
 			httpOnly: true,
 			// 1 day
 			maxAge: 24 * 60 * 60 * 1000,
 		});
 
-		res.status(200).send({ token });
+		res.status(200).send({ token, ...necessaryData, user: updatedUser[0] });
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({
@@ -132,13 +185,25 @@ async function logIn(req, res) {
 
 		await UserSchema.findByIdAndUpdate(user._doc._id, updateObject);
 
+		const updatedUser = await UserSchema.aggregate(
+			getUserAggregation(user._doc._id)
+		);
+
+		if (updatedUser.length !== 1) throw new Error("Server Error.");
+
+		const necessaryData = await fetchNecessaryUserData(user._doc._id);
+
 		res.cookie("refresh", refresh, {
 			httpOnly: true,
 			// 1 day
 			maxAge: 24 * 60 * 60 * 1000,
 		});
 
-		res.status(200).send({ token });
+		res.status(200).send({
+			token,
+			...necessaryData,
+			user: updatedUser[0],
+		});
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({

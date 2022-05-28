@@ -10,6 +10,13 @@ import {
 } from "../validators/source-validators.js";
 import { objectIdSchema } from "../validators/general-validators.js";
 
+async function getSourcesHelper(userId) {
+	const sources = await SourcesSchema.find({
+		user: mongoose.Types.ObjectId(userId),
+	}).select({ updatedAt: 0, user: 0 });
+	return sources;
+}
+
 // Returns an not deleted source
 async function getActiveSourceHelper(userId, sourceId) {
 	const source = await SourcesSchema.findOne({
@@ -23,9 +30,7 @@ async function getActiveSourceHelper(userId, sourceId) {
 
 async function getSources(req, res) {
 	try {
-		const sources = await SourcesSchema.find({
-			user: mongoose.Types.ObjectId(req.headers.userId),
-		}).select({ updatedAt: 0, user: 0 });
+		const sources = await getSourcesHelper(req.headers.userId);
 
 		res.status(200).send(sources);
 	} catch (err) {
@@ -213,5 +218,6 @@ export {
 	deleteSource,
 	restoreSource,
 	// HELPERS
+	getSourcesHelper,
 	getActiveSourceHelper,
 };

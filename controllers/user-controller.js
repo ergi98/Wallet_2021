@@ -10,50 +10,17 @@ import {
 	passwordSchema,
 } from "../validators/auth-validators.js";
 
+// Aggregations
+import { getUserAggregation } from "../aggregations/user-aggregations.js";
+
 // Controllers
 import { hashPassword } from "./auth-controller.js";
 
 async function getUser(req, res) {
 	try {
-		const user = await UserSchema.aggregate([
-			{
-				$match: {
-					_id: mongoose.Types.ObjectId(req.headers.userId),
-					deleteAt: { $exists: false },
-				},
-			},
-			{
-				$lookup: {
-					from: "currencies",
-					localField: "defaultCurrency",
-					foreignField: "_id",
-					as: "defaultCurrency",
-				},
-			},
-			{
-				$set: {
-					defaultCurrency: { $arrayElemAt: ["$defaultCurrency", 0] },
-				},
-			},
-			{
-				$set: {
-					"defaultCurrency.rateForALL": {
-						$toDouble: "$defaultCurrency.rateForALL",
-					},
-				},
-			},
-			{
-				$project: {
-					password: 0,
-					createdAt: 0,
-					updatedAt: 0,
-					lastLogIn: 0,
-					lastLogOut: 0,
-					refresh: 0,
-					"defaultCurrency.updatedAt": 0,
-				},
-			},
-		]);
+		const user = await UserSchema.aggregate(
+			getUserAggregation(req.headers.userId)
+		);
 
 		if (user.length === 0) throw new Error("User not found");
 

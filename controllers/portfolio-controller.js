@@ -112,6 +112,18 @@ async function getPortfolioAmountsHelper(userId, ...portfolioIds) {
 	return result;
 }
 
+async function getPortfoliosHelper(userId) {
+	const portfolios = await PortfolioSchema.aggregate(
+		getPortfoliosAggregation(userId)
+	);
+	for (let portfolio of portfolios) {
+		portfolio.amounts = portfolio.amounts.filter(
+			(amount) => amount.currency !== undefined
+		);
+	}
+	return portfolios;
+}
+
 async function createPortfolio(req, res) {
 	try {
 		await objectIdSchema.validateAsync(req.body.type);
@@ -176,16 +188,7 @@ async function createPortfolio(req, res) {
 // Retrieves deleted and active portfolios
 async function getPortfolios(req, res) {
 	try {
-		const portfolios = await PortfolioSchema.aggregate(
-			getPortfoliosAggregation(req.headers.userId)
-		);
-
-		for (let portfolio of portfolios) {
-			portfolio.amounts = portfolio.amounts.filter(
-				(amount) => amount.currency !== undefined
-			);
-		}
-
+		const portfolios = await getPortfoliosHelper(req.headers.userId);
 		res.status(200).send(portfolios);
 	} catch (err) {
 		console.error(err);
@@ -416,6 +419,7 @@ export {
 	getPortfolioById,
 	restorePortfolio,
 	// HELPERS
+	getPortfoliosHelper,
 	addInExistingCurrHelper,
 	getActivePortfolioHelper,
 	createCurrencyEntryHelper,

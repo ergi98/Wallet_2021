@@ -10,6 +10,13 @@ import {
 } from "../validators/source-validators.js";
 import { objectIdSchema } from "../validators/general-validators.js";
 
+async function getCategoriesHelper(userId) {
+	const sources = await CategorySchema.find({
+		user: mongoose.Types.ObjectId(userId),
+	}).select({ updatedAt: 0, user: 0 });
+	return sources;
+}
+
 // Returns an not deleted source
 async function getActiveCategoryHelper(userId, sourceId) {
 	const category = await CategorySchema.findOne({
@@ -23,11 +30,8 @@ async function getActiveCategoryHelper(userId, sourceId) {
 
 async function getCategories(req, res) {
 	try {
-		const sources = await CategorySchema.find({
-			user: mongoose.Types.ObjectId(req.headers.userId),
-		}).select({ updatedAt: 0, user: 0 });
-
-		res.status(200).send(sources);
+		const categories = getCategoriesHelper(req.headers.userId);
+		res.status(200).send(categories);
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({
@@ -52,12 +56,12 @@ async function createCategory(req, res) {
 
 		if (count !== 0) throw new Error("Category with this name already exists");
 
-		const source = await CategorySchema.create({
+		const category = await CategorySchema.create({
 			name,
 			user: mongoose.Types.ObjectId(req.headers.userId),
 		});
 
-		const { user, ...data } = source._doc;
+		const { user, ...data } = category._doc;
 
 		res.status(200).send(data);
 	} catch (err) {
@@ -75,13 +79,13 @@ async function editCategory(req, res) {
 	try {
 		await editSourceSchema.validateAsync(req.body);
 
-		const source = await CategorySchema.findOne({
+		const category = await CategorySchema.findOne({
 			deletedAt: { $exists: 0 },
 			_id: mongoose.Types.ObjectId(req.body.id),
 			user: mongoose.Types.ObjectId(req.headers.userId),
 		});
 
-		if (source === null) throw new Error("Category does not exist");
+		if (category === null) throw new Error("Category does not exist");
 
 		let name = req.body.name.trim();
 
@@ -93,7 +97,7 @@ async function editCategory(req, res) {
 
 		if (count !== 0) throw new Error("Category with this name already exists");
 
-		const updatedSource = await CategorySchema.findByIdAndUpdate(
+		const updatedCategory = await CategorySchema.findByIdAndUpdate(
 			req.body.id,
 			{
 				$set: {
@@ -110,7 +114,7 @@ async function editCategory(req, res) {
 			}
 		);
 
-		res.status(200).send(updatedSource);
+		res.status(200).send(updatedCategory);
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({
@@ -126,16 +130,16 @@ async function deleteCategory(req, res) {
 	try {
 		await objectIdSchema.validateAsync(req.query.id);
 
-		const source = await CategorySchema.findOne({
+		const category = await CategorySchema.findOne({
 			deletedAt: { $exists: 0 },
 			_id: mongoose.Types.ObjectId(req.query.id),
 			user: mongoose.Types.ObjectId(req.headers.userId),
 		});
 
-		if (source === null) throw new Error("Category does not exits");
+		if (category === null) throw new Error("Category does not exits");
 
-		const deletedSource = await CategorySchema.findByIdAndUpdate(
-			source._doc._id,
+		const deletedCategory = await CategorySchema.findByIdAndUpdate(
+			category._doc._id,
 			{
 				$set: {
 					deletedAt: new Date(),
@@ -151,7 +155,7 @@ async function deleteCategory(req, res) {
 			}
 		);
 
-		res.status(200).send(deletedSource);
+		res.status(200).send(deletedCategory);
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({
@@ -167,16 +171,16 @@ async function restoreCategory(req, res) {
 	try {
 		await objectIdSchema.validateAsync(req.query.id);
 
-		const source = await CategorySchema.findOne({
+		const category = await CategorySchema.findOne({
 			deletedAt: { $exists: 1 },
 			_id: mongoose.Types.ObjectId(req.query.id),
 			user: mongoose.Types.ObjectId(req.headers.userId),
 		});
 
-		if (source === null) throw new Error("Category does not exits");
+		if (category === null) throw new Error("Category does not exits");
 
-		const deletedSource = await CategorySchema.findByIdAndUpdate(
-			source._doc._id,
+		const deletedCategory = await CategorySchema.findByIdAndUpdate(
+			category._doc._id,
 			{
 				$unset: {
 					deletedAt: "",
@@ -194,7 +198,7 @@ async function restoreCategory(req, res) {
 			}
 		);
 
-		res.status(200).send(deletedSource);
+		res.status(200).send(deletedCategory);
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({
@@ -213,4 +217,6 @@ export {
 	deleteCategory,
 	restoreCategory,
 	getActiveCategoryHelper,
+	// HELPERS
+	getCategoriesHelper,
 };
