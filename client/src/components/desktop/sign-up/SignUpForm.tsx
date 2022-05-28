@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 // Formik
 import { Formik } from "formik";
 
@@ -15,7 +13,7 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 // Redux
 import { signUpUser } from "../../../features/auth/auth-slice";
-import { useAppDispatch, useAppSelector } from "../../../redux_store/hooks";
+import { useAppDispatch } from "../../../redux_store/hooks";
 
 interface FormikValues {
 	birthday: string;
@@ -32,8 +30,6 @@ function SignUpForm() {
 	const navigate = useNavigate();
 	const axios = useAxiosPrivate();
 	const dispatch = useAppDispatch();
-
-	const token = useAppSelector((state) => state.auth.token);
 
 	const [localContext] = useLocalContext("register-context", {
 		// Step 1

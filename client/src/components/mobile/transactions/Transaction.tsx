@@ -1,10 +1,10 @@
 import { useState } from "react";
 
-// Interfaces
-// import { any } from "../../../interfaces/transactions-interface";
-
 // MUI
 import { Grid, Stack, Typography } from "@mui/material";
+
+// Interfaces
+import { Transaction as TransactionInterface } from "../../../interfaces/transactions-interface";
 
 // Utilities
 import { getTimeFromDateString } from "../../../utilities/date-utilities";
@@ -13,7 +13,7 @@ import { getTimeFromDateString } from "../../../utilities/date-utilities";
 import AmountDisplay from "../../general/AmountDisplay";
 
 interface PropsInterface {
-	onClick: (a: boolean, b: any | null) => void;
+	onClick: (a: boolean, b: TransactionInterface) => void;
 	transaction: any;
 }
 

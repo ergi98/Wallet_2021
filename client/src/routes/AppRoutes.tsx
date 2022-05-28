@@ -12,6 +12,9 @@ import { isMobile } from "../utilities/mobile-utilities";
 // Hooks
 import useRefreshToken from "../hooks/useRefreshToken";
 
+// Redux
+import { useAppSelector } from "../redux_store/hooks";
+
 // General
 import PublicRoute from "./PublicRoute";
 import ProtectedRoute from "./ProtectedRoute";
@@ -56,7 +59,6 @@ import MobileSettings from "../views/mobile/settings/MobileSettings";
 
 import MobilePortfolios from "../views/mobile/portfolios/MobilePortfolios";
 import RedirectMobileHome from "../components/mobile/home/RedirectMobileHome";
-import { useAppSelector } from "../redux_store/hooks";
 
 const desktopRoutes = [
 	{

@@ -1,11 +1,11 @@
 // Interfaces
-// import { any } from "../../../interfaces/transactions-interface";
+import { Transaction as TransactionInterface } from "../../../interfaces/transactions-interface";
 
 // Components
 import Transaction from "./Transaction";
 
 interface PropsInterface {
-	onClick: (a: boolean, b: any | null) => void;
+	onClick: (a: boolean, b: TransactionInterface | null) => void;
 	transactions: Array<any>;
 }
 

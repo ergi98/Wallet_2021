@@ -11,8 +11,9 @@ const homeStatisticsSchema = Joi.object({
 });
 
 const baseTransactionSchema = Joi.object({
-	amount: Joi.number().precision(2).positive().required(),
 	type: Joi.string().hex().length(24).required(),
+	currency: Joi.string().hex().length(24).required(),
+	amount: Joi.number().precision(2).positive().required(),
 });
 
 const expenseTransactionSchema = Joi.object({
@@ -22,7 +23,6 @@ const expenseTransactionSchema = Joi.object({
 		.greater(earliestTransactionDate)
 		.required(),
 	category: Joi.string().hex().length(24).required(),
-	currency: Joi.string().hex().length(24).required(),
 	portfolio: Joi.string().hex().length(24).required(),
 	description: Joi.string().max(maxDescriptionLength).required(),
 	location: Joi.object({
@@ -38,7 +38,6 @@ const earningTransactionSchema = Joi.object({
 		.greater(earliestTransactionDate)
 		.required(),
 	source: Joi.string().hex().length(24).required(),
-	currency: Joi.string().hex().length(24).required(),
 	portfolio: Joi.string().hex().length(24).required(),
 	description: Joi.string().max(maxDescriptionLength).required(),
 }).concat(baseTransactionSchema);
@@ -78,7 +77,6 @@ const correctExpenseTransactionSchema = Joi.object({
 const transferTransactionSchema = Joi.object({
 	to: Joi.string().hex().length(24).required(),
 	from: Joi.string().hex().length(24).invalid(Joi.ref("to")).required(),
-	currency: Joi.string().hex().length(24).required(),
 }).concat(baseTransactionSchema);
 
 const getTransactionsSchema = Joi.object({

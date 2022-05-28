@@ -22,4 +22,13 @@ function isStringEmpty(str: string): boolean {
 	return isEmpty;
 }
 
-export { genderList, isObjectEmpty, isStringEmpty };
+function toObject(array: Array<any>, key: string, value: string) {
+	const obj = {} as any;
+	for (const element of array) {
+		if (element[key] !== undefined && element[value] !== undefined)
+			obj[element[key]] = element[value];
+	}
+	return obj;
+}
+
+export { genderList, isObjectEmpty, isStringEmpty, toObject };

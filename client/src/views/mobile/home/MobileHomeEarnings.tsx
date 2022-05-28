@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 // MUI
 import { Stack } from "@mui/material";
 
@@ -9,7 +11,6 @@ import { useAppDispatch, useAppSelector } from "../../../redux_store/hooks";
 import Home from "../../../components/mobile/home/MobileHome";
 import HomeTitle from "../../../components/mobile/home/MobileHomeTitle";
 import HomeTopActions from "../../../components/mobile/home/MobileHomeTopActions";
-import { useEffect } from "react";
 
 function HomeEarnings() {
 	const dispatch = useAppDispatch();

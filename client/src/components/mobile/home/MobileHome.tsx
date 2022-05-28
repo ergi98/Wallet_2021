@@ -7,7 +7,7 @@ import { RiAddFill } from "react-icons/ri";
 import { Button, Stack, Typography } from "@mui/material";
 
 // Navigation
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 // Redux
 import {
@@ -28,6 +28,7 @@ import TransactionsList from "../transactions/TransactionsList";
 
 // Redux
 import { fetchTransactions } from "../../../features/transactions/transaction-slice";
+import TransactionForm from "../transactions/TransactionForm";
 
 interface PropsInterface {
 	children: ReactNode;
@@ -40,13 +41,14 @@ interface HomeCTX {
 
 function Home(props: PropsInterface) {
 	const axios = useAxiosPrivate();
-	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 	const date = useAppSelector((state) => state.home.date);
 	const path = useAppSelector((state) => state.home.path);
 	const transactions = useAppSelector(
 		(state) => state.transaction.transactions
 	);
+
+	const [showDialog, setShowDialog] = useState(false);
 
 	const [fetchedFromContext, setFetchedFromContext] = useState(false);
 	const fetchedDate = useAppSelector((state) => state.home.fetchedDate);
@@ -56,7 +58,7 @@ function Home(props: PropsInterface) {
 		path,
 	});
 
-	const goToAddTransaction = () => navigate("/new-transaction");
+	const toggleAddTransaction = (value: boolean) => setShowDialog(value);
 
 	const transactionsTitle = useMemo(() => {
 		if (isToday(new Date(date))) {
@@ -94,39 +96,46 @@ function Home(props: PropsInterface) {
 	}, [date, fetchedFromContext]);
 
 	return (
-		<div className="app-height relative overflow-x-hidden overflow-y-auto">
-			{props.children}
-			<div className="py-3">
-				<div className="px-3 pb-6">
-					<Stack
-						direction="row"
-						alignItems="center"
-						justifyContent="space-between"
-					>
-						<div>
-							<Typography variant="h6">{transactionsTitle}</Typography>
-							<Link
-								className="text-sm underline underline-offset-2"
-								to="/transactions"
-							>
-								View all transactions
-							</Link>
-						</div>
-						<Button
-							onClick={goToAddTransaction}
-							endIcon={<RiAddFill className=" scale-75" />}
-							sx={{ color: "inherit", borderColor: "inherit !important" }}
-							className="border-neutral-50"
-							variant="outlined"
-							size="small"
+		<>
+			<div className="app-height relative overflow-x-hidden overflow-y-auto">
+				{props.children}
+				<div className="py-3">
+					<div className="px-3 pb-6">
+						<Stack
+							direction="row"
+							alignItems="center"
+							justifyContent="space-between"
 						>
-							New
-						</Button>
-					</Stack>
+							<div>
+								<Typography variant="h6">{transactionsTitle}</Typography>
+								<Link
+									className="text-sm underline underline-offset-2"
+									to="/transactions"
+								>
+									View all transactions
+								</Link>
+							</div>
+							<Button
+								onClick={() => toggleAddTransaction(true)}
+								endIcon={<RiAddFill className=" scale-75" />}
+								sx={{ color: "inherit", borderColor: "inherit !important" }}
+								className="border-neutral-50"
+								variant="outlined"
+								size="small"
+							>
+								New
+							</Button>
+						</Stack>
+					</div>
+					<TransactionsList transactions={transactions} flow="horizontal" />
 				</div>
-				<TransactionsList transactions={transactions} flow="horizontal" />
 			</div>
-		</div>
+			<TransactionForm
+				mode="add"
+				show={showDialog}
+				onClose={() => toggleAddTransaction(false)}
+			/>
+		</>
 	);
 }
 
