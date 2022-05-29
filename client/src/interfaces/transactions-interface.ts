@@ -1,3 +1,5 @@
+import { string } from "yup/lib/locale";
+
 interface TransactionPortfolio {
 	_id: string;
 	description: string;
@@ -57,8 +59,14 @@ type Transaction =
 	| ExpenseTransaction
 	| TransferTransaction;
 
+interface TransactionType {
+	_id: string;
+	type: string;
+}
+
 export type {
 	Transaction,
+	TransactionType,
 	EarningTransaction,
 	ExpenseTransaction,
 	TransferTransaction,

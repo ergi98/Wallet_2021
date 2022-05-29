@@ -11,9 +11,21 @@ import { isMobile } from "../utilities/mobile-utilities";
 
 // Hooks
 import useRefreshToken from "../hooks/useRefreshToken";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 // Redux
-import { useAppSelector } from "../redux_store/hooks";
+import { useAppDispatch, useAppSelector } from "../redux_store/hooks";
+import { setUser } from "../features/user/user-slice";
+import { setBanks } from "../features/bank/bank-slice";
+import { setSources } from "../features/source/source-slice";
+import { setCurrencies } from "../features/currency/currency-slice";
+import { setCategories } from "../features/category/category-slice";
+import { fetchNecessaryData } from "../features/general/general-slice";
+import {
+	setPortfolios,
+	setPortfolioTypes,
+} from "../features/portfolio/portfolio-slice";
+import { setTransactionTypes } from "../features/transactions/transaction-slice";
 
 // General
 import PublicRoute from "./PublicRoute";
@@ -172,9 +184,12 @@ const appRoutes = isMobile ? mobileRoutes : desktopRoutes;
 
 function AppRoutes() {
 	const location = useLocation();
+	const axios = useAxiosPrivate();
+	const dispatch = useAppDispatch();
 	const refreshToken = useRefreshToken();
 
 	const token = useAppSelector((state) => state.auth.token);
+	const fetched = useAppSelector((state) => state.general.fetched);
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
 	const [checkingToken, setCheckingToken] = useState<boolean>(true);
@@ -191,6 +206,21 @@ function AppRoutes() {
 		}
 		!token ? fetchToken() : setCheckingToken(false);
 	}, []);
+
+	useEffect(() => {
+		async function necessaryData() {
+			const result = await dispatch(fetchNecessaryData(axios)).unwrap();
+			dispatch(setUser(result.user));
+			dispatch(setBanks(result.banks));
+			dispatch(setSources(result.sources));
+			dispatch(setPortfolios(result.portfolios));
+			dispatch(setCurrencies(result.currencies));
+			dispatch(setCategories(result.categories));
+			dispatch(setPortfolioTypes(result.portfolioTypes));
+			dispatch(setTransactionTypes(result.transactionTypes));
+		}
+		if (token && !fetched) necessaryData();
+	}, [fetched, token]);
 
 	return (
 		<>

@@ -29,7 +29,6 @@ import { ErrorProvider } from "./context/ErrorProvider";
 
 // Components
 import ErrorDisplay from "./components/general/ErrorDisplay";
-
 declare module "@mui/material/styles" {
 	interface BreakpointOverrides {
 		xs: true;
@@ -76,8 +75,6 @@ function App() {
 			window.removeEventListener("orientationchange", setGlobalVh);
 		};
 	}, []);
-
-	useEffect(() => {}, []);
 
 	return (
 		<React.StrictMode>

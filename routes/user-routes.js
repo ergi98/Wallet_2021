@@ -6,12 +6,14 @@ import {
 	updateUser,
 	deleteUser,
 	changePassword,
+	getNecessaryInfo,
 } from "../controllers/user-controller.js";
 
 const router = express.Router();
 
 // GET
 router.route("/info").get(getUser);
+router.route("/necessary-info").get(getNecessaryInfo);
 
 // POST
 router.route("/edit").post(updateUser);

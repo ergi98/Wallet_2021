@@ -36,6 +36,16 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 // Redux
 import { loginUser } from "../../../features/auth/auth-slice";
 import { useAppDispatch, useAppSelector } from "../../../redux_store/hooks";
+import { setUser } from "../../../features/user/user-slice";
+import { setTransactionTypes } from "../../../features/transactions/transaction-slice";
+import { setSources } from "../../../features/source/source-slice";
+import { setCategories } from "../../../features/category/category-slice";
+import {
+	setPortfolios,
+	setPortfolioTypes,
+} from "../../../features/portfolio/portfolio-slice";
+import { setCurrencies } from "../../../features/currency/currency-slice";
+import { setBanks } from "../../../features/bank/bank-slice";
 
 interface LogInData {
 	username: string;
@@ -49,7 +59,6 @@ function LoginForm() {
 
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 
-	const token = useAppSelector((state) => state.auth.token);
 	const loading = useAppSelector((state) => state.auth.loading);
 
 	const navigateToSignUp = () => navigate("/sign-up/introduction");
@@ -62,7 +71,17 @@ function LoginForm() {
 
 	async function handleUserLogin(values: LogInData) {
 		try {
-			await dispatch(loginUser({ axios, data: values })).unwrap();
+			const result = await dispatch(
+				loginUser({ axios, data: values })
+			).unwrap();
+			dispatch(setUser(result.user));
+			dispatch(setBanks(result.banks));
+			dispatch(setSources(result.sources));
+			dispatch(setPortfolios(result.portfolios));
+			dispatch(setCurrencies(result.currencies));
+			dispatch(setCategories(result.categories));
+			dispatch(setPortfolioTypes(result.portfolioTypes));
+			dispatch(setTransactionTypes(result.transactionTypes));
 			navigate("/home/expenses", { replace: true });
 		} catch (err) {
 			console.error(err);

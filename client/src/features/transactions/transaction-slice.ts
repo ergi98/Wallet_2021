@@ -1,6 +1,11 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Axios } from "axios";
-import { Transaction } from "../../interfaces/transactions-interface";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+// Interfaces
+import {
+	Transaction,
+	TransactionType,
+} from "../../interfaces/transactions-interface";
 
 interface TransactionState {
 	last?: {
@@ -11,6 +16,7 @@ interface TransactionState {
 	loading: boolean;
 	filters: Filters;
 	transactions: Array<Transaction>;
+	transactionTypes: Array<TransactionType>;
 }
 
 interface Filters {
@@ -37,6 +43,7 @@ const initialState: TransactionState = {
 	filters: {},
 	loading: false,
 	transactions: [],
+	transactionTypes: [],
 };
 
 const TransactionSlice = createSlice({
@@ -51,6 +58,12 @@ const TransactionSlice = createSlice({
 		},
 		setFilters: (state, action: PayloadAction<Filters>) => {
 			state.filters = action.payload;
+		},
+		setTransactionTypes: (
+			state,
+			action: PayloadAction<Array<TransactionType>>
+		) => {
+			state.transactionTypes = action.payload;
 		},
 		resetFilters: (state) => {
 			state.filters = {};
@@ -86,5 +99,10 @@ export const fetchTransactions = createAsyncThunk(
 );
 
 export default TransactionSlice.reducer;
-export const { pushTransactions, setTransactions, setFilters, resetFilters } =
-	TransactionSlice.actions;
+export const {
+	setFilters,
+	resetFilters,
+	setTransactions,
+	pushTransactions,
+	setTransactionTypes,
+} = TransactionSlice.actions;

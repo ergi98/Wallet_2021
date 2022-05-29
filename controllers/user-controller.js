@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import CurrencySchema from "../schemas/currency-schema.js";
 
 // Schema
 import UserSchema from "../schemas/user-schema.js";
+import CurrencySchema from "../schemas/currency-schema.js";
 
 // Validators
 import {
@@ -14,7 +14,7 @@ import {
 import { getUserAggregation } from "../aggregations/user-aggregations.js";
 
 // Controllers
-import { hashPassword } from "./auth-controller.js";
+import { fetchNecessaryUserData, hashPassword } from "./auth-controller.js";
 
 async function getUser(req, res) {
 	try {
@@ -174,4 +174,19 @@ async function changePassword(req, res) {
 	}
 }
 
-export { getUser, deleteUser, updateUser, changePassword };
+async function getNecessaryInfo(req, res) {
+	try {
+		const data = await fetchNecessaryUserData(req.headers.userId);
+		res.status(200).send(data);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send({
+			message:
+				err.details?.message ||
+				err.message ||
+				"An error occurred. Please try again.",
+		});
+	}
+}
+
+export { getUser, deleteUser, updateUser, changePassword, getNecessaryInfo };

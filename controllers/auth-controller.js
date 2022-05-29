@@ -25,11 +25,11 @@ import {
 import { getUserAggregation } from "../aggregations/user-aggregations.js";
 
 // Helpers
+import { getBanksHelper } from "./bank-controller.js";
 import { getSourcesHelper } from "./source-controller.js";
-import { getPortfoliosHelper } from "./portfolio-controller.js";
 import { getCategoriesHelper } from "./category-controller.js";
 import { getCurrenciesHelper } from "./currency-controller.js";
-import { getBanksHelper } from "./bank-controller.js";
+import { getPortfoliosHelper } from "./portfolio-controller.js";
 import { getPortfolioTypesHelper } from "./portfolio-types-controller.js";
 import { getTransactionTypesHelper } from "./transaction-types-controller.js";
 
@@ -266,4 +266,12 @@ async function refreshToken(req, res) {
 	}
 }
 
-export { logIn, signUp, logOut, refreshToken, validateUsername, hashPassword };
+export {
+	logIn,
+	signUp,
+	logOut,
+	refreshToken,
+	hashPassword,
+	validateUsername,
+	fetchNecessaryUserData,
+};
