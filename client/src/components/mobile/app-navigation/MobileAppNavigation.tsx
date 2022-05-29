@@ -55,7 +55,7 @@ function AppNavigation() {
 						{activePath === 2 ? <RiHome2Fill /> : <RiHome2Line />}
 					</SvgIcon>
 				),
-				path: "/home",
+				path: "/home/expenses",
 			},
 			{
 				key: "analysis",
@@ -82,6 +82,7 @@ function AppNavigation() {
 	);
 
 	function handleUserNavigation(event: any, value: number) {
+		if (pathname === navigationItems[value].path) return;
 		setActivePath(value);
 		navigate(`${navigationItems[value].path}`);
 	}
