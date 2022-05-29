@@ -4,22 +4,21 @@ import CurrencySchema from "../schemas/currency-schema.js";
 // Aggregations
 import { currencyAggregation } from "../aggregations/currency-aggregations.js";
 
-async function getCurrenciesHelper() {
+async function getCurrenciesHelper(userId) {
 	let today = new Date();
 
 	let startOfDay = new Date(today.setUTCHours(0, 0, 0, 0));
 	let endOfDay = new Date(today.setUTCHours(23, 59, 59, 999));
 
-	// TODO: Get rates only for default
 	const currencies = await CurrencySchema.aggregate(
-		currencyAggregation(startOfDay, endOfDay)
+		currencyAggregation(startOfDay, endOfDay, userId)
 	);
 	return currencies;
 }
 
 async function getCurrencyListWithLatestRates(req, res) {
 	try {
-		const currencies = await getCurrenciesHelper();
+		const currencies = await getCurrenciesHelper(req.headers.userId);
 		res.status(200).send(currencies);
 	} catch (err) {
 		console.error(err);

@@ -37,7 +37,7 @@ const hashPassword = async (password) => await bcrypt.hash(password, 10);
 
 async function fetchNecessaryUserData(userId) {
 	const banks = getBanksHelper();
-	const currencies = getCurrenciesHelper();
+	const currencies = getCurrenciesHelper(userId);
 	const sources = getSourcesHelper(userId);
 	const portfolioTypes = getPortfolioTypesHelper();
 	const categories = getCategoriesHelper(userId);
@@ -63,6 +63,7 @@ async function fetchNecessaryUserData(userId) {
 			transactionTypes: result[6],
 		};
 	} catch (err) {
+		console.error(err);
 		throw new Error("Initial fetch error");
 	}
 }

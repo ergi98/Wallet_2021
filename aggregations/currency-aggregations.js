@@ -1,16 +1,19 @@
-const currencyAggregation = (startOfDay, endOfDay) => [
+import mongoose from "mongoose";
+import { populateUserCurrency } from "./transaction-aggregations.js";
+
+const currencyAggregation = (startOfDay, endOfDay, userId) => [
 	{
 		$lookup: {
-			localField: "_id",
 			from: "currency-rates",
+			localField: "_id",
 			foreignField: "currency",
 			pipeline: [
 				{
 					$match: {
 						$expr: {
 							$and: [
-								{ $gte: ["$createdAt", startOfDay] },
 								{ $lte: ["$createdAt", endOfDay] },
+								{ $gte: ["$createdAt", startOfDay] },
 							],
 						},
 					},
@@ -22,41 +25,36 @@ const currencyAggregation = (startOfDay, endOfDay) => [
 	{
 		$set: {
 			rates: { $arrayElemAt: ["$rates", 0] },
+			user: mongoose.Types.ObjectId(userId),
 		},
 	},
+	...populateUserCurrency,
 	{
 		$set: {
-			rates: "$rates.rates",
-		},
-	},
-	{
-		$unwind: {
-			path: "$rates",
-		},
-	},
-	{
-		$set: {
-			"rates.rate": { $ifNull: [{ $toDouble: "$rates.rate" }, 1] },
-		},
-	},
-	{
-		$group: {
-			_id: "$_id",
-			root: {
-				$first: "$$ROOT",
-			},
-			rates: {
-				$push: "$rates",
+			rateToDefault: {
+				$filter: {
+					input: "$rates.rates",
+					as: "rate",
+					cond: { $eq: ["$$rate._id", "$user.defaultCurrency"] },
+				},
 			},
 		},
 	},
 	{
 		$set: {
-			"root.rates": "$rates",
+			rateToDefault: { $arrayElemAt: ["$rateToDefault", 0] },
 		},
 	},
 	{
-		$replaceRoot: { newRoot: "$root" },
+		$set: {
+			rateToDefault: { $ifNull: [{ $toDouble: "$rateToDefault.rate" }, 1] },
+		},
+	},
+	{
+		$project: {
+			user: 0,
+			rates: 0,
+		},
 	},
 ];
 
