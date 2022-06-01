@@ -6,6 +6,9 @@ import { DialogActions, DialogContent, DialogTitle } from "@mui/material";
 // Formik
 import { Formik } from "formik";
 
+// Redux
+import { useAppSelector } from "../../../redux_store/hooks";
+
 // Validation
 import {
 	editTransactionSchema,
@@ -20,6 +23,7 @@ import { toObject } from "../../../utilities/general-utilities";
 
 // Components
 import BottomDialog from "../../general/BottomDialog";
+import HorizontalSelect from "../../general/HorizontalSelect";
 
 interface PropsInterface {
 	show: boolean;
@@ -45,9 +49,13 @@ interface FormikValues {
 }
 
 function TransactionForm(props: PropsInterface) {
+	const transactionTypes = useAppSelector(
+		(state) => state.transaction.transactionTypes
+	);
+
 	const [localContext] = useLocalContext("new-transaction", {
 		to: "",
-		type: "",
+		type: transactionTypes[0]._id,
 		date: "",
 		from: "",
 		amount: 0,
@@ -61,12 +69,6 @@ function TransactionForm(props: PropsInterface) {
 			longitude: 0,
 		},
 	});
-
-	const transactionTypes = [
-		{ type: "earning", _id: "6241a7d75fd5a56d6f4f0874" },
-		{ type: "expense", _id: "6241a7b25fd5a56d6f4f0872" },
-		{ type: "transfer", _id: "6241a7ea5fd5a56d6f4f0876" },
-	];
 
 	const validationSchema = useMemo(() => {
 		const typesObject = toObject(transactionTypes, "type", "_id");
@@ -89,7 +91,17 @@ function TransactionForm(props: PropsInterface) {
 					initialValues={localContext}
 					validationSchema={validationSchema}
 					onSubmit={(values: FormikValues) => handleSubmit(values)}
-				></Formik>
+				>
+					{(props) => (
+						<form onSubmit={props.handleSubmit} noValidate>
+							<HorizontalSelect
+								value={props.values.type}
+								options={transactionTypes}
+								select={(value: string) => props.setFieldValue("type", value)}
+							/>
+						</form>
+					)}
+				</Formik>
 			</DialogContent>
 			<DialogActions></DialogActions>
 			<div className="pb-env"></div>

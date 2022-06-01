@@ -60,10 +60,7 @@ interface NormalPortfolio {
 	_id: string;
 	createdAt: string;
 	description: string;
-	type: {
-		_id: string;
-		type: string;
-	};
+	type: PortfolioType;
 	color: "red" | "blue" | "gray" | "orange" | "green";
 }
 
