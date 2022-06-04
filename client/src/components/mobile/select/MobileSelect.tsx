@@ -22,11 +22,11 @@ interface SelectOption {
 }
 
 interface PropsInterface {
-	value: string;
 	label: string;
 	search?: boolean;
 	multiple?: boolean;
 	options: Array<SelectOption>;
+	value: Array<string> | string;
 	onChange: (a: Array<string> | string) => void;
 }
 
@@ -35,7 +35,11 @@ function MobileSelect(props: PropsInterface) {
 		() => props.options
 	);
 
-	const [selectedOptions, setSelectedOptions] = useState<Array<string>>([]);
+	const [selectedOptions, setSelectedOptions] = useState<Array<string>>(() => {
+		if (Array.isArray(props.value)) {
+			return props.value;
+		} else return [props.value];
+	});
 
 	function handleSearchChange(event: ChangeEvent<HTMLInputElement>) {
 		let value = event.target.value?.toLowerCase()?.trim();
@@ -95,7 +99,7 @@ function MobileSelect(props: PropsInterface) {
 					)}
 				</div>
 			</div>
-			<div className=" bg-blue h-fit max-h-64 rounded-t-xl overflow-x-hidden overflow-y-auto">
+			<div className="bg-blue h-fit max-h-64 rounded-t-xl overflow-x-hidden overflow-y-auto">
 				<List>
 					<Divider />
 					{localOptions.map((option) => (

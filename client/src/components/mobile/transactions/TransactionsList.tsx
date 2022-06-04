@@ -64,11 +64,13 @@ function TransactionsList(props: PropsInterface) {
 					transactions={props.transactions}
 				/>
 			)}
-			<TransactionDetailsDialog
-				show={details.show}
-				transaction={details.transaction}
-				onClose={closeDialog}
-			/>
+			{details.show && details.transaction && (
+				<TransactionDetailsDialog
+					show={details.show}
+					transaction={details.transaction}
+					onClose={closeDialog}
+				/>
+			)}
 		</>
 	);
 }

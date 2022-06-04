@@ -64,18 +64,20 @@ function HomeTopActions() {
 					<RiArrowLeftRightLine className="text-neutral-50" />
 				</IconButton>
 			</Stack>
-			<BottomDialog
-				closeOnSwipe={true}
-				open={showDateFilter}
-				onClose={() => toggleDateFilter(false)}
-			>
-				<MobileDatePicker
-					label=""
-					view="day"
-					value={currentDate}
-					onChange={handleDateChange}
-				/>
-			</BottomDialog>
+			{showDateFilter && (
+				<BottomDialog
+					closeOnSwipe={true}
+					open={showDateFilter}
+					onClose={() => toggleDateFilter(false)}
+				>
+					<MobileDatePicker
+						label=""
+						view="day"
+						value={currentDate}
+						onChange={handleDateChange}
+					/>
+				</BottomDialog>
+			)}
 		</>
 	);
 }

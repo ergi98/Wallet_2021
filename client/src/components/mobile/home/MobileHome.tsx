@@ -130,11 +130,13 @@ function Home(props: PropsInterface) {
 					<TransactionsList transactions={transactions} flow="horizontal" />
 				</div>
 			</div>
-			<TransactionForm
-				mode="add"
-				show={showDialog}
-				onClose={() => toggleAddTransaction(false)}
-			/>
+			{showDialog && (
+				<TransactionForm
+					mode="add"
+					show={showDialog}
+					onClose={() => toggleAddTransaction(false)}
+				/>
+			)}
 		</>
 	);
 }

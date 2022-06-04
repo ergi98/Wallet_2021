@@ -1,7 +1,15 @@
 // Big Number
 import BigNumber from "bignumber.js";
 
-BigNumber.set({ DECIMAL_PLACES: 2, ROUNDING_MODE: 4 });
+const HighPrecisionBN = BigNumber.clone({
+	DECIMAL_PLACES: 6,
+	ROUNDING_MODE: 4,
+});
+
+const NormalPrecisionBN = BigNumber.clone({
+	DECIMAL_PLACES: 2,
+	ROUNDING_MODE: 4,
+});
 
 function roundNumber(number: number, digits: number): number {
 	return (
@@ -33,7 +41,6 @@ function formatAmount(amount: string, delimiter = ".") {
 	if (parts[0] && parts[0].length)
 		completePartSplit = separateWithSpaces(parts[0]);
 	if (parts[1] && parts[1].length) decimalPart = parts[1];
-
 	return {
 		complete: completePartSplit,
 		decimal: decimalPart,
@@ -41,15 +48,15 @@ function formatAmount(amount: string, delimiter = ".") {
 }
 
 function getRate(prevRateToALL: number, currRateToALL: number): number {
-	const prevBig = new BigNumber(prevRateToALL.toString());
-	const currBig = new BigNumber(currRateToALL.toString());
-	return Number(prevBig.dividedBy(currBig).toFixed(2));
+	const prevBig = new HighPrecisionBN(prevRateToALL.toString(), 10);
+	const currBig = new HighPrecisionBN(currRateToALL.toString(), 10);
+	return prevBig.dividedBy(currBig).toNumber();
 }
 
 function convert(amount: number, rate: number) {
-	const amountBig = new BigNumber(amount.toString());
-	const rateBig = new BigNumber(rate.toString());
-	return Number(amountBig.times(rateBig).toFixed(2));
+	const rateBig = new HighPrecisionBN(rate.toString(), 10);
+	const amountBig = new NormalPrecisionBN(amount.toString(), 10);
+	return amountBig.times(rateBig).precision(2).toNumber();
 }
 
 export { convert, getRate, roundNumber, formatAmount, separateWithSpaces };

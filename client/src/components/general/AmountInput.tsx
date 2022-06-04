@@ -6,6 +6,9 @@ import { InputAdornment, InputBase } from "@mui/material";
 // Icons
 import { ArrowDropDown } from "@mui/icons-material";
 
+// Interfaces
+import { Currency } from "../../interfaces/currency-interface";
+
 // Redux
 import { useAppSelector } from "../../redux_store/hooks";
 
@@ -15,7 +18,6 @@ import { convert, formatAmount, getRate } from "../../utilities/math-utilities";
 // Components
 import BottomDialog from "./BottomDialog";
 import MobileSelect from "../mobile/select/MobileSelect";
-import { Currency } from "../../interfaces/currency-interface";
 
 interface PropsInterface {
 	amount: number;
@@ -64,8 +66,35 @@ function AmountInput(props: PropsInterface) {
 	}
 
 	function handleInput(event: any) {
-		const value = event.target.value.replaceAll(" ", "");
-		setLocalAmountValue(value);
+		const data = getParsedAmount(event.target.value);
+		setLocalAmountValue(data.original);
+		props.onAmountChange(data.amount);
+	}
+
+	function getParsedAmount(amount: string): {
+		amount: number;
+		original: string;
+		stringAmount: string;
+	} {
+		const unformattedAmount = amount.replaceAll(" ", "");
+		const delimiter = getDelimiter(unformattedAmount);
+		let parsedAmount;
+		let hasReplaced = false;
+		if (delimiter === ",") {
+			parsedAmount = Number(unformattedAmount.replaceAll(",", "."));
+			hasReplaced = true;
+		} else {
+			parsedAmount = Number(unformattedAmount);
+		}
+		const amountValue = isNaN(parsedAmount) ? 0 : parsedAmount;
+		const stringAmount = hasReplaced
+			? amountValue.toString().replaceAll(".", ",")
+			: amountValue.toString();
+		return {
+			stringAmount,
+			amount: amountValue,
+			original: unformattedAmount,
+		};
 	}
 
 	function setLocalAmountValue(value: string) {
@@ -97,26 +126,9 @@ function AmountInput(props: PropsInterface) {
 	function handleBlur() {
 		setFocused(false);
 		setTimeout(() => setAmountPlaceholder(amount === "" ? "Amount" : ""), 150);
-		const unformattedAmount = amount.replaceAll(" ", "");
-		const delimiter = getDelimiter(unformattedAmount);
-		let parsedAmount;
-		let hasReplaced = false;
-		if (delimiter === ",") {
-			parsedAmount = Number(unformattedAmount.replaceAll(",", "."));
-			hasReplaced = true;
-		} else {
-			parsedAmount = Number(unformattedAmount);
-		}
-		// If there is an amount in the input field
-		const amountValue = isNaN(parsedAmount) ? 0 : parsedAmount;
-		if (unformattedAmount !== "") {
-			setLocalAmountValue(
-				hasReplaced
-					? amountValue.toString().replaceAll(".", ",")
-					: amountValue.toString()
-			);
-		}
-		props.onAmountChange(amountValue);
+		const data = getParsedAmount(amount);
+		setLocalAmountValue(data.stringAmount);
+		props.onAmountChange(data.amount);
 	}
 
 	function handleFocus() {
@@ -149,8 +161,7 @@ function AmountInput(props: PropsInterface) {
 		current: Currency | undefined,
 		next: Currency | undefined
 	) {
-		if (!current || !next) return;
-		if (current._id === next._id) return;
+		if (!current || !next || current._id === next._id) return;
 		const conversionRate = getRate(current.rateToDefault, next.rateToDefault);
 		if (props.amount) {
 			const newAmount = convert(props.amount, conversionRate);
@@ -226,19 +237,21 @@ function AmountInput(props: PropsInterface) {
 					</span>
 				</div>
 			</div>
-			<BottomDialog
-				open={dialog}
-				onClose={() => setDialog(false)}
-				closeOnSwipe={true}
-			>
-				<MobileSelect
-					search={true}
-					options={currencyOptions}
-					label={"Select Currency"}
-					value={currency ? currency._id : ""}
-					onChange={handleCurrencyChange}
-				/>
-			</BottomDialog>
+			{dialog && (
+				<BottomDialog
+					open={dialog}
+					closeOnSwipe={true}
+					onClose={() => setDialog(false)}
+				>
+					<MobileSelect
+						search={true}
+						options={currencyOptions}
+						label={"Select Currency"}
+						value={currency ? currency._id : ""}
+						onChange={handleCurrencyChange}
+					/>
+				</BottomDialog>
+			)}
 		</>
 	);
 }
