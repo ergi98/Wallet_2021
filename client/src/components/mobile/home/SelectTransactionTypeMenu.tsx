@@ -4,13 +4,7 @@ import { useState, MouseEvent } from "react";
 import { Button, ListItemIcon, Menu, MenuItem } from "@mui/material";
 
 // Icons
-import {
-	RiAddFill,
-	RiArrowDownCircleLine,
-	RiArrowLeftRightLine,
-	RiFundsLine,
-	RiRepeat2Line,
-} from "react-icons/ri";
+import { RiAddFill, RiArrowLeftRightLine, RiFundsLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
 interface MenuInterface {

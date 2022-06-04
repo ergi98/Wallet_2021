@@ -1,7 +1,12 @@
 import React, { useMemo } from "react";
 
 // MUI
-import { DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import {
+	Button,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+} from "@mui/material";
 
 // Formik
 import { Formik } from "formik";
@@ -17,6 +22,9 @@ import {
 
 // Hooks
 import useLocalContext from "../../../hooks/useLocalContext";
+
+// Icons
+import { RiCloseLine, RiRestartLine } from "react-icons/ri";
 
 // Utilities
 import { toObject } from "../../../utilities/general-utilities";
@@ -88,8 +96,15 @@ function TransactionForm(props: PropsInterface) {
 
 	return (
 		<BottomDialog open={props.show} onClose={props.onClose} closeOnSwipe={true}>
-			<DialogTitle>
+			<DialogTitle className="flex justify-between">
 				{props.mode === "add" ? "New Transaction" : "Edit Transaction"}
+				<Button
+					size="small"
+					variant="outlined"
+					startIcon={props.mode === "add" ? <RiCloseLine /> : <RiRestartLine />}
+				>
+					{props.mode === "add" ? "Clear" : "Reset"}
+				</Button>
 			</DialogTitle>
 			<DialogContent>
 				<Formik
