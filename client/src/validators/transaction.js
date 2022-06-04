@@ -17,7 +17,7 @@ const newTransactionSchema = (types) =>
 				(number) => {
 					const stringNumber = number.toString();
 					const [, decimal] = stringNumber.split(".");
-					if (!decimal || decimal.length() <= 2) return true;
+					if (!decimal || (decimal && decimal.length <= 2)) return true;
 					else return false;
 				}
 			)

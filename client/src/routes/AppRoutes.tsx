@@ -210,6 +210,7 @@ function AppRoutes() {
 	useEffect(() => {
 		async function necessaryData() {
 			const result = await dispatch(fetchNecessaryData(axios)).unwrap();
+      console.log(result)
 			dispatch(setUser(result.user));
 			dispatch(setBanks(result.banks));
 			dispatch(setSources(result.sources));

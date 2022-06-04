@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 
 // Utilities
-import { roundNumber } from "../../utilities/math-utilities";
+import {
+	formatAmount,
+	roundNumber,
+	separateWithSpaces,
+} from "../../utilities/math-utilities";
 
 // Components
 import ContentLoading from "./ContentLoading";
@@ -39,32 +43,10 @@ function AmountDisplay(props: PropsInterface) {
 
 	useEffect(() => {
 		let stringAmount = roundNumber(props.amount, 2).toString();
-
-		function separateWithSpaces(value: string): string {
-			let initialArray = value.split("");
-			let initialLen = initialArray.length;
-			if (!initialLen) return value;
-
-			let formattedArray = [];
-			let count = -1;
-			for (let i = initialLen - 1; i >= 0; i--) {
-				count++;
-				if (count % 3 === 0) formattedArray.push(" ");
-				formattedArray.push(initialArray[i]);
-			}
-			return formattedArray.reverse().join("").trim();
-		}
-
 		if (stringAmount) {
-			let amountParts = stringAmount.split(".");
-			if (amountParts[0] && amountParts[0].length) {
-				// Adding spaces every 3 digits
-				let completePartSplit = separateWithSpaces(amountParts[0]);
-				setCompletePart(completePartSplit);
-			}
-			if (amountParts[1] && amountParts[1].length) {
-				setDecimalPart(amountParts[1]);
-			} else setDecimalPart("00");
+			let { complete, decimal } = formatAmount(stringAmount);
+			complete && setCompletePart(complete);
+			setDecimalPart(decimal ?? "00");
 		}
 	}, [props.amount]);
 

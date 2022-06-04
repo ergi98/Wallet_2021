@@ -37,14 +37,16 @@ const hashPassword = async (password) => await bcrypt.hash(password, 10);
 
 async function fetchNecessaryUserData(userId) {
 	const banks = getBanksHelper();
-	const currencies = getCurrenciesHelper(userId);
 	const sources = getSourcesHelper(userId);
-	const portfolioTypes = getPortfolioTypesHelper();
+	const currencies = getCurrenciesHelper(userId);
 	const categories = getCategoriesHelper(userId);
 	const portfolios = getPortfoliosHelper(userId);
+	const portfolioTypes = getPortfolioTypesHelper();
 	const transactionTypes = getTransactionTypesHelper();
+	const user = UserSchema.aggregate(getUserAggregation(userId));
 	try {
 		const result = await Promise.all([
+			user,
 			banks,
 			currencies,
 			sources,
@@ -54,13 +56,14 @@ async function fetchNecessaryUserData(userId) {
 			transactionTypes,
 		]);
 		return {
-			banks: result[0],
-			currencies: result[1],
-			sources: result[2],
-			portfolioTypes: result[3],
-			categories: result[4],
-			portfolios: result[5],
-			transactionTypes: result[6],
+			user: result[0][0],
+			banks: result[1],
+			currencies: result[2],
+			sources: result[3],
+			portfolioTypes: result[4],
+			categories: result[5],
+			portfolios: result[6],
+			transactionTypes: result[7],
 		};
 	} catch (err) {
 		console.error(err);
@@ -103,12 +106,6 @@ async function signUp(req, res) {
 			},
 		});
 
-		const updatedUser = await UserSchema.aggregate(
-			getUserAggregation(user._doc._id)
-		);
-
-		if (updatedUser.length !== 1) throw new Error("Server Error.");
-
 		const necessaryData = await fetchNecessaryUserData(user._doc._id);
 
 		res.cookie("refresh", refresh, {
@@ -117,7 +114,7 @@ async function signUp(req, res) {
 			maxAge: 24 * 60 * 60 * 1000,
 		});
 
-		res.status(200).send({ token, ...necessaryData, user: updatedUser[0] });
+		res.status(200).send({ token, ...necessaryData });
 	} catch (err) {
 		console.error(err);
 		res.status(400).send({
@@ -185,12 +182,6 @@ async function logIn(req, res) {
 
 		await UserSchema.findByIdAndUpdate(user._doc._id, updateObject);
 
-		const updatedUser = await UserSchema.aggregate(
-			getUserAggregation(user._doc._id)
-		);
-
-		if (updatedUser.length !== 1) throw new Error("Server Error.");
-
 		const necessaryData = await fetchNecessaryUserData(user._doc._id);
 
 		res.cookie("refresh", refresh, {
@@ -202,7 +193,6 @@ async function logIn(req, res) {
 		res.status(200).send({
 			token,
 			...necessaryData,
-			user: updatedUser[0],
 		});
 	} catch (err) {
 		console.error(err);

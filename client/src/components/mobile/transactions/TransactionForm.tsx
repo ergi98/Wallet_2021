@@ -22,6 +22,7 @@ import useLocalContext from "../../../hooks/useLocalContext";
 import { toObject } from "../../../utilities/general-utilities";
 
 // Components
+import AmountInput from "../../general/AmountInput";
 import BottomDialog from "../../general/BottomDialog";
 import HorizontalSelect from "../../general/HorizontalSelect";
 
@@ -53,26 +54,30 @@ function TransactionForm(props: PropsInterface) {
 		(state) => state.transaction.transactionTypes
 	);
 
-	const [localContext] = useLocalContext("new-transaction", {
+	const defaultCurrency = useAppSelector(
+		(state) => state.user.user?.defaultCurrency
+	);
+
+	const initialState = {
 		to: "",
-		type: transactionTypes[0]._id,
+		type: transactionTypes[0]?._id,
 		date: "",
 		from: "",
 		amount: 0,
 		source: "",
 		category: "",
-		currency: "",
+		currency: defaultCurrency ? defaultCurrency._id : "",
 		portfolio: "",
 		description: "",
 		location: {
 			latitude: 0,
 			longitude: 0,
 		},
-	});
+	};
 
 	const validationSchema = useMemo(() => {
 		const typesObject = toObject(transactionTypes, "type", "_id");
-		props.mode === "add"
+		return props.mode === "add"
 			? newTransactionSchema(typesObject)
 			: editTransactionSchema(typesObject);
 	}, [props.mode, transactionTypes]);
@@ -88,16 +93,31 @@ function TransactionForm(props: PropsInterface) {
 			</DialogTitle>
 			<DialogContent>
 				<Formik
-					initialValues={localContext}
+					initialValues={initialState}
 					validationSchema={validationSchema}
 					onSubmit={(values: FormikValues) => handleSubmit(values)}
 				>
 					{(props) => (
 						<form onSubmit={props.handleSubmit} noValidate>
-							<HorizontalSelect
-								value={props.values.type}
-								options={transactionTypes}
-								select={(value: string) => props.setFieldValue("type", value)}
+							<div className="pb-5">
+								<HorizontalSelect
+									value={props.values.type}
+									options={transactionTypes}
+									select={(value: string) => props.setFieldValue("type", value)}
+								/>
+							</div>
+							<AmountInput
+								amount={props.values.amount}
+								touched={props.touched.amount}
+								currency={props.values.currency}
+								amountError={props.errors.amount}
+								onAmountTouch={() => props.setFieldTouched("amount", true)}
+								onAmountChange={(value: number) =>
+									props.setFieldValue("amount", value, true)
+								}
+								onCurrencyChange={(value: string) =>
+									props.setFieldValue("currency", value, true)
+								}
 							/>
 						</form>
 					)}

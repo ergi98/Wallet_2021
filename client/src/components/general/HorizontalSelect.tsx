@@ -1,6 +1,7 @@
 // MUI
 import styled from "@emotion/styled";
 import { ButtonBase, Divider } from "@mui/material";
+import { color } from "@mui/system";
 import { useState } from "react";
 
 // Interfaces
@@ -14,7 +15,7 @@ interface PropsInterface {
 }
 
 const SelectOption = styled(ButtonBase)(() => ({
-	height: 40,
+	height: "40px",
 	width: "100%",
 	fontSize: ".8rem",
 	letterSpacing: ".5px",
@@ -47,10 +48,27 @@ function HorizontalSelect(props: PropsInterface) {
 			styles.borderRadius = "0 0.375rem 0.375rem 0";
 		}
 		if (index === selected.index) {
-			styles.background = "#2563eb";
+			const bgColor = getBackgroundColor(props.options[selected.index]);
+			styles.backgroundColor = bgColor;
 			styles.color = "rgb(250, 250, 250)";
 		}
 		return styles;
+	}
+
+	function getBackgroundColor(option: TransactionType | PortfolioType) {
+		let color;
+		switch (option.type) {
+			case "earning":
+				color = "#22c55e";
+				break;
+			case "expense":
+				color = "#f87171";
+				break;
+			case "transfer":
+				color = "#6b7280";
+				break;
+		}
+		return color;
 	}
 
 	return (
