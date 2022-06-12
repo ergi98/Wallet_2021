@@ -10,8 +10,9 @@ import rfdc from "rfdc";
 import useRefreshToken from "./useRefreshToken";
 import { useAppSelector } from "../redux_store/hooks";
 
+const clone = rfdc();
+
 const useAxiosPrivate = () => {
-	const clone = rfdc();
 	const refreshToken = useRefreshToken();
 
 	const token = useAppSelector((state) => state.auth.token);

@@ -1,11 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 
 // Utilities
-import {
-	formatAmount,
-	roundNumber,
-	separateWithSpaces,
-} from "../../utilities/math-utilities";
+import { formatAmount, roundNumber } from "../../utilities/math-utilities";
 
 // Components
 import ContentLoading from "./ContentLoading";
@@ -21,33 +17,32 @@ interface PropsInterface {
 }
 
 function AmountDisplay(props: PropsInterface) {
-	const [completePart, setCompletePart] = useState<string>("");
-	const [decimalPart, setDecimalPart] = useState<string>("");
+	const amountRef = useRef<HTMLDivElement>(null);
 
 	const [dimensions, setDimensions] = useState({
-		height: 0,
 		width: 0,
+		height: 0,
 	});
-	const amountRef = useRef<HTMLDivElement>(null);
+	const [decimalPart, setDecimalPart] = useState<string>("");
+	const [completePart, setCompletePart] = useState<string>("");
 
 	useEffect(() => {
 		function storeElementHeight() {
 			if (!amountRef.current) return;
 			setDimensions({
-				height: amountRef.current.clientHeight,
 				width: amountRef.current.clientWidth,
+				height: amountRef.current.clientHeight,
 			});
 		}
-		storeElementHeight();
-	}, [props.amount]);
-
-	useEffect(() => {
-		let stringAmount = roundNumber(props.amount, 2).toString();
-		if (stringAmount) {
+		function formatPropsAmount() {
+			let stringAmount = roundNumber(props.amount, 2).toString();
+			if (!stringAmount) return;
 			let { complete, decimal } = formatAmount(stringAmount);
 			complete && setCompletePart(complete);
 			setDecimalPart(decimal ?? "00");
 		}
+		storeElementHeight();
+		formatPropsAmount();
 	}, [props.amount]);
 
 	return (

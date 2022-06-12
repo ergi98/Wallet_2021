@@ -26,12 +26,13 @@ function ErrorDisplay() {
 				show: Boolean(error),
 				content: error,
 			});
-	}, [error]);
+	}, [error, location.pathname]);
 
 	function clearError(_: any, reason: SnackbarCloseReason) {
 		if (reason === "clickaway") return;
 		handleError && handleError("");
 	}
+
 	return (
 		<Snackbar
 			open={message.show}

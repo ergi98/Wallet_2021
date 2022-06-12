@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 // Interfaces
 import { Transaction } from "../../../interfaces/transactions-interface";
@@ -28,28 +28,10 @@ function TransactionsList(props: PropsInterface) {
 		show: boolean,
 		transaction: Transaction | null
 	) {
-		setDetails({
-			show,
-			transaction,
-		});
+		setDetails({ show, transaction });
 	}
 
-	const closeDialog = () =>
-		setDetails((prev) => {
-			return { ...prev, show: false };
-		});
-
-	useEffect(() => {
-		function resetSelectedTransaction() {
-			setDetails((prev) => {
-				return {
-					...prev,
-					transaction: null,
-				};
-			});
-		}
-		details.show === false && resetSelectedTransaction();
-	}, [details.show]);
+	const closeDialog = () => setDetails({ transaction: null, show: false });
 
 	return (
 		<>

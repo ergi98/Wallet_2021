@@ -19,7 +19,7 @@ function HomeEarnings() {
 	// In case user navigates by going navigating backwards update the current path
 	useEffect(() => {
 		currentPath !== "earnings" && dispatch(setPath("earnings"));
-	}, []);
+	}, [currentPath, dispatch]);
 
 	return (
 		<Home>

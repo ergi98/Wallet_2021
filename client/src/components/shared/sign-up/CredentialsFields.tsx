@@ -1,4 +1,4 @@
-import { ChangeEvent, FocusEvent, useEffect, useState } from "react";
+import { ChangeEvent, FocusEvent, useState } from "react";
 
 // MUI
 import { LoadingButton } from "@mui/lab";
@@ -41,10 +41,6 @@ function CredentialsFields() {
 	const [showRepeatPwd, setShowRepeatPwd] = useState<boolean>(false);
 
 	const [repeatPwdTouched, setRepeatPwdTouched] = useState<boolean>(false);
-
-	useEffect(() => {
-		checkForRepeatPwdErrors();
-	}, [formik.values.password]);
 
 	const navigateBack = () => navigate("/sign-up/personal-info");
 	const toggleShowPassword = () => setShowPassword((prev) => !prev);

@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react";
-
 // Recharts
 import { ResponsiveContainer, AreaChart, Area, Tooltip, XAxis } from "recharts";
 
@@ -36,47 +34,36 @@ const CustomTooltip = (props: TooltipProps) => {
 };
 
 function SparkLine(props: PropsInterface) {
-	const [showChart, setShowChart] = useState<boolean>(true);
-
-	useEffect(() => {
-		const checkIfShouldRenderChart = (data: Array<any>) =>
-			setShowChart(data.length !== 0);
-		checkIfShouldRenderChart(props.data);
-	}, [props.data]);
-
+	if (props.data.length === 0) return null;
 	return (
-		<>
-			{showChart ? (
-				<div className="p-3">
-					<ResponsiveContainer width="100%" height={128}>
-						<AreaChart data={props.data}>
-							<Tooltip content={<CustomTooltip />} />
-							<XAxis
-								axisLine={false}
-								tickLine={false}
-								dataKey={props.labelKey ?? "label"}
-								tick={{ fill: "white", fontSize: 12, strokeWidth: 0 }}
-							/>
-							<Area
-								dot={true}
-								fillOpacity={1}
-								activeDot={{ fill: "#3b82f6" }}
-								dataKey={props.valueKey ?? "value"}
-								type="monotone"
-								stroke="#fafafa"
-								fill="url(#gradient)"
-							/>
-							<defs>
-								<linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
-									<stop offset="5%" stopColor="#fafafa" stopOpacity={0.8} />
-									<stop offset="95%" stopColor="#fafafa" stopOpacity={0} />
-								</linearGradient>
-							</defs>
-						</AreaChart>
-					</ResponsiveContainer>
-				</div>
-			) : null}
-		</>
+		<div className="p-3">
+			<ResponsiveContainer width="100%" height={128}>
+				<AreaChart data={props.data}>
+					<Tooltip content={<CustomTooltip />} />
+					<XAxis
+						axisLine={false}
+						tickLine={false}
+						dataKey={props.labelKey ?? "label"}
+						tick={{ fill: "white", fontSize: 12, strokeWidth: 0 }}
+					/>
+					<Area
+						dot={true}
+						fillOpacity={1}
+						activeDot={{ fill: "#3b82f6" }}
+						dataKey={props.valueKey ?? "value"}
+						type="monotone"
+						stroke="#fafafa"
+						fill="url(#gradient)"
+					/>
+					<defs>
+						<linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
+							<stop offset="5%" stopColor="#fafafa" stopOpacity={0.8} />
+							<stop offset="95%" stopColor="#fafafa" stopOpacity={0} />
+						</linearGradient>
+					</defs>
+				</AreaChart>
+			</ResponsiveContainer>
+		</div>
 	);
 }
 

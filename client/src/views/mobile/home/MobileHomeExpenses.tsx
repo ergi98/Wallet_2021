@@ -21,7 +21,7 @@ function HomeExpenses() {
 	// In case user navigates by going navigating backwards update the current path
 	useEffect(() => {
 		currentPath !== "expenses" && dispatch(setPath("expenses"));
-	}, []);
+	}, [currentPath, dispatch]);
 
 	return (
 		<Home>

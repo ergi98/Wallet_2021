@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState, ReactNode } from "react";
 
 // MUI
 import Paper from "@mui/material/Paper";
@@ -22,80 +22,71 @@ import {
 // Router
 import { useLocation, useNavigate } from "react-router-dom";
 
-function AppNavigation() {
-	const [activePath, setActivePath] = useState<Number>(2);
+interface NavigationItem {
+	key: string;
+	path: string;
+	icon: ReactNode;
+	activeIcon?: ReactNode;
+}
 
+const navigationItems: Array<NavigationItem> = [
+	{
+		key: "settings",
+		path: "/settings",
+		icon: <RiSettings4Line />,
+		activeIcon: <RiSettings4Fill />,
+	},
+	{
+		key: "portfolios",
+		path: "/portfolios",
+		icon: <RiWalletLine />,
+		activeIcon: <RiWalletFill />,
+	},
+	{
+		key: "home",
+		path: "/home/expenses",
+		icon: <RiHome2Line />,
+		activeIcon: <RiHome2Fill />,
+	},
+	{
+		key: "analysis",
+		path: "/analysis",
+		icon: <RiPieChartLine />,
+		activeIcon: <RiPieChart2Fill />,
+	},
+	{
+		key: "profile",
+		icon: (
+			<Avatar
+				alt="Ergi Dervishaj"
+				src="/static/images/avatar/1.jpg"
+				sx={{ width: 22, height: 22, fontSize: "12px" }}
+			/>
+		),
+		path: "/profile",
+	},
+];
+
+function AppNavigation() {
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
 
-	const navigationItems = useMemo(
-		() => [
-			{
-				key: "settings",
-				icon: (
-					<SvgIcon className={`${activePath !== 0 && "scale-75"}`}>
-						{activePath === 0 ? <RiSettings4Fill /> : <RiSettings4Line />}
-					</SvgIcon>
-				),
-				path: "/settings",
-			},
-			{
-				key: "portfolios",
-				icon: (
-					<SvgIcon className={`${activePath !== 1 && "scale-75"}`}>
-						{activePath === 1 ? <RiWalletFill /> : <RiWalletLine />}
-					</SvgIcon>
-				),
-				path: "/portfolios",
-			},
-			{
-				key: "home",
-				icon: (
-					<SvgIcon className={`${activePath !== 2 && "scale-75"}`}>
-						{activePath === 2 ? <RiHome2Fill /> : <RiHome2Line />}
-					</SvgIcon>
-				),
-				path: "/home/expenses",
-			},
-			{
-				key: "analysis",
-				icon: (
-					<SvgIcon className={`${activePath !== 3 && "scale-75"}`}>
-						{activePath === 3 ? <RiPieChart2Fill /> : <RiPieChartLine />}
-					</SvgIcon>
-				),
-				path: "/analysis",
-			},
-			{
-				key: "profile",
-				icon: (
-					<Avatar
-						alt="Ergi Dervishaj"
-						src="/static/images/avatar/1.jpg"
-						sx={{ width: 22, height: 22, fontSize: "12px" }}
-					/>
-				),
-				path: "/profile",
-			},
-		],
-		[activePath]
+	const [activePath, setActivePath] = useState<Number>(() =>
+		selectCurrentRoute()
 	);
 
-	function handleUserNavigation(event: any, value: number) {
+	function handleUserNavigation(_: any, value: number) {
 		if (pathname === navigationItems[value].path) return;
 		setActivePath(value);
 		navigate(`${navigationItems[value].path}`);
 	}
 
-	useEffect(() => {
-		function selectCurrentRoute() {
-			let routeIndex = navigationItems.findIndex(
-				(route) => route.path === pathname
-			);
-			if (routeIndex !== -1) setActivePath(routeIndex);
-		}
-		selectCurrentRoute();
-	}, []);
+	function selectCurrentRoute() {
+		let routeIndex = navigationItems.findIndex(
+			(route) => route.path === pathname
+		);
+		return routeIndex === -1 ? 0 : routeIndex;
+	}
 
 	return (
 		<Paper
@@ -110,8 +101,19 @@ function AppNavigation() {
 				sx={{ padding: 0 }}
 				onChange={handleUserNavigation}
 			>
-				{navigationItems.map((item) => (
-					<BottomNavigationAction icon={item.icon} key={item.key} />
+				{navigationItems.map((item, index) => (
+					<BottomNavigationAction
+						icon={
+							item.activeIcon ? (
+								<SvgIcon className={`${activePath !== index && "scale-75"}`}>
+									{activePath === index ? item.activeIcon : item.icon}
+								</SvgIcon>
+							) : (
+								item.icon
+							)
+						}
+						key={item.key}
+					/>
 				))}
 			</BottomNavigation>
 		</Paper>

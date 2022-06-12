@@ -16,6 +16,7 @@ import {
 	setFetchedDate,
 } from "../../../features/home/home-slice";
 import { useAppDispatch, useAppSelector } from "../../../redux_store/hooks";
+import { fetchTransactions } from "../../../features/transactions/transaction-slice";
 
 // Date
 import { isToday } from "date-fns";
@@ -24,11 +25,8 @@ import { formatDate } from "../../../utilities/date-utilities";
 // Components
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import useLocalContext from "../../../hooks/useLocalContext";
-import TransactionsList from "../transactions/TransactionsList";
-
-// Redux
-import { fetchTransactions } from "../../../features/transactions/transaction-slice";
 import TransactionForm from "../transactions/TransactionForm";
+import TransactionsList from "../transactions/TransactionsList";
 
 interface PropsInterface {
 	children: ReactNode;
@@ -42,16 +40,16 @@ interface HomeCTX {
 function Home(props: PropsInterface) {
 	const axios = useAxiosPrivate();
 	const dispatch = useAppDispatch();
-	const date = useAppSelector((state) => state.home.date);
-	const path = useAppSelector((state) => state.home.path);
+
 	const transactions = useAppSelector(
 		(state) => state.transaction.transactions
 	);
+	const date = useAppSelector((state) => state.home.date);
+	const path = useAppSelector((state) => state.home.path);
+	const fetchedDate = useAppSelector((state) => state.home.fetchedDate);
 
 	const [showDialog, setShowDialog] = useState(false);
-
 	const [fetchedFromContext, setFetchedFromContext] = useState(false);
-	const fetchedDate = useAppSelector((state) => state.home.fetchedDate);
 
 	const [localContext, persistContext] = useLocalContext<HomeCTX>("home", {
 		date,
@@ -72,7 +70,7 @@ function Home(props: PropsInterface) {
 	useEffect(() => {
 		localContext.date !== date && dispatch(setDate(localContext.date));
 		setFetchedFromContext(true);
-	}, []);
+	}, [localContext.date, date, dispatch]);
 
 	useEffect(() => {
 		if (fetchedDate !== date && fetchedFromContext) {
@@ -93,7 +91,15 @@ function Home(props: PropsInterface) {
 			);
 			persistContext("home", { date, path });
 		}
-	}, [date, fetchedFromContext]);
+	}, [
+		date,
+		path,
+		axios,
+		fetchedDate,
+		fetchedFromContext,
+		dispatch,
+		persistContext,
+	]);
 
 	return (
 		<>

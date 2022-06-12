@@ -20,9 +20,6 @@ import {
 	newTransactionSchema,
 } from "../../../validators/transaction";
 
-// Hooks
-import useLocalContext from "../../../hooks/useLocalContext";
-
 // Icons
 import { RiCloseLine, RiRestartLine } from "react-icons/ri";
 
@@ -33,6 +30,7 @@ import { toObject } from "../../../utilities/general-utilities";
 import AmountInput from "../../general/AmountInput";
 import BottomDialog from "../../general/BottomDialog";
 import HorizontalSelect from "../../general/HorizontalSelect";
+import CustomDatePicker from "../../general/CustomDatePicker";
 
 interface PropsInterface {
 	show: boolean;
@@ -43,7 +41,7 @@ interface PropsInterface {
 interface FormikValues {
 	to: string;
 	type: string;
-	date: string;
+	date: string | null;
 	from: string;
 	amount: number;
 	source: string;
@@ -62,6 +60,8 @@ function TransactionForm(props: PropsInterface) {
 		(state) => state.transaction.transactionTypes
 	);
 
+	const typesObject = toObject(transactionTypes, "type", "_id");
+
 	const defaultCurrency = useAppSelector(
 		(state) => state.user.user?.defaultCurrency
 	);
@@ -69,7 +69,7 @@ function TransactionForm(props: PropsInterface) {
 	const initialState = {
 		to: "",
 		type: transactionTypes[0]?._id,
-		date: "",
+		date: null,
 		from: "",
 		amount: 0,
 		source: "",
@@ -84,11 +84,10 @@ function TransactionForm(props: PropsInterface) {
 	};
 
 	const validationSchema = useMemo(() => {
-		const typesObject = toObject(transactionTypes, "type", "_id");
 		return props.mode === "add"
 			? newTransactionSchema(typesObject)
 			: editTransactionSchema(typesObject);
-	}, [props.mode, transactionTypes]);
+	}, [props.mode, typesObject]);
 
 	function handleSubmit(values: FormikValues) {
 		console.log("Hey");
@@ -114,26 +113,31 @@ function TransactionForm(props: PropsInterface) {
 				>
 					{(props) => (
 						<form onSubmit={props.handleSubmit} noValidate>
-							<div className="pb-5">
+							<div className="pb-7">
 								<HorizontalSelect
 									value={props.values.type}
 									options={transactionTypes}
 									select={(value: string) => props.setFieldValue("type", value)}
 								/>
 							</div>
-							<AmountInput
-								amount={props.values.amount}
-								touched={props.touched.amount}
-								currency={props.values.currency}
-								amountError={props.errors.amount}
-								onAmountTouch={() => props.setFieldTouched("amount", true)}
-								onAmountChange={(value: number) =>
-									props.setFieldValue("amount", value, true)
-								}
-								onCurrencyChange={(value: string) =>
-									props.setFieldValue("currency", value, true)
-								}
-							/>
+							<div className="pb-3">
+								<AmountInput
+									amount={props.values.amount}
+									touched={props.touched.amount}
+									currency={props.values.currency}
+									amountError={props.errors.amount}
+									onAmountTouch={() => props.setFieldTouched("amount", true)}
+									onAmountChange={(value: number) =>
+										props.setFieldValue("amount", value, true)
+									}
+									onCurrencyChange={(value: string) =>
+										props.setFieldValue("currency", value, true)
+									}
+								/>
+							</div>
+							{[typesObject["expense"], typesObject["earning"]].includes(
+								props.values.type
+							) && <CustomDatePicker fieldName="date" label="Date" />}
 						</form>
 					)}
 				</Formik>

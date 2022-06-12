@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect } from "react";
+import React, { useLayoutEffect } from "react";
 
 // MUI
 import Container from "@mui/material/Container";
@@ -70,6 +70,7 @@ function App() {
 		}
 
 		setGlobalVh();
+
 		return () => {
 			window.removeEventListener("resize", setGlobalVh);
 			window.removeEventListener("orientationchange", setGlobalVh);

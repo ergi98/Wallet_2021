@@ -1,8 +1,8 @@
+import { useState } from "react";
+
 // MUI
 import styled from "@emotion/styled";
 import { ButtonBase, Divider } from "@mui/material";
-import { color } from "@mui/system";
-import { useState } from "react";
 
 // Interfaces
 import { PortfolioType } from "../../interfaces/portfolios-interface";

@@ -18,9 +18,6 @@ import { Transaction } from "../../../interfaces/transactions-interface";
 // Utilities
 import { formatDate } from "../../../utilities/date-utilities";
 
-// Navigation
-import { useNavigate } from "react-router-dom";
-
 // Components
 import Map from "../../general/Map";
 import BottomDialog from "../../general/BottomDialog";
@@ -34,8 +31,6 @@ interface PropsInterface {
 }
 
 function TransactionDetailsDialog(props: PropsInterface) {
-	const navigate = useNavigate();
-
 	const [showConfirm, setShowConfirm] = useState(false);
 
 	const TransactionSourceOrCategory = useMemo(() => {
@@ -175,10 +170,7 @@ function TransactionDetailsDialog(props: PropsInterface) {
 					</Grid>
 				</DialogContent>
 				<DialogActions>
-					<IconButton
-						onClick={() => toggleConfirmDelete(true)}
-						size="large"
-					>
+					<IconButton onClick={() => toggleConfirmDelete(true)} size="large">
 						<Delete />
 					</IconButton>
 					<Button

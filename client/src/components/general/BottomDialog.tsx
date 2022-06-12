@@ -1,12 +1,4 @@
-import {
-	LegacyRef,
-	ReactNode,
-	TouchEvent,
-	useEffect,
-	useLayoutEffect,
-	useRef,
-	useState,
-} from "react";
+import { ReactNode, TouchEvent, useEffect, useRef, useState } from "react";
 
 // MUI
 import { Dialog } from "@mui/material";
@@ -30,13 +22,12 @@ function BottomDialog(props: PropsInterface) {
 
 	useEffect(() => {
 		function initialSetup() {
-			if (dialogPaper.current) {
-				let paperHeight = dialogPaper.current.clientHeight;
-				setDialogHeight(paperHeight);
-			}
+			if (!dialogPaper.current) return;
+			let paperHeight = dialogPaper.current.clientHeight;
+			setDialogHeight(paperHeight);
 		}
 		initialSetup();
-	}, [dialogPaper.current]);
+	}, []);
 
 	let bottomPosition: number = 0;
 	let userTouchYPosition: number = 0;

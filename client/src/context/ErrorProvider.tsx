@@ -1,10 +1,4 @@
-import {
-	useState,
-	Dispatch,
-	ReactChild,
-	createContext,
-	SetStateAction,
-} from "react";
+import { useState, ReactChild, createContext } from "react";
 
 interface ContextInterface {
 	error: string;

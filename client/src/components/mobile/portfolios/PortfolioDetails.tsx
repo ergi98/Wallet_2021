@@ -64,13 +64,12 @@ const portfolios: Array<PortfolioDetailsInterface> = [
 ];
 
 function PortfolioDetails(props: PropsInterface) {
-	const [details, setDetails] = useState<PortfolioDetailsInterface>();
-
-	useEffect(() => {
+	const [details] = useState<PortfolioDetailsInterface | undefined>(() => {
 		let portfolio = portfolios.find((portfolio) => portfolio._id === props.id);
-		setDetails(portfolio);
-	}, [props.id]);
+		return portfolio;
+	});
 
+	if (!details) return <div>No portfolio selected</div>;
 	return (
 		<div className="pb-6">
 			{details ? (

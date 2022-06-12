@@ -28,22 +28,19 @@ interface PropsInterface {
 function CustomSelect({ fieldName, label, options, required }: PropsInterface) {
 	const formik: any = useFormikContext();
 
-	const [selectOptions] = useState<Array<any>>(() => options || []);
 	const [showSelect, setShowSelect] = useState<boolean>(false);
-
-	const toggleShowSelect = (value: boolean) => setShowSelect(value);
+	const [selectOptions] = useState<Array<any>>(() => options || []);
 
 	const handleFocus = () => isMobile && setShowSelect(true);
 
-	useEffect(() => {
-		function removeFocusOnClose(show: boolean) {
-			if (!show) {
-				let activeElement = document.activeElement as HTMLElement;
-				activeElement.blur();
-			}
-		}
-		removeFocusOnClose(showSelect);
-	}, [showSelect]);
+	function toggleShowSelect(value: boolean) {
+		setShowSelect(value);
+		if (value) return;
+		requestAnimationFrame(() => {
+			let activeElement = document.activeElement as HTMLElement;
+			activeElement.blur();
+		});
+	}
 
 	function handleMobileChange(value: Array<string> | string) {
 		formik.setFieldValue(fieldName, value);

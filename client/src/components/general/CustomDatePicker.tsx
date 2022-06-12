@@ -39,19 +39,16 @@ function CustomDatePicker({ fieldName, label, required }: PropsInterface) {
 		closeDatePicker && toggleDatePicker(false);
 	}
 
-	const toggleDatePicker = (value: boolean) => {
-		isMobile && setShowDatePicker(value);
-	};
-
-	useEffect(() => {
-		function removeFocusOnClose(show: boolean) {
-			if (!show) {
+	function toggleDatePicker(value: boolean) {
+		if (!isMobile) return;
+		setShowDatePicker(value);
+		// If closing reset the active element
+		if (value === false)
+			requestAnimationFrame(() => {
 				let activeElement = document.activeElement as HTMLElement;
 				activeElement.blur();
-			}
-		}
-		removeFocusOnClose(showDatePicker);
-	}, [showDatePicker]);
+			});
+	}
 
 	return (
 		<>

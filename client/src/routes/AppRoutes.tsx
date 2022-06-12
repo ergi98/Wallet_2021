@@ -10,8 +10,8 @@ import { AnimatePresence } from "framer-motion";
 import { isMobile } from "../utilities/mobile-utilities";
 
 // Hooks
-import useRefreshToken from "../hooks/useRefreshToken";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import useRefreshToken from "../hooks/useRefreshToken";
 
 // Redux
 import { useAppDispatch, useAppSelector } from "../redux_store/hooks";
@@ -192,25 +192,33 @@ function AppRoutes() {
 	const fetched = useAppSelector((state) => state.general.fetched);
 	const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
-	const [checkingToken, setCheckingToken] = useState<boolean>(true);
-
 	const showMobileNavigation = useMemo(
 		() => isAuthenticated && isMobile,
 		[isAuthenticated]
 	);
 
-	useEffect(() => {
-		async function fetchToken() {
-			await refreshToken();
-			setCheckingToken(false);
-		}
-		!token ? fetchToken() : setCheckingToken(false);
-	}, []);
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		async function necessaryData() {
+		function addEventListener() {
+			window.addEventListener("load", getRefreshedToken);
+		}
+		addEventListener();
+		return () => {
+			window.removeEventListener("load", getRefreshedToken);
+		};
+	}, []);
+
+	async function getRefreshedToken() {
+		if (token) return setLoading(false);
+		await refreshToken();
+		setLoading(false);
+	}
+
+	useEffect(() => {
+		async function fetchAppData() {
+			if (fetched || !token) return;
 			const result = await dispatch(fetchNecessaryData(axios)).unwrap();
-      console.log(result)
 			dispatch(setUser(result.user));
 			dispatch(setBanks(result.banks));
 			dispatch(setSources(result.sources));
@@ -220,69 +228,64 @@ function AppRoutes() {
 			dispatch(setPortfolioTypes(result.portfolioTypes));
 			dispatch(setTransactionTypes(result.transactionTypes));
 		}
-		if (token && !fetched) necessaryData();
-	}, [fetched, token]);
+		fetchAppData();
+	}, [token, fetched, axios, dispatch]);
+
+	if (loading) return <PageLoading />;
 
 	return (
-		<>
-			{/* Condition to check wether the initial setup has finished */}
-			{checkingToken === false ? (
-				<Suspense fallback={<PageLoading />}>
-					<AnimatePresence exitBeforeEnter>
-						<Routes key={location.pathname} location={location}>
-							{appRoutes.map((route) =>
-								route.private ? (
-									<Route
-										key={route.path}
-										path={route.path}
-										index={route.index}
-										element={
-											<ProtectedRoute authenticated={isAuthenticated}>
-												{route.element}
-											</ProtectedRoute>
-										}
-									>
-										{route.children
-											? route.children.map((child) => (
-													<Route
-														key={child.path}
-														path={child.path}
-														element={child.element}
-													/>
-											  ))
-											: null}
-									</Route>
-								) : (
-									<Route
-										key={route.path}
-										path={route.path}
-										index={route.index}
-										element={
-											<PublicRoute authenticated={isAuthenticated}>
-												{route.element}
-											</PublicRoute>
-										}
-									>
-										{route.children
-											? route.children.map((child) => (
-													<Route
-														key={child.path}
-														path={child.path}
-														element={child.element}
-													/>
-											  ))
-											: null}
-									</Route>
-								)
-							)}
-						</Routes>
-					</AnimatePresence>
-					{showMobileNavigation ? <AppNavigation /> : null}
-				</Suspense>
-			) : (
-				<PageLoading />
-			)}
-		</>
+		<Suspense fallback={<PageLoading />}>
+			<AnimatePresence exitBeforeEnter>
+				<Routes key={location.pathname} location={location}>
+					{appRoutes.map((route) =>
+						route.private ? (
+							<Route
+								key={route.path}
+								path={route.path}
+								index={route.index}
+								element={
+									<ProtectedRoute authenticated={isAuthenticated}>
+										{route.element}
+									</ProtectedRoute>
+								}
+							>
+								{route.children
+									? route.children.map((child) => (
+											<Route
+												key={child.path}
+												path={child.path}
+												element={child.element}
+											/>
+									  ))
+									: null}
+							</Route>
+						) : (
+							<Route
+								key={route.path}
+								path={route.path}
+								index={route.index}
+								element={
+									<PublicRoute authenticated={isAuthenticated}>
+										{route.element}
+									</PublicRoute>
+								}
+							>
+								{route.children
+									? route.children.map((child) => (
+											<Route
+												key={child.path}
+												path={child.path}
+												element={child.element}
+											/>
+									  ))
+									: null}
+							</Route>
+						)
+					)}
+				</Routes>
+			</AnimatePresence>
+			{showMobileNavigation ? <AppNavigation /> : null}
+		</Suspense>
 	);
 }
 
